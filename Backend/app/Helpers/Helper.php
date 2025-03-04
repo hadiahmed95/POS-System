@@ -3,12 +3,27 @@ use Illuminate\Database\Eloquent\Model;
 // use App\Models;
 
 if (!function_exists('setApiResponse')) {
-    function setApiResponse($status = "error", $message = "No data found!", $code = 200, $data = []) {
+    function setApiResponse($status = 0, $message = "No data found!", $code = 200, $data = []) {
         return response()->json([
             "status" => $status == 0 ? "error" : "success",
             "message" => $message,
             "data" => $data
         ], $code);
+    }
+}
+
+if (!function_exists('getSingleRecord')) {
+    function getSingleRecord(string $model, array $filter_data = [], array $with = []) {
+        $record = $model::select('*');
+        foreach( $filter_data as $filter ) {
+            $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
+        }
+        if( !empty($with) ) {
+            $record = $record->with($with);
+        }
+        $record = $record -> first;
+        $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
+        return $response;
     }
 }
 
@@ -36,7 +51,8 @@ if (!function_exists('getRecord')) {
      * @return Model
 */
 if (!function_exists('addRecord')) {
-    function addRecord($model, array $data) {
+    function addRecord($modelClass, array $data) {
+        $model = new $modelClass;
         $response_data = $model->create($data);
         return setApiResponse(1, "Record added successfully!", 200, $response_data);
     }

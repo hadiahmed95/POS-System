@@ -21,7 +21,7 @@ Route::middleware('api')->group(function () {
         });
 
         Route::prefix('add')->group(function () {
-
+            Route::post("/users", [UserController::class, "add"]);
         });
 
         Route::prefix('edit')->group(function () {

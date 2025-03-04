@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
+    protected $fillable = [
+        'branch_id',
+        'role_id',
+        'name', 
+        'email', 
+        'password',
+    ];
+    
     public function branch() {
         return $this->hasOne(Branch::class, 'id', 'branch_id');
     }
