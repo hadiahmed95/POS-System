@@ -36,7 +36,8 @@ if (!function_exists('getRecord')) {
      * @return Model
 */
 if (!function_exists('addRecord')) {
-    function addRecord($model, array $data) {
+    function addRecord($model_class, array $data) {
+        $model = new $model_class;
         $response_data = $model->create($data);
         return setApiResponse(1, "Record added successfully!", 200, $response_data);
     }
@@ -51,10 +52,8 @@ if (!function_exists('addRecord')) {
      * @return bool
  */
 if (!function_exists('updateRecord')) {
-    function updateRecord($model, int $id, array $data) {
-        $response_data = $model->create($data);
-        return setApiResponse(1, "Record added successfully!", 200, $response_data);
-
+    function updateRecord($model_class, int $id, array $data) {
+        $model = new $model_class;
         $record = $model->find($id);
         if ($record) {
             $response_data = $record->update($data);
@@ -72,7 +71,8 @@ if (!function_exists('updateRecord')) {
      * @return bool|null
  */
 if (!function_exists('deleteRecord')) {
-    function deleteRecord($model, int $id) {
+    function deleteRecord($model_class, int $id) {
+        $model = new $model_class;
         $record = $model->find($id);
         if ($record) {
             $record->delete();
