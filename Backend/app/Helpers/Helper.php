@@ -3,7 +3,7 @@ use Illuminate\Database\Eloquent\Model;
 // use App\Models;
 
 if (!function_exists('setApiResponse')) {
-    function setApiResponse($status = "error", $message = "No data found!", $code = 200, $data = []) {
+    function setApiResponse($status = 0, $message = "No data found!", $code = 200, $data = []) {
         return response()->json([
             "status" => $status == 0 ? "error" : "success",
             "message" => $message,
@@ -13,7 +13,7 @@ if (!function_exists('setApiResponse')) {
 }
 
 if (!function_exists('getRecord')) {
-    function getRecord(string $model, array $filter_data = [], array $with = []) {
+    function getRecord(string $model, array $filter_data = [], array $with = [], $paginate = true, $records_per_page = 20) {
         $record = $model::select('*');
         foreach( $filter_data as $filter ) {
             $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
@@ -21,8 +21,8 @@ if (!function_exists('getRecord')) {
         if( !empty($with) ) {
             $record = $record->with($with);
         }
-        $record = $record -> paginate(20);
-        $record->page_links = $record->links();
+        $record = ($paginate) ? $record -> paginate($records_per_page) : $record -> get();
+        $record->page_links = ($paginate) ? $record->links() : [];
         $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
         return $response;
     }
@@ -57,7 +57,7 @@ if (!function_exists('updateRecord')) {
         $record = $model->find($id);
         if ($record) {
             $response_data = $record->update($data);
-            return setApiResponse(1, "Record updated successfully!", 200, $response_data);
+            return setApiResponse(1, "Record updated successfully!", 200, $data);
         }
         return setApiResponse(0, "Something went wrong. Please try again!", 400);
     }
@@ -76,8 +76,8 @@ if (!function_exists('deleteRecord')) {
         $record = $model->find($id);
         if ($record) {
             $record->delete();
-            setApiResponse(1, "Record deleted successfully!", 200);
+            return setApiResponse(1, "Record deleted successfully!", 200);
         }
-        setApiResponse(0, "Something went wrong. Please try again!", 400);
+        return setApiResponse(0, "Something went wrong. Please try again!", 400);
     }
 }
