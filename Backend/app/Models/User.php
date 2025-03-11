@@ -7,8 +7,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Model
 {
+<<<<<<< HEAD
     use SoftDeletes;
     protected $fillable = [];
+=======
+    protected $fillable = [
+        'branch_id',
+        'role_id',
+        'name', 
+        'email', 
+        'password',
+    ];
+>>>>>>> feature/ha_users_crud_api
     
     public function branch() {
         return $this->hasOne(Branch::class, 'id', 'branch_id');

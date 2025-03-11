@@ -12,6 +12,21 @@ if (!function_exists('setApiResponse')) {
     }
 }
 
+if (!function_exists('getSingleRecord')) {
+    function getSingleRecord(string $model, array $filter_data = [], array $with = []) {
+        $record = $model::select('*');
+        foreach( $filter_data as $filter ) {
+            $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
+        }
+        if( !empty($with) ) {
+            $record = $record->with($with);
+        }
+        $record = $record -> first;
+        $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
+        return $response;
+    }
+}
+
 if (!function_exists('getRecord')) {
     function getRecord(string $model, array $filter_data = [], array $with = [], $paginate = true, $records_per_page = 20) {
         $record = $model::select('*');
