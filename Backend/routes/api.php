@@ -26,11 +26,8 @@ Route::middleware('api')->group(function () {
         });
 
         Route::prefix('add')->group(function () {
-<<<<<<< HEAD
             Route::post("/roles", [RolesPermissionController::class, "addRole"]);
-=======
             Route::post("/users", [UserController::class, "add"]);
->>>>>>> feature/ha_users_crud_api
         });
 
         Route::prefix('edit')->group(function () {
