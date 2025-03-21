@@ -23,8 +23,12 @@ return new class extends Migration
             $table->foreign('sub_cat_id')->references('id')->on('sub_categories');
             $table->unsignedBigInteger('added_by');
             $table->foreign('added_by')->references('id')->on('users');
+            $table->text('image')->nullable();
             $table->string('name');
             $table->string('barcode');
+            $table->string('sku')->nullable();
+            $table->string('description')->nullable();
+            $table->float('purchase_price')->default(0);
             $table->float('price');
             $table->integer('box_quantity');
             $table->string('box_barcode')->nullable();

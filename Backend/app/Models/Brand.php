@@ -8,5 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Brand extends Model
 {
     use SoftDeletes;
-    protected $fillable = [];
+    protected $fillable = [
+        "brand_name"
+    ];
 }

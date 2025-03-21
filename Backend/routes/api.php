@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BranchController;
+use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\RolesPermissionController;
 use App\Http\Controllers\Api\UserController;
 
@@ -25,22 +26,26 @@ Route::middleware('check.connections')->group(function() {
                 Route::get("/permissions", [RolesPermissionController::class, "viewPermissions"]);
                 Route::get("/user-permissions", [RolesPermissionController::class, "viewUserPermissions"]);
                 Route::get("/branches", [BranchController::class, "view"]);
+                Route::get("/brands", [BrandController::class, "view"]);
             });
     
             Route::prefix('add')->group(function () {
                 Route::post("/roles", [RolesPermissionController::class, "addRole"]);
                 Route::post("/users", [UserController::class, "add"]);
                 Route::post("/branches", [BranchController::class, "add"]);
+                Route::post("/brands", [BrandController::class, "add"]);
             });
     
             Route::prefix('edit')->group(function () {
                 Route::post("/roles", [RolesPermissionController::class, "updateRole"]);
                 Route::post("/branches", [BranchController::class, "update"]);
+                Route::post("/brands", [BrandController::class, "update"]);
             });
     
             Route::prefix('delete')->group(function () {
                 Route::post("/roles", [RolesPermissionController::class, "deleteRole"]);
                 Route::post("/branches", [BranchController::class, "delete"]);
+                Route::post("/brands", [BrandController::class, "delete"]);
             });
         });
     });
