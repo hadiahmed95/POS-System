@@ -1,6 +1,30 @@
 <?php
 use Illuminate\Database\Eloquent\Model;
-// use App\Models;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+
+if (!function_exists('checkInternetConnection')) {
+    function checkInternetConnection() {
+        try {
+            $response = Http::get('https://www.google.com');
+            return true;
+        }
+        catch (\Exception $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('checkDatabaseConnection')) {
+    function checkDatabaseConnection() {
+        try {
+            DB::connection()->getPdo();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}
 
 if (!function_exists('setApiResponse')) {
     function setApiResponse($status = 0, $message = "No data found!", $code = 200, $data = []) {
@@ -71,10 +95,15 @@ if (!function_exists('updateRecord')) {
         $model = new $model_class;
         $record = $model->find($id);
         if ($record) {
-            $response_data = $record->update($data);
-            return setApiResponse(1, "Record updated successfully!", 200, $data);
+            try {
+                $record->update($data);
+                return setApiResponse(1, "Record updated successfully!", 200, $data);
+            }
+            catch (\Exception $e) {
+                return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);
+            }
         }
-        return setApiResponse(0, "Something went wrong. Please try again!", 400);
+        return setApiResponse(0, "No record found!", 400);
     }
 }
 
@@ -90,9 +119,14 @@ if (!function_exists('deleteRecord')) {
         $model = new $model_class;
         $record = $model->find($id);
         if ($record) {
-            $record->delete();
-            return setApiResponse(1, "Record deleted successfully!", 200);
+            try {
+                $record->delete();
+                return setApiResponse(1, "Record deleted successfully!", 200);
+            }
+            catch (\Exception $e) {
+                return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);
+            }
         }
-        return setApiResponse(0, "Something went wrong. Please try again!", 400);
+        return setApiResponse(0, "No record found or the record had already deleted!", 400);
     }
 }

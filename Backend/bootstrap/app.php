@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckConnections;
 use App\Http\Middleware\CheckToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'check.token' => CheckToken::class
+            'check.token' => CheckToken::class,
+            'check.connections' => CheckConnections::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

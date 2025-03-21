@@ -24,7 +24,7 @@ class AuthController extends Controller
             }
             else {
                 if( !Hash::check($request->password, $user->password) ) {
-                    $response = setApiResponse(0, "Invalid credentials!", 403);
+                    $response = setApiResponse(0, "Incorrect Password!", 403);
                 }
                 else {
                     $token = Hash::make($request->email . $request->password);
