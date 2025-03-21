@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\RolesPermissionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UnitController;
+use App\Http\Controllers\Api\VendorController;
 
 Route::middleware('check.connections')->group(function() {
     Route::get('/user', function (Request $request) {
@@ -29,6 +30,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::get("/branches", [BranchController::class, "view"]);
                 Route::get("/brands", [BrandController::class, "view"]);
                 Route::get("/units", [UnitController::class, "view"]);
+                Route::get("/vendors", [VendorController::class, "view"]);
             });
     
             Route::prefix('add')->group(function () {
@@ -37,6 +39,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/branches", [BranchController::class, "add"]);
                 Route::post("/brands", [BrandController::class, "add"]);
                 Route::post("/units", [UnitController::class, "add"]);
+                Route::post("/vendors", [VendorController::class, "add"]);
             });
     
             Route::prefix('edit')->group(function () {
@@ -44,6 +47,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/branches", [BranchController::class, "update"]);
                 Route::post("/brands", [BrandController::class, "update"]);
                 Route::post("/units", [UnitController::class, "update"]);
+                Route::post("/vendors", [VendorController::class, "update"]);
             });
     
             Route::prefix('delete')->group(function () {
@@ -51,6 +55,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/branches", [BranchController::class, "delete"]);
                 Route::post("/brands", [BrandController::class, "delete"]);
                 Route::post("/units", [UnitController::class, "delete"]);
+                Route::post("/vendors", [VendorController::class, "delete"]);
             });
         });
     });
