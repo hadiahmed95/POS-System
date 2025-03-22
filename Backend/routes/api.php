@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\RolesPermissionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UnitController;
@@ -31,6 +32,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::get("/brands", [BrandController::class, "view"]);
                 Route::get("/units", [UnitController::class, "view"]);
                 Route::get("/vendors", [VendorController::class, "view"]);
+                Route::get("/categories/{id?}", [CategoryController::class, "view"]);
             });
     
             Route::prefix('add')->group(function () {
@@ -40,6 +42,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/brands", [BrandController::class, "add"]);
                 Route::post("/units", [UnitController::class, "add"]);
                 Route::post("/vendors", [VendorController::class, "add"]);
+                Route::post("/categories", [CategoryController::class, "add"]);
             });
     
             Route::prefix('edit')->group(function () {
@@ -48,6 +51,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/brands", [BrandController::class, "update"]);
                 Route::post("/units", [UnitController::class, "update"]);
                 Route::post("/vendors", [VendorController::class, "update"]);
+                Route::post("/categories", [CategoryController::class, "update"]);
             });
     
             Route::prefix('delete')->group(function () {
@@ -56,6 +60,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/brands", [BrandController::class, "delete"]);
                 Route::post("/units", [UnitController::class, "delete"]);
                 Route::post("/vendors", [VendorController::class, "delete"]);
+                Route::post("/categories", [CategoryController::class, "delete"]);
             });
         });
     });

@@ -45,7 +45,10 @@ if (!function_exists('getSingleRecord')) {
         if( !empty($with) ) {
             $record = $record->with($with);
         }
-        $record = $record -> first;
+        $record = $record -> first();
+        if( !$record ) {
+            return setApiResponse(0, "No record found!", 400);
+        }
         $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
         return $response;
     }
