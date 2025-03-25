@@ -1,8 +1,11 @@
 'use client'
 
-import { LinkButton, LiteButton } from '@/components/button'
+import { DarkButton, LinkButton } from '@/components/button'
+import { BouncingCircle } from '@/components/svg'
+import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
+import { SquarePen, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
@@ -10,33 +13,47 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 const Users = () => {
 
   const [branchesList, setBranchesList] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const delRecord = () => {
-        confirmAlert({
-            title: 'Confirm Delete',
-            message: 'Are you sure to delete this record.',
-            buttons: [{
-            label: 'Yes',
-            onClick: () => alert('Click Yes')
-            },
-            {
-            label: 'No',
-            onClick: () => {}
-            }]
-        });
-    };
+  const delRecord = (id: number) => {
+    confirmAlert({
+      title: 'Confirm Delete',
+      message: 'Are you sure to delete this record.',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            fetch(`${BASE_URL}/api/branches/delete`, {
+              method: "POST",
+              body: JSON.stringify({ id })
+            }).then(async response => {
+              console.log('del response', response)
+              toastCustom.error('Branch deleted successfully.')
+              setBranchesList(branchesList.filter(branch => branch.id !== id))
+            })
+          }
+        },
+        {
+          label: 'No',
+          onClick: () => { }
+        }
+      ]
+    });
+  };
 
 
   useEffect(() => {
     const load = async () => {
-      fetch(`${BASE_URL}/api/branches/view`, {
+      setIsLoading(true)
+      await fetch(`${BASE_URL}/api/branches/view`, {
         method: "POST"
       }).then(async response => {
         const res = await response.json()
-        if(res.data.data) {
-            setBranchesList(res.data.data)
+        if (res.data.data) {
+          setBranchesList(res.data.data)
         }
       })
+      setIsLoading(false)
     }
     load()
 
@@ -66,17 +83,30 @@ const Users = () => {
           </thead>
           <tbody>
             {
+              isLoading ?
+                <tr>
+                  <td colSpan={5}>
+                    <div className={'text-center w-full my-10'}>
+                    <BouncingCircle className='mx-auto' />
+                    </div>
+                  </td>
+                </tr>
+              :
               branchesList.map((branch, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4">{index+1}</td>
+                  <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">{branch.branch_name}</td>
                   <td className="px-6 py-4">{branch.branch_address}</td>
                   <td className="px-6 py-4">{branch.branch_phone}</td>
-                  <td className="px-6 py-4">
-                    <LinkButton href={routes.branches+'/edit/'+branch.id} className='mr-2' >Edit</LinkButton>
-                    <LiteButton className={'!text-red-500 bg-red-100'}
-                        onClick={() => delRecord()}
-                    >Del</LiteButton>
+                  <td className="px-6 py-4 flex items-center">
+                    <LinkButton href={routes.branches + '/edit/' + branch.id} className='mr-2 inline-block w-max' >
+                      <SquarePen />
+                    </LinkButton>
+                    <DarkButton variant='danger'
+                      onClick={() => delRecord(branch.id)}
+                    >
+                      <Trash2 className={'w-5'} />
+                    </DarkButton>
                   </td>
                 </tr>
               ))

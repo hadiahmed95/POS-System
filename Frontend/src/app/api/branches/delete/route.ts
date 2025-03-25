@@ -4,7 +4,8 @@ import BackendAxios from "@/config/axios"
 export async function POST(request: Request) {
 
     const token = await getSession('auth_token')
-    const res = await BackendAxios.get('view/branches', {
+    const body = await request.json()
+    const res = await BackendAxios.post('delete/branches', body, {
         headers: {
             "Authorization": `Bearer ${token}`
         }

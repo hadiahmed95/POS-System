@@ -1,17 +1,18 @@
 import { getSession } from "@/app/lib/session"
 import BackendAxios from "@/config/axios"
 
-export async function POST(request: Request) {
-
+export async function POST(req: Request) {
     const token = await getSession('auth_token')
-    const res = await BackendAxios.get('view/branches', {
+    const body = await req.json()
+    const res = await BackendAxios.post('edit/branches', body, {
         headers: {
             "Authorization": `Bearer ${token}`
         }
     })
     .then(async (response) => response.data)
     .catch(e => {
-        return e.response.data
+        console.log('error', e)
+        return e.response
     })
     return Response.json(res)
 }

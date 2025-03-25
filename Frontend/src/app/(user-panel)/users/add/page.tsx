@@ -2,12 +2,12 @@
 
 import { DarkButton } from '@/components/button'
 import { TextField } from '@/components/Fields';
+import { toastCustom } from '@/components/toastCustom';
 import { BASE_URL } from '@/config/constants';
 import { routes } from '@/config/routes';
 import { useRouter } from 'next/navigation';
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify';
 
 interface UserInterface {
     name: string
@@ -38,7 +38,7 @@ const AddUser = () => {
         console.log('res', res)
         if(res.status === 200)
         {
-            toast.success('User added successfully.')
+            toastCustom.success('User added successfully.')
             router.push(routes.users)
         }
     }
