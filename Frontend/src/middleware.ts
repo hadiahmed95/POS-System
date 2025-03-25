@@ -11,9 +11,9 @@ export function middleware(request: NextRequest) {
     return userPanelMiddleware(request)
   }
 
-//   if(pathname.startsWith('/auth')) {
-//     return AuthMiddleware(request)
-//   }
+  // if(pathname.startsWith('/auth')) {
+  //   return AuthMiddleware(request)
+  // }
 
   // Continue with the request
   return NextResponse.next();

@@ -39,6 +39,9 @@ const LoginForm = () => {
             }
             setLoading(false)
         }).catch(e => {
+            toast.error(e.message, {
+                hideProgressBar: true
+            });
             setLoading(false)
         })
     }

@@ -1,4 +1,6 @@
 export const routes = {
     login: '/',
-    dahsboard: '/dashboard'
+    dahsboard: '/dashboard',
+    users: '/users',
+    branches: '/branches'
 }
