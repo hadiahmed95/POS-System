@@ -1,6 +1,11 @@
 'use client';
 
 import { DarkButton } from '@/components/button'
+import { TextField } from '@/components/Fields';
+import { toastCustom } from '@/components/toastCustom';
+import { BASE_URL } from '@/config/constants';
+import { routes } from '@/config/routes';
+import { useRouter } from 'next/navigation';
 import React from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -18,13 +23,24 @@ const AddUser = () => {
         email: '',
         password: '',
     }
+    const router = useRouter()
 
     const { register, handleSubmit, formState: { errors } } = useForm<UserInterface>({
         defaultValues: initialValues
     })
 
-    const submit = (data: UserInterface) => {
+    const submit = async (data: UserInterface) => {
         console.log('data', data)
+        const res = await fetch(`${BASE_URL}/api/users/add`, {
+            method: "POST",
+            body: JSON.stringify(data)
+        }).then(response => response.json())
+        console.log('res', res)
+        if(res.status === 200)
+        {
+            toastCustom.success('User added successfully.')
+            router.push(routes.users)
+        }
     }
 
     return (
@@ -33,34 +49,32 @@ const AddUser = () => {
                 <h2 className={'text-xl font-semibold'}>{'Add Users'}</h2>
 
             </div>
-            <div className={'mt-5 p-5 bg-white'}>
+            <div className={'mt-5 p-5 bg-white shadow rounded'}>
                 <form className={'grid grid-cols-2 gap-5'}
                     onSubmit={handleSubmit(submit)}
                 >
                     <div>
                         <label htmlFor="" className={'block mb-1'}>Name</label>
-                        <input 
-                            type="text" 
-                            className={`bg-gray-50 border outline-none px-4 py-2 w-full rounded ${errors.name ? 'border-red-500' : 'border-gray-50'}`}
+                        <TextField 
+                            type="text"
                             placeholder={'Name'}
+                            className={errors.name ? 'border-red-500' : 'border-gray-50'}
                             { ...register('name', { required: {
                                 value: true,
                                 message: "Name is required"
                             } }) }
                         />
-                        {
-                            errors.name && (
-                                <small className={'text-red-700'}>{errors.name.message}</small>
-                            )
-                        }
+                        { errors.name && (
+                            <small className={'text-red-700'}>{errors.name.message}</small>
+                        ) }
                     </div>
 
                     <div>
-                        <label htmlFor="" className={'block mb-1'}>Phone</label>
-                        <input 
-                            type="tel" 
-                            className={`bg-gray-50 border outline-none px-4 py-2 w-full rounded ${errors.phone ? 'border-red-500' : 'border-gray-50'}`}
-                            placeholder={'Phone'}
+                        <label htmlFor="" className={'block mb-1'}>Phone No.</label>
+                        <TextField 
+                            type="text"
+                            placeholder={'Phone No.'}
+                            className={errors.phone ? 'border-red-500' : 'border-gray-50'}
                             { ...register('phone', { required: {
                                 value: true,
                                 message: "Phone is required"
@@ -75,10 +89,10 @@ const AddUser = () => {
 
                     <div>
                         <label htmlFor="" className={'block mb-1'}>Email</label>
-                        <input 
-                            type="email" 
-                            className={`bg-gray-50 border outline-none px-4 py-2 w-full rounded ${errors.email ? 'border-red-500' : 'border-gray-50'}`}
+                        <TextField 
+                            type="email"
                             placeholder={'Email'}
+                            className={errors.email ? 'border-red-500' : 'border-gray-50'}
                             { ...register('email', { required: {
                                 value: true,
                                 message: "Email is required"
@@ -93,14 +107,14 @@ const AddUser = () => {
 
                     <div>
                         <label htmlFor="" className={'block mb-1'}>Password</label>
-                        <input 
+                        <TextField 
                             type="password" 
-                            className={`bg-gray-50 border outline-none px-4 py-2 w-full rounded ${errors.password ? 'border-red-500' : 'border-gray-50'}`}
+                            className={errors.password ? 'border-red-500' : 'border-gray-50'}
                             placeholder={'Password'}
                             { ...register('password', { required: {
                                 value: true,
                                 message: "Password is required"
-                            } }) }
+                            }, minLength: { value: 8, message: "Password length will be minimum 8." } }) }
                         />
                         {
                             errors.password && (

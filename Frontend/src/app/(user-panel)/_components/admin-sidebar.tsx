@@ -15,6 +15,11 @@ const AdminSidebar = () => {
             url: '/dashboard'
         },
         {
+            icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
+            title: 'Branches',
+            url: '/branches'
+        },
+        {
             icon: <Users size={20} strokeWidth={1.5} />,
             title: 'Users Management',
             children: [

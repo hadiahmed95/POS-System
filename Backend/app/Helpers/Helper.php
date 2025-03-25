@@ -70,6 +70,21 @@ if (!function_exists('getRecord')) {
     }
 }
 
+if (!function_exists('getSingleRecord')) {
+    function getSingleRecord(string $model, array $filter_data = [], array $with = []) {
+        $record = $model::select('*');
+        foreach( $filter_data as $filter ) {
+            $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
+        }
+        if( !empty($with) ) {
+            $record = $record->with($with);
+        }
+        $record = $record->first();
+        $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
+        return $response;
+    }
+}
+
 /**
      * Add a new record to the database.
      *

@@ -7,6 +7,15 @@ interface IrouteList {
     url?: string
 }
 
+interface IBranch {
+    id?: string
+    branch_name: string
+    branch_address: string
+    branch_description: string
+    branch_phone: string
+}
+
 export type {
-    IrouteList
+    IrouteList,
+    IBranch
 }

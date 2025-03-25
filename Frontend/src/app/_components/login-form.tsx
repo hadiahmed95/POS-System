@@ -1,12 +1,12 @@
 'use client'
 
+import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
 import { IloginForm } from '@/config/types'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 
 const LoginForm = () => {
 
@@ -29,9 +29,7 @@ const LoginForm = () => {
         }).then(async response => {
             const res = await response.json()
             if(res.status === "error") {
-                toast.error(res.message, {
-                    hideProgressBar: true
-                })
+                toastCustom.error(res.message)
             }
             if(res.status === "success")
             {
@@ -39,6 +37,7 @@ const LoginForm = () => {
             }
             setLoading(false)
         }).catch(e => {
+            toastCustom.error(e.message);
             setLoading(false)
         })
     }

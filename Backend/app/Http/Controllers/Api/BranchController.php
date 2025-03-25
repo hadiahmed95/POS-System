@@ -21,6 +21,16 @@ class BranchController extends Controller
         return addRecord(Branch::class, $request->all());
     }
 
+    public function singleRecord(Request $request) {
+        if( !$request->has("id") ) {
+            return setApiResponse(0, "Please provide branch id", 400);
+        }
+        $filters = [
+            ['column' => 'id', 'condition' => '=', 'value' => $request->id]
+        ];
+        return getSingleRecord(Branch::class, $filters);
+    }
+
     public function update(Request $request) {
         $errors = [];
         if( !$request->has("id") ) {

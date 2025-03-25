@@ -44,7 +44,11 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/vendors", [VendorController::class, "add"]);
                 Route::post("/categories", [CategoryController::class, "add"]);
             });
-    
+            
+            Route::prefix('record')->group(function () {
+                Route::post("/branches", [BranchController::class, 'singleRecord']);
+            });
+
             Route::prefix('edit')->group(function () {
                 Route::post("/roles", [RolesPermissionController::class, "updateRole"]);
                 Route::post("/branches", [BranchController::class, "update"]);
