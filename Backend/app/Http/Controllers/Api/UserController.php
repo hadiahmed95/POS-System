@@ -50,4 +50,8 @@ class UserController extends Controller
     public function delete(Request $request) {
         return deleteRecord(User::class, $request->id);
     }
+
+    public function getUserByToken(Request $request) {
+        return get_user_by_token($request->token);
+    }
 }

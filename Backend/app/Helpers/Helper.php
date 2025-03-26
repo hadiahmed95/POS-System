@@ -1,7 +1,10 @@
 <?php
+
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use App\Models\UserHasRole;
 
 if (!function_exists('checkInternetConnection')) {
     function checkInternetConnection() {
@@ -33,6 +36,26 @@ if (!function_exists('setApiResponse')) {
             "message" => $message,
             "data" => $data
         ], $code);
+    }
+}
+
+if (!function_exists('getPermissions')) {
+    function getPermissions($user_id) {
+        $filters = [
+            [
+                "column" => "user_id",
+                "condition" => "=",
+                "value" => $user_id
+            ]
+        ];
+        $relationships = ["module", "permission"];
+        $permissions = [];
+        $get_permissions = getRecord(UserHasRole::class, $filters, $relationships, false);
+        $decoded_data = json_decode($get_permissions->getContent(), true)['data'];
+        foreach($decoded_data as $data) {
+            $permissions[$data["module"]["module_slug"]][$data["permission"]["permission_slug"]] = $data["is_allowed"];
+        }
+        return setApiResponse(1, "Record fetched successfully", 200, $permissions);
     }
 }
 
@@ -146,5 +169,15 @@ if (!function_exists('deleteRecord')) {
             }
         }
         return setApiResponse(0, "No record found or the record had already deleted!", 400);
+    }
+}
+
+if (!function_exists('get_user_by_token')) {
+    function get_user_by_token($token) {
+        $user = User::where("token", $token)->first();
+        if (!$user) {
+            return setApiResponse(0, "Invalid token!", 400);
+        }
+        return setApiResponse(1, "Record fetched successfully", 200, $user);
     }
 }
