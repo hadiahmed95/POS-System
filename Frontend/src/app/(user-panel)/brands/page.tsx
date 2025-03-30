@@ -1,11 +1,10 @@
 'use client'
 
-import { DarkButton, LinkButton, LiteButton } from '@/components/button'
+import { DarkButton, LiteButton } from '@/components/button'
 import { BouncingCircle } from '@/components/svg'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
-import { routes } from '@/config/routes'
-import { PenBoxIcon, PenIcon, SquarePen, Trash2 } from 'lucide-react'
+import { PenIcon, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
@@ -30,8 +29,7 @@ const Users = () => {
             fetch(`${BASE_URL}/api/brands/delete`, {
               method: "POST",
               body: JSON.stringify({ id })
-            }).then(async response => {
-              console.log('del response', response)
+            }).then(_ => {
               toastCustom.error('Brand deleted successfully.')
               setList(list.filter(li => Number(li.id) !== id))
             })
@@ -69,11 +67,11 @@ const Users = () => {
       <div className={`flex justify-between`}>
         <h2 className={'text-xl font-semibold'}>{'Brands'}</h2>
 
-        <LiteButton
+        <DarkButton
         onClick={(e) => {
           setShowForm(true)
         }}
-        >{'Add Brand'}</LiteButton>
+        >{'Add Brand'}</DarkButton>
       </div>
 
       <AddBrand 

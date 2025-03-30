@@ -5,7 +5,7 @@ import { BouncingCircle } from '@/components/svg'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
-import { SquarePen, Trash2 } from 'lucide-react'
+import { PenIcon, SquarePen, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
@@ -100,11 +100,12 @@ const Users = () => {
                   <td className="px-6 py-4">{branch.branch_address}</td>
                   <td className="px-6 py-4">{branch.branch_phone}</td>
                   <td className="px-6 py-4 flex items-center">
-                    <LinkButton href={routes.branches + '/edit/' + branch.id} className='mr-2 inline-block w-max' >
-                      <SquarePen />
+                    <LinkButton href={routes.branches + '/edit/' + branch.id} className='mr-2 inline-block w-max rounded-full' >
+                      <PenIcon className={'p-1'} />
                     </LinkButton>
                     <DarkButton variant='danger'
                       onClick={() => delRecord(branch.id)}
+                      className={'rounded-full'}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>
