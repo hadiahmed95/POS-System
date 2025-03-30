@@ -30,7 +30,7 @@ const DarkButton = ({
         className={`px-3 py-1 rounded transition-all duration-200 flex items-center disabled:bg-gray-200 disabled:text-black ${getVariantClasses()} ${className}`}
         {...props}
     >
-        {children}
+        <span> {children} </span>
         {
           loading && 
           <RingCircle className={'w-5 h-5 ml-2'} />

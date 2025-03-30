@@ -1,18 +1,21 @@
 'use client'
 
-import { DarkButton, LinkButton } from '@/components/button'
+import { DarkButton, LiteButton } from '@/components/button'
 import { BouncingCircle } from '@/components/svg'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
-import { routes } from '@/config/routes'
-import { PenIcon, SquarePen, Trash2 } from 'lucide-react'
+import { PenIcon, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import AddBrand from './_components/add-branch'
+import { IBrand } from '../type'
 
 const Users = () => {
 
-  const [branchesList, setBranchesList] = useState<any[]>([])
+  const [list, setList] = useState<IBrand[]>([])
+  const [showForm, setShowForm] = useState(false)
+  const [brand, setBrand] = useState<IBrand | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const delRecord = (id: number) => {
@@ -23,13 +26,12 @@ const Users = () => {
         {
           label: 'Yes',
           onClick: () => {
-            fetch(`${BASE_URL}/api/branches/delete`, {
+            fetch(`${BASE_URL}/api/brands/delete`, {
               method: "POST",
               body: JSON.stringify({ id })
-            }).then(async response => {
-              console.log('del response', response)
-              toastCustom.error('Branch deleted successfully.')
-              setBranchesList(branchesList.filter(branch => branch.id !== id))
+            }).then(_ => {
+              toastCustom.error('Brand deleted successfully.')
+              setList(list.filter(li => Number(li.id) !== id))
             })
           }
         },
@@ -41,35 +43,45 @@ const Users = () => {
     });
   };
 
+  const load = async () => {
+    setIsLoading(true)
+    await fetch(`${BASE_URL}/api/brands/view`, {
+      method: "POST"
+    }).then(async response => {
+      const res = await response.json()
+      console.log('res', res)
+      if (res?.data?.data) {
+        setList(res.data.data)
+      }
+    })
+    setIsLoading(false)
+  }
+
 
   useEffect(() => {
-    const load = async () => {
-      setIsLoading(true)
-      await fetch(`${BASE_URL}/api/branches/view`, {
-        method: "POST"
-      }).then(async response => {
-        const res = await response.json()
-        console.log('res', res)
-        if (res?.data?.data) {
-          setBranchesList(res.data.data)
-        }
-      })
-      setIsLoading(false)
-    }
     load()
-
-    return () => {
-      load()
-    }
   }, [])
 
   return (
     <div>
       <div className={`flex justify-between`}>
-        <h2 className={'text-xl font-semibold'}>{'Branches'}</h2>
+        <h2 className={'text-xl font-semibold'}>{'Brands'}</h2>
 
-        <LinkButton href='/branches/add'>{'Add Branches'}</LinkButton>
+        <DarkButton
+        onClick={(e) => {
+          setShowForm(true)
+        }}
+        >{'Add Brand'}</DarkButton>
       </div>
+
+      <AddBrand 
+        show={showForm} 
+        setShow={setShowForm}
+        brand={brand}
+        onSubmit={() => {
+          load()
+        }}
+      />
 
       <div className={'relative overflow-x-auto mt-5'}>
         <table className={'w-full text-sm text-left rtl:text-right text-gray-500'}>
@@ -77,8 +89,6 @@ const Users = () => {
             <tr>
               <th scope="col" className="px-6 py-3">Sr #</th>
               <th scope="col" className="px-6 py-3">Name</th>
-              <th scope="col" className="px-6 py-3">Address</th>
-              <th scope="col" className="px-6 py-3">Phone No</th>
               <th scope="col" className="px-6 py-3">Action</th>
             </tr>
           </thead>
@@ -93,19 +103,20 @@ const Users = () => {
                   </td>
                 </tr>
               :
-              branchesList.map((branch, index) => (
+              list.map((brand, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4">{index + 1}</td>
-                  <td className="px-6 py-4">{branch.branch_name}</td>
-                  <td className="px-6 py-4">{branch.branch_address}</td>
-                  <td className="px-6 py-4">{branch.branch_phone}</td>
+                  <td className="px-6 py-4">{brand.brand_name}</td>
                   <td className="px-6 py-4 flex items-center">
-                    <LinkButton href={routes.branches + '/edit/' + branch.id} className='mr-2 inline-block w-max rounded-full' >
-                      <PenIcon className={'p-1'} />
-                    </LinkButton>
+                    <LiteButton 
+                      className='mr-2 inline-block w-max bg-white shadow !p-[5px]'
+                      onClick={(e) => setBrand(brand)}
+                    >
+                      <PenIcon className='p-1' />
+                    </LiteButton>
                     <DarkButton variant='danger'
-                      onClick={() => delRecord(branch.id)}
-                      className={'rounded-full'}
+                      className={'!p-[5px]'}
+                      onClick={() => delRecord(Number(brand.id ?? 0))}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>

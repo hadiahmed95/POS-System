@@ -2,70 +2,17 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, Users, Boxes, ScanLine, UsersRound, Banknote, ClipboardList, Cog, ArrowRight, ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { IrouteList } from '../type'
+import { routeList } from './route-list'
 
 const AdminSidebar = () => {
-
-    const routeList: IrouteList[] = [
-        {
-            active: true,
-            icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
-            title: 'Dashboard',
-            url: '/dashboard'
-        },
-        {
-            icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
-            title: 'Branches',
-            url: '/branches'
-        },
-        {
-            icon: <Users size={20} strokeWidth={1.5} />,
-            title: 'Users Management',
-            children: [
-                {
-                    icon: null,
-                    title: 'Users',
-                    url: '/users'
-                },
-                {
-                    icon: null,
-                    title: 'Role Management',
-                    url: '/user-roles'
-                }
-            ]
-        },
-        {
-            icon: <Boxes size={20} strokeWidth={1.5} />,
-            title: 'Items'
-        },
-        {
-            icon: <ScanLine size={20} strokeWidth={1.5} />,
-            title: 'Purchases'
-        },
-        {
-            icon: <UsersRound size={20} strokeWidth={1.5} />,
-            title: 'Customers'
-        },
-        {
-            icon: <Banknote size={20} strokeWidth={1.5} />,
-            title: 'Sell'
-        },
-        {
-            icon: <ClipboardList size={20} strokeWidth={1.5} />,
-            title: 'Reports'
-        },
-        {
-            icon: <Cog size={20} strokeWidth={1.5} />,
-            title: 'Settings'
-        }
-    ]
 
   return (
     <div className={`bg-white h-screen w-full max-w-[250px] shadow-lg`}>
         <div>
-            <h2 className={'text-xl text-center leading-[50px]'}>Admin Logo</h2>
-            <div>
+            <h2 className={'text-xl text-center h-[55px] leading-[50px] border-b border-gray-100'}>Admin Logo</h2>
+            <div className='h-max overflow-auto' style={{height: 'calc(100vh - 55px)'}}>
                 <ul className={'py-8'}>
                     {
                         routeList.map((route, index) => 

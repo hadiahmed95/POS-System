@@ -5,6 +5,7 @@ interface IrouteList {
     active?: boolean;
     children?: IrouteList[] | undefined;
     url?: string
+    slug?: string
 }
 
 interface IBranch {
@@ -15,7 +16,13 @@ interface IBranch {
     branch_phone: string
 }
 
+interface IBrand {
+    id?: string
+    brand_name: string
+}
+
 export type {
     IrouteList,
-    IBranch
+    IBranch,
+    IBrand
 }

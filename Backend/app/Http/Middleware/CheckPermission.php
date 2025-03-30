@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,8 +16,10 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user_id = $request->attributes->get('user')->id;
-        $get_permissions = getPermissions($user_id);
+        $token = $request->bearerToken();
+        $user = User::where('token', $token)->first();
+
+        $get_permissions = getPermissions($user->id);
         $full_url = $request->fullUrl();
         $url_array = explode("/", $full_url);
         $permission_name = $url_array[4];

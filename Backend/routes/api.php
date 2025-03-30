@@ -22,14 +22,18 @@ Route::middleware('check.connections')->group(function() {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/logout', [AuthController::class, 'logout']);
     
-        Route::middleware(['check.token', 'check.permission'])->group(function () {
+        Route::middleware('check.token')->group(function () {
+            Route::get("/user-permissions/{id?}", [RolesPermissionController::class, "viewUserPermissions"]);
+
+            Route::middleware('check.permission')->group(function () {
+                
             Route::prefix('view')->group(function () {
                 Route::get("/users/{id?}", [UserController::class, "view"]);
                 Route::post("/users/get-user-by-token", [UserController::class, "getUserByToken"]);
                 Route::get("/roles/{id?}", [RolesPermissionController::class, "viewRole"]);
                 Route::get("/modules/{id?}", [RolesPermissionController::class, "viewModules"]);
                 Route::get("/permissions/{id?}", [RolesPermissionController::class, "viewPermissions"]);
-                Route::get("/user-permissions/{id?}", [RolesPermissionController::class, "viewUserPermissions"]);
+                
                 Route::get("/branches/{id?}", [BranchController::class, "view"]);
                 Route::get("/brands/{id?}", [BrandController::class, "view"]);
                 Route::get("/units/{id?}", [UnitController::class, "view"]);
@@ -81,6 +85,7 @@ Route::middleware('check.connections')->group(function() {
                 Route::post("/vendors", [VendorController::class, "restore"]);
                 Route::post("/categories", [CategoryController::class, "restore"]);
                 Route::post("/tables", [TableController::class, "restore"]);
+            });
             });
         });
     });
