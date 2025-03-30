@@ -30,12 +30,11 @@ const AddUser = () => {
     })
 
     const submit = async (data: UserInterface) => {
-        console.log('data', data)
         const res = await fetch(`${BASE_URL}/api/users/add`, {
             method: "POST",
             body: JSON.stringify(data)
         }).then(response => response.json())
-        console.log('res', res)
+
         if(res.status === 200)
         {
             toastCustom.success('User added successfully.')

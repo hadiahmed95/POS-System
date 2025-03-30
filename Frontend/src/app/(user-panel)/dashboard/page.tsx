@@ -6,7 +6,6 @@ const Dashboard = async () => {
   return (
     <div>
         <h2 className={'text-xl font-semibold'}>Analytical Statistics</h2>
-
         <div className={`grid grid-cols-4 gap-5 mt-4`}>
             <div className={'p-5 bg-white shadow-lg rounded-lg'}>
                 <p>Sells</p>
