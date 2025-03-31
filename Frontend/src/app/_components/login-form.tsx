@@ -1,5 +1,6 @@
 'use client'
 
+import { DarkButton } from '@/components/button'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
@@ -35,7 +36,6 @@ const LoginForm = () => {
             {
                 router.push(routes.dahsboard)
             }
-            setLoading(false)
         }).catch(e => {
             toastCustom.error(e.message);
             setLoading(false)
@@ -100,13 +100,14 @@ const LoginForm = () => {
                             <span className="ml-2">Remember Me</span>
                         </label>
                     </div>
-                    <button 
+                    <DarkButton 
                         type="submit"
-                        className="rounded-lg bg-violet-600 hover:bg-violet-500 active:bg-violet-700 text-white h-11 px-8 py-2 w-full disabled:bg-gray-500" 
+                        loading={loading}
                         disabled={loading}
+                        className={'w-full'}
                     >
                         {'Sign In'}
-                    </button>
+                    </DarkButton>
                 </div>
             </form>
         </div>
