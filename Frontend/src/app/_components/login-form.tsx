@@ -1,6 +1,7 @@
 'use client'
 
 import { DarkButton } from '@/components/button'
+import { TextField } from '@/components/Fields'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
@@ -58,8 +59,8 @@ const LoginForm = () => {
                     <div className="mb-4">
                         <label className="form-label">User Name</label>
                         <div className="mt-2">
-                            <input
-                                className={`p-2 w-full border rounded-lg focus:ring-violet-600 focus-within:ring-violet-600 focus-within:border-violet-600 focus:border-violet-600 ${errors.email && 'border-red-500'}`}
+                            <TextField
+                                className={`${errors.email && 'border-red-500'}`}
                                 placeholder="Email"
                                 type="email"
                                 {...register("email", { 
@@ -77,8 +78,8 @@ const LoginForm = () => {
                     <div className="mb-4">
                         <label className="form-label">Password</label>
                         <div className="mt-2">
-                            <input
-                                className={`p-2 w-full border rounded-lg focus:ring-violet-600 focus-within:ring-violet-600 focus-within:border-violet-600 focus:border-violet-600 ${errors.password && 'border-red-500'}`}
+                            <TextField
+                                className={`${errors.password && 'border-red-500'}`}
                                 placeholder="Password"
                                 type="password"
                                 style={{ paddingRight: '2.25rem' }}

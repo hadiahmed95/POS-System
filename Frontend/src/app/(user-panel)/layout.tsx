@@ -28,13 +28,12 @@ const DashboardLayout = async ({
 
     return (
         userData ? (
-
             <ReduxProvider
                 preloadedState={{
                     user: { user: userData, permissions: permissionData }
                 }}
             >
-            <div className={'flex bg-[rgba(245,243,255,0.3)]'}>
+            <div className={'flex bg-gray-50'}>
                 <AdminSidebar />
                 <div className='w-full'>
                     <AdminHeader />

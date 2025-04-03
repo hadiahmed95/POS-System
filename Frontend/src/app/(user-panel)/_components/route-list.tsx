@@ -11,12 +11,6 @@ const routeList: IrouteList[] = [
         url: routes.dahsboard
     },
     {
-        icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
-        title: 'Branches',
-        url: routes.branches,
-        slug: 'branches'
-    },
-    {
         icon: <Users size={20} strokeWidth={1.5} />,
         title: 'Users Management',
         children: [
@@ -33,6 +27,12 @@ const routeList: IrouteList[] = [
                 slug: 'roles-permissions'
             }
         ]
+    },
+    {
+        icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
+        title: 'Branches',
+        url: routes.branches,
+        slug: 'branches'
     },
     {
         icon: <Boxes size={20} strokeWidth={1.5} />,
