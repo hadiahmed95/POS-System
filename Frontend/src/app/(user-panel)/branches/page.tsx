@@ -1,18 +1,19 @@
 'use client'
 
 import { DarkButton, LinkButton } from '@/components/button'
-import { BouncingCircle } from '@/components/svg'
+import TrippleRoundCircleLoader from '@/components/loaders/tripple-round-circle-loader'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
 import { PenIcon, SquarePen, Trash2 } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const Users = () => {
 
-  const [branchesList, setBranchesList] = useState<any[]>([])
+  const hasFetched = useRef(false)
+  const [branchesList, setList] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const delRecord = (id: number) => {
@@ -29,7 +30,7 @@ const Users = () => {
             }).then(async response => {
               console.log('del response', response)
               toastCustom.error('Branch deleted successfully.')
-              setBranchesList(branchesList.filter(branch => branch.id !== id))
+              setList(branchesList.filter(branch => branch.id !== id))
             })
           }
         },
@@ -41,27 +42,34 @@ const Users = () => {
     });
   };
 
+  const load = useCallback( async () => {
+  
+    if (hasFetched.current) return
 
-  useEffect(() => {
-    const load = async () => {
-      setIsLoading(true)
-      await fetch(`${BASE_URL}/api/branches/view`, {
+    hasFetched.current = true;
+    setIsLoading(true)
+    try {
+      const res = await fetch(`${BASE_URL}/api/branches/view`, {
         method: "POST"
-      }).then(async response => {
-        const res = await response.json()
-        console.log('res', res)
-        if (res?.data?.data) {
-          setBranchesList(res.data.data)
-        }
-      })
-      setIsLoading(false)
-    }
-    load()
+      }).then(async response => response.json())
 
-    return () => {
-      load()
+      if (res?.data?.data) {
+        setList(res.data.data)
+      }
+      setIsLoading(false)
+    } 
+    catch (error) {
+      console.error("Error fetching data:", error);
+    } 
+    finally {
+      setIsLoading(false);
     }
   }, [])
+
+
+  useEffect(() => {
+    load()
+  }, [load])
 
   return (
     <div>
@@ -88,7 +96,7 @@ const Users = () => {
                 <tr>
                   <td colSpan={5}>
                     <div className={'text-center w-full my-10'}>
-                    <BouncingCircle className='mx-auto' />
+                      <TrippleRoundCircleLoader />
                     </div>
                   </td>
                 </tr>

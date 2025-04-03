@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Boxes, ScanLine, UsersRound, Banknote, ClipboardList, Cog } from "lucide-react"
+import { LayoutDashboard, Users, Boxes, ScanLine, UsersRound, Banknote, ClipboardList, Cog, Bandage, ContactRound, Layers2, Layers, Grid2x2Plus, Sheet, Package } from "lucide-react"
 import { IrouteList } from "../type"
 import { routes } from "@/config/routes"
 
@@ -35,7 +35,7 @@ const routeList: IrouteList[] = [
         slug: 'branches'
     },
     {
-        icon: <Boxes size={20} strokeWidth={1.5} />,
+        icon: <Bandage size={20} strokeWidth={1.5} />,
         title: 'Brands',
         url: routes.brands,
         slug: 'brands'
@@ -43,25 +43,26 @@ const routeList: IrouteList[] = [
     {
         icon: <Boxes size={20} strokeWidth={1.5} />,
         title: 'Units',
+        url: routes.units,
         slug: 'units'
     },
     {
-        icon: <Boxes size={20} strokeWidth={1.5} />,
+        icon: <ContactRound size={20} strokeWidth={1.5} />,
         title: 'Vendors',
         slug: 'vendors'
     },
     {
-        icon: <Boxes size={20} strokeWidth={1.5} />,
+        icon: <Grid2x2Plus size={20} strokeWidth={1.5} />,
         title: 'Categories',
         slug: 'categories'
     },
     {
-        icon: <Boxes size={20} strokeWidth={1.5} />,
+        icon: <Sheet size={20} strokeWidth={1.5} />,
         title: 'Tables',
         slug: 'tables'
     },
     {
-        icon: <Boxes size={20} strokeWidth={1.5} />,
+        icon: <Package size={20} strokeWidth={1.5} />,
         title: 'Items',
         slug: 'items'
     },
@@ -97,7 +98,8 @@ const routeList: IrouteList[] = [
     },
     {
         icon: <Cog size={20} strokeWidth={1.5} />,
-        title: 'Settings'
+        title: 'Settings',
+        slug: 'settings'
     }
 ]
 

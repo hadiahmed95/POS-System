@@ -3,7 +3,8 @@ export const routes = {
     dahsboard: '/dashboard',
     users: '/users',
     branches: '/branches',
-    brands: '/brands'
+    brands: '/brands',
+    units: '/units'
 }
 
 export const modulesList = [

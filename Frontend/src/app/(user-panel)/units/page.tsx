@@ -7,16 +7,19 @@ import { PenIcon, Trash2 } from 'lucide-react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import AddBrand from './_components/add-branch'
-import { IBrand } from '../type'
+import AddUnit from './_components/add-unit'
+import { IUnit } from '../type'
 import { TrippleRoundCircleLoader } from '@/components/loaders'
 
 const Users = () => {
 
-  const hasFetched = useRef(false)
-  const [list, setList] = useState<IBrand[]>([])
+  const title = 'Add Unit';
+
+  const hasFetched = useRef(false);
+
+  const [list, setList] = useState<IUnit[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [brand, setBrand] = useState<IBrand | null>(null)
+  const [unit, setUnit] = useState<IUnit | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const delRecord = (id: number) => {
@@ -27,7 +30,7 @@ const Users = () => {
         {
           label: 'Yes',
           onClick: () => {
-            fetch(`${BASE_URL}/api/brands/delete`, {
+            fetch(`${BASE_URL}/api/units/delete`, {
               method: "POST",
               body: JSON.stringify({ id })
             }).then(_ => {
@@ -44,12 +47,6 @@ const Users = () => {
     });
   };
 
-  const showBrand = (brand: IBrand) => {
-    setShowForm(true)
-    setBrand(brand)
-
-  }
-
   const load = useCallback( async () => {
 
     if (hasFetched.current) return
@@ -57,7 +54,7 @@ const Users = () => {
     hasFetched.current = true;
     setIsLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/api/brands/view`, {
+      const res = await fetch(`${BASE_URL}/api/units/view`, {
         method: "POST"
       }).then(async response => response.json())
 
@@ -72,7 +69,7 @@ const Users = () => {
     finally {
       setIsLoading(false);
     }
-  }, [setIsLoading])
+  }, [])
 
 
   useEffect(() => {
@@ -82,22 +79,23 @@ const Users = () => {
   return (
     <div>
       <div className={`flex justify-between`}>
-        <h2 className={'text-xl font-semibold'}>{'Brands'}</h2>
+        <h2 className={'text-xl font-semibold'}>{'Units'}</h2>
 
         <DarkButton
         onClick={(e) => {
+          setUnit(null)
           setShowForm(true)
         }}
-        >{'Add Brand'}</DarkButton>
+        >{title}</DarkButton>
       </div>
 
-      <AddBrand 
-        title={'Add Brand'}
+      <AddUnit 
+        title={title}
         show={showForm} 
         setShow={setShowForm}
-        brand={brand}
+        unit={unit}
         onSubmit={() => {
-          hasFetched.current = false
+          hasFetched.current = false;
           load()
         }}
       />
@@ -108,6 +106,7 @@ const Users = () => {
             <tr>
               <th scope="col" className="px-6 py-3">Sr #</th>
               <th scope="col" className="px-6 py-3">Name</th>
+              <th scope="col" className="px-6 py-3">Abbrevation</th>
               <th scope="col" className="px-6 py-3">Action</th>
             </tr>
           </thead>
@@ -122,20 +121,24 @@ const Users = () => {
                   </td>
                 </tr>
               :
-              list.map((brand, index) => (
+              list.map((unit, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4">{index + 1}</td>
-                  <td className="px-6 py-4">{brand.brand_name}</td>
+                  <td className="px-6 py-4">{unit.unit_name}</td>
+                  <td className="px-6 py-4">{unit.unit_abbr}</td>
                   <td className="px-6 py-4 flex items-center">
                     <LiteButton 
                       className='mr-2 inline-block w-max bg-white shadow !p-[5px]'
-                      onClick={(e) => showBrand(brand)}
+                      onClick={(e) => {
+                        setUnit(unit)
+                        setShowForm(true)
+                      }}
                     >
                       <PenIcon className='p-1' />
                     </LiteButton>
                     <DarkButton variant='danger'
                       className={'!p-[5px]'}
-                      onClick={() => delRecord(Number(brand.id ?? 0))}
+                      onClick={() => delRecord(Number(unit.id ?? 0))}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>

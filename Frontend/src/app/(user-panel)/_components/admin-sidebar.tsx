@@ -5,38 +5,41 @@ import Link from 'next/link'
 import { ChevronRight } from "lucide-react"
 import { IrouteList } from '../type'
 import { routeList } from './route-list'
+import { usePathname } from 'next/navigation'
 
 const AdminSidebar = () => {
 
-  return (
-    <div className={`bg-white h-screen w-full max-w-[250px] shadow-lg`}>
-        <div>
-            <h2 className={'text-xl text-center h-[55px] leading-[50px] border-b border-gray-100'}>Admin Logo</h2>
-            <div className='h-max overflow-auto' style={{height: 'calc(100vh - 55px)'}}>
-                <ul className={'py-8'}>
-                    {
-                        routeList.map((route, index) => 
-                            <li key={index} className={`px-5 py-1`}>
-                                {
-                                    !route.children ? (
-                                        <Link href={route.url ?? '#'}
-                                            className={`flex items-center gap-2 px-1 py-2 rounded-r text-sm hover:text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${route.active && `border-l-2 text-violet-800 border-violet-800 bg-violet-100`}`}
-                                        >
-                                            <span>{route.icon && route.icon}</span>
-                                            <span>{route.title}</span>
-                                        </Link>
-                                    ) : (
-                                        <ChildrenComponent route={route} />
-                                    )
-                                }
-                            </li>
-                        )
-                    }
-                </ul>
+    const pathName = usePathname()
+
+    return (
+        <div className={`bg-white h-screen w-full max-w-[250px] shadow-lg`}>
+            <div>
+                <h2 className={'text-xl text-center h-[55px] leading-[50px] border-b border-gray-100'}>Admin Logo</h2>
+                <div className='h-max overflow-auto' style={{height: 'calc(100vh - 55px)'}}>
+                    <ul className={'py-8'}>
+                        {
+                            routeList.map((route, index) => 
+                                <li key={index} className={`px-5 py-1`}>
+                                    {
+                                        !route.children ? (
+                                            <Link href={route.url ?? '#'}
+                                                className={`flex items-center gap-2 px-1 py-2 rounded-r text-sm hover:text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${pathName.includes(route.slug ?? '') && `border-l-2 text-violet-800 border-violet-800 bg-violet-100`}`}
+                                            >
+                                                <span>{route.icon && route.icon}</span>
+                                                <span>{route.title}</span>
+                                            </Link>
+                                        ) : (
+                                            <ChildrenComponent route={route} />
+                                        )
+                                    }
+                                </li>
+                            )
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default AdminSidebar
