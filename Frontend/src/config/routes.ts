@@ -4,7 +4,8 @@ export const routes = {
     users: '/users',
     branches: '/branches',
     brands: '/brands',
-    units: '/units'
+    units: '/units',
+    vendors: '/vendors'
 }
 
 export const modulesList = [

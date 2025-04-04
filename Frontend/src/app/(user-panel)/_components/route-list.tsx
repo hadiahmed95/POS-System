@@ -49,6 +49,7 @@ const routeList: IrouteList[] = [
     {
         icon: <ContactRound size={20} strokeWidth={1.5} />,
         title: 'Vendors',
+        url: routes.vendors,
         slug: 'vendors'
     },
     {

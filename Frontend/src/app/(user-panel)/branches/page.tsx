@@ -108,12 +108,12 @@ const Users = () => {
                   <td className="px-6 py-4">{branch.branch_address}</td>
                   <td className="px-6 py-4">{branch.branch_phone}</td>
                   <td className="px-6 py-4 flex items-center">
-                    <LinkButton href={routes.branches + '/edit/' + branch.id} className='mr-2 inline-block w-max rounded-full' >
+                    <LinkButton href={routes.branches + '/edit/' + branch.id} className='mr-2 inline-block w-max !p-[5px]' >
                       <PenIcon className={'p-1'} />
                     </LinkButton>
                     <DarkButton variant='danger'
                       onClick={() => delRecord(branch.id)}
-                      className={'rounded-full'}
+                      className={'!p-[5px]'}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>

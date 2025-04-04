@@ -116,7 +116,7 @@ const Users = () => {
                 <tr>
                   <td colSpan={5}>
                     <div className={'text-center w-full my-10'}>
-                    <TrippleRoundCircleLoader />
+                      <TrippleRoundCircleLoader />
                     </div>
                   </td>
                 </tr>
@@ -127,15 +127,15 @@ const Users = () => {
                   <td className="px-6 py-4">{unit.unit_name}</td>
                   <td className="px-6 py-4">{unit.unit_abbr}</td>
                   <td className="px-6 py-4 flex items-center">
-                    <LiteButton 
-                      className='mr-2 inline-block w-max bg-white shadow !p-[5px]'
+                    <DarkButton 
+                      className='mr-2 inline-block w-max shadow-lg !p-[5px]'
                       onClick={(e) => {
                         setUnit(unit)
                         setShowForm(true)
                       }}
                     >
                       <PenIcon className='p-1' />
-                    </LiteButton>
+                    </DarkButton>
                     <DarkButton variant='danger'
                       className={'!p-[5px]'}
                       onClick={() => delRecord(Number(unit.id ?? 0))}
