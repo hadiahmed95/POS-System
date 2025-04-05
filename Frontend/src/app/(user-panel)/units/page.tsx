@@ -1,6 +1,6 @@
 'use client'
 
-import { DarkButton, LiteButton } from '@/components/button'
+import { DarkButton } from '@/components/button'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { PenIcon, Trash2 } from 'lucide-react'
@@ -9,7 +9,7 @@ import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import AddUnit from './_components/add-unit'
 import { IUnit } from '../type'
-import { TrippleRoundCircleLoader } from '@/components/loaders'
+import TableLoader from '../_components/table-loader'
 
 const Users = () => {
 
@@ -34,7 +34,7 @@ const Users = () => {
               method: "POST",
               body: JSON.stringify({ id })
             }).then(_ => {
-              toastCustom.error('Brand deleted successfully.')
+              toastCustom.error('Unit deleted successfully.')
               setList(list.filter(li => Number(li.id) !== id))
             })
           }
@@ -78,7 +78,7 @@ const Users = () => {
 
   return (
     <div>
-      <div className={`flex justify-between`}>
+      <div className={`flex items-center justify-between bg-white py-2 px-2 rounded-lg shadow-sm`}>
         <h2 className={'text-xl font-semibold'}>{'Units'}</h2>
 
         <DarkButton
@@ -100,7 +100,7 @@ const Users = () => {
         }}
       />
 
-      <div className={'relative overflow-x-auto mt-5'}>
+      <div className={'relative overflow-x-auto mt-5 bg-white shadow-sm rounded-lg'}>
         <table className={'w-full text-sm text-left rtl:text-right text-gray-500'}>
           <thead className={'text-xs text-gray-700 uppercase bg-gray-100'}>
             <tr>
@@ -115,13 +115,11 @@ const Users = () => {
               isLoading ?
                 <tr>
                   <td colSpan={5}>
-                    <div className={'text-center w-full my-10'}>
-                      <TrippleRoundCircleLoader />
-                    </div>
+                    <TableLoader />
                   </td>
                 </tr>
               :
-              list.map((unit, index) => (
+              list.length > 0 ? list.map((unit, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">{unit.unit_name}</td>
@@ -136,15 +134,22 @@ const Users = () => {
                     >
                       <PenIcon className='p-1' />
                     </DarkButton>
-                    <DarkButton variant='danger'
-                      className={'!p-[5px]'}
+                    <DarkButton 
+                      variant='danger'
+                      className={'inline-block w-max shadow-lg !p-[5px]'}
                       onClick={() => delRecord(Number(unit.id ?? 0))}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>
                   </td>
                 </tr>
-              ))
+              ))  : (
+                <tr>
+                  <td colSpan={4}>
+                    <p className={'p-4 text-center'}>{'No Record Found!'}</p>
+                  </td>
+                </tr>
+              )
             }
           </tbody>
         </table>

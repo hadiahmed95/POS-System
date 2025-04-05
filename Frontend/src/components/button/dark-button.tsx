@@ -27,7 +27,7 @@ const DarkButton = ({
 
   return (
     <button 
-        className={`px-3 py-2 rounded transition-all duration-200 flex items-center disabled:bg-gray-200 disabled:text-black justify-center ${getVariantClasses()} ${className}`}
+        className={`px-3 py-2 rounded-lg transition-all duration-200 flex items-center disabled:bg-gray-200 disabled:text-black justify-center ${getVariantClasses()} ${className}`}
         {...props}
     >
         <span> {children} </span>

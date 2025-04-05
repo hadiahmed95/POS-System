@@ -55,6 +55,7 @@ const routeList: IrouteList[] = [
     {
         icon: <Grid2x2Plus size={20} strokeWidth={1.5} />,
         title: 'Categories',
+        url: routes.categories,
         slug: 'categories'
     },
     {

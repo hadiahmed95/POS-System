@@ -27,9 +27,25 @@ interface IUnit {
     unit_abbr: string
 }
 
+interface IVendor {
+    id?: string
+    vendor_name: string
+    vendor_address: string
+    vendor_phone: string
+    vendor_description: string
+}
+
+interface ICategory {
+    id?: string
+    cat_name: string
+    parent_id: string
+}
+
 export type {
     IrouteList,
     IBranch,
     IBrand,
-    IUnit
+    IUnit,
+    IVendor,
+    ICategory
 }

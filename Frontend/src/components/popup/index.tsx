@@ -37,7 +37,7 @@ const Popup = ({ show, className, children, ...rest }:IPopup) => {
             className={`fixed inset-0 bg-black bg-opacity-30 z-10 justify-center items-center hidden opacity-0 p-2 transition-all duration-300`}
             {...rest}
         >
-            <div className={`max-w-[600px] max-h-[90vh] overflow-auto w-full bg-white rounded p-5 shadow-xl ${className}`}>
+            <div className={`max-w-[600px] max-h-[90vh] w-full bg-white rounded-lg p-5 shadow-xl ${className}`}>
                 {children}
             </div>
         </div>

@@ -18,6 +18,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-redux": "^9.2.0",
+    "react-select": "^5.10.1",
     "react-toastify": "^11.0.5"
   },
   "devDependencies": {
@@ -28,7 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
-    "sass": "^1.86.2",
+    "sass": "^1.86.3",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

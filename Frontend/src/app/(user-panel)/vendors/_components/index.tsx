@@ -1,23 +1,25 @@
 'use client'
 
-import { DarkButton, LiteButton } from '@/components/button'
-import { toastCustom } from '@/components/toastCustom'
-import { BASE_URL } from '@/config/constants'
-import { PenIcon, Trash2 } from 'lucide-react'
+import { toastCustom } from '@/components/toastCustom';
+import { BASE_URL } from '@/config/constants';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { confirmAlert } from 'react-confirm-alert'
+import { confirmAlert } from 'react-confirm-alert';
+import { IVendor } from '../../type';
+import { DarkButton } from '@/components/button';
+import TableLoader from '../../_components/table-loader';
+import { PenIcon, Trash2 } from 'lucide-react';
+import FormWrapper from './form-wrapper';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import AddBrand from './_components/add-branch'
-import { IBrand } from '../type'
-import { TrippleDotLoader } from '@/components/loaders'
-import TableLoader from '../_components/table-loader'
 
-const Users = () => {
+const VendorPage = () => {
 
-  const hasFetched = useRef(false)
-  const [list, setList] = useState<IBrand[]>([])
+  const title = 'Add Vendor';
+
+  const hasFetched = useRef(false);
+
+  const [list, setList] = useState<IVendor[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [brand, setBrand] = useState<IBrand | null>(null)
+  const [formData, setFormData] = useState<IVendor | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const delRecord = (id: number) => {
@@ -28,11 +30,11 @@ const Users = () => {
         {
           label: 'Yes',
           onClick: () => {
-            fetch(`${BASE_URL}/api/brands/delete`, {
+            fetch(`${BASE_URL}/api/vendors/delete`, {
               method: "POST",
               body: JSON.stringify({ id })
             }).then(_ => {
-              toastCustom.error('Brand deleted successfully.')
+              toastCustom.error('Vendor deleted successfully.')
               setList(list.filter(li => Number(li.id) !== id))
             })
           }
@@ -45,35 +47,28 @@ const Users = () => {
     });
   };
 
-  const showBrand = (brand: IBrand) => {
-    setShowForm(true)
-    setBrand(brand)
-
-  }
-
-  const load = useCallback( async () => {
+  const load = useCallback(async () => {
 
     if (hasFetched.current) return
 
     hasFetched.current = true;
     setIsLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/api/brands/view`, {
+      const res = await fetch(`${BASE_URL}/api/vendors/view`, {
         method: "POST"
       }).then(async response => response.json())
-
       if (res?.data?.data) {
         setList(res.data.data)
       }
       setIsLoading(false)
-    } 
+    }
     catch (error) {
       console.error("Error fetching data:", error);
-    } 
+    }
     finally {
       setIsLoading(false);
     }
-  }, [setIsLoading])
+  }, [])
 
 
   useEffect(() => {
@@ -82,23 +77,24 @@ const Users = () => {
 
   return (
     <div>
-      <div className={`flex items-center justify-between bg-white py-2 px-2 rounded-lg shadow-sm`}>
-        <h2 className={'text-xl font-semibold'}>{'Brands'}</h2>
+      <div className={`flex items-center justify-between bg-white py-4 px-6 rounded-lg shadow-sm`}>
+        <h2 className={'text-xl font-semibold'}>{'Vendors'}</h2>
 
         <DarkButton
         onClick={(e) => {
+          setFormData(null)
           setShowForm(true)
         }}
-        >{'Add Brand'}</DarkButton>
+        >{title}</DarkButton>
       </div>
 
-      <AddBrand 
-        title={'Add Brand'}
+      <FormWrapper 
+        title={title}
         show={showForm} 
         setShow={setShowForm}
-        brand={brand}
+        formData={formData}
         onSubmit={() => {
-          hasFetched.current = false
+          hasFetched.current = false;
           load()
         }}
       />
@@ -109,6 +105,7 @@ const Users = () => {
             <tr>
               <th scope="col" className="px-6 py-3">Sr #</th>
               <th scope="col" className="px-6 py-3">Name</th>
+              <th scope="col" className="px-6 py-3">Phone</th>
               <th scope="col" className="px-6 py-3">Action</th>
             </tr>
           </thead>
@@ -116,25 +113,30 @@ const Users = () => {
             {
               isLoading ?
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={4}>
                     <TableLoader />
                   </td>
                 </tr>
               :
-              list.length > 0 ? list.map((brand, index) => (
+              list.length > 0 ? list.map((vendor, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4">{index + 1}</td>
-                  <td className="px-6 py-4">{brand.brand_name}</td>
+                  <td className="px-6 py-4">{vendor.vendor_name}</td>
+                  <td className="px-6 py-4">{vendor.vendor_phone}</td>
                   <td className="px-6 py-4 flex items-center">
-                    <LiteButton 
-                      className='mr-2 inline-block w-max bg-white shadow !p-[5px]'
-                      onClick={(e) => showBrand(brand)}
+                    <DarkButton 
+                      className='mr-2 inline-block w-max shadow-lg !p-[5px]'
+                      onClick={(e) => {
+                        setFormData(vendor)
+                        setShowForm(true)
+                      }}
                     >
                       <PenIcon className='p-1' />
-                    </LiteButton>
-                    <DarkButton variant='danger'
+                    </DarkButton>
+                    <DarkButton 
+                      variant='danger'
                       className={'inline-block w-max shadow-lg !p-[5px]'}
-                      onClick={() => delRecord(Number(brand.id ?? 0))}
+                      onClick={() => delRecord(Number(vendor.id ?? 0))}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>
@@ -142,7 +144,7 @@ const Users = () => {
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={3}>
+                  <td colSpan={4}>
                     <p className={'p-4 text-center'}>{'No Record Found!'}</p>
                   </td>
                 </tr>
@@ -155,4 +157,4 @@ const Users = () => {
   )
 }
 
-export default Users
+export default VendorPage

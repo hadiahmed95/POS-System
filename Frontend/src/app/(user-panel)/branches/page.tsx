@@ -1,14 +1,14 @@
 'use client'
 
 import { DarkButton, LinkButton } from '@/components/button'
-import TrippleRoundCircleLoader from '@/components/loaders/tripple-round-circle-loader'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
-import { PenIcon, SquarePen, Trash2 } from 'lucide-react'
+import { PenIcon, Trash2 } from 'lucide-react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import TableLoader from '../_components/table-loader'
 
 const Users = () => {
 
@@ -95,9 +95,7 @@ const Users = () => {
               isLoading ?
                 <tr>
                   <td colSpan={5}>
-                    <div className={'text-center w-full my-10'}>
-                      <TrippleRoundCircleLoader />
-                    </div>
+                   <TableLoader />
                   </td>
                 </tr>
               :
@@ -113,7 +111,7 @@ const Users = () => {
                     </LinkButton>
                     <DarkButton variant='danger'
                       onClick={() => delRecord(branch.id)}
-                      className={'!p-[5px]'}
+                      className={'inline-block w-max shadow-lg !p-[5px]'}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>
