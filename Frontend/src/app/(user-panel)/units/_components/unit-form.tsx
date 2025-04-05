@@ -8,50 +8,51 @@ import { routes } from '@/config/routes'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { IBrand } from '../../type'
+import { IUnit } from '../../type'
 
-interface IBrandForm {
-    brand?: IBrand | null
+interface IUnitForm {
+    unit?: IUnit | null
     onSubmit: () => void
 }
 
-const BrandForm = ({ brand, onSubmit }: IBrandForm) => {
+const UnitForm = ({ unit, onSubmit }: IUnitForm) => {
 
-    let initialValues: IBrand = {
-        brand_name: '',
+    let initialValues: IUnit = {
+        unit_name: '',
+        unit_abbr: '',
     }
     const router = useRouter()
     const [submiting, setSubmiting] = useState<boolean>(false)
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<IBrand>({
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<IUnit>({
         defaultValues: initialValues
     })
 
-    const submit = async (data: IBrand) => {
+    const submit = async (data: IUnit) => {
         setSubmiting(true)
-        if(!brand?.id && !submiting)
+        if(!unit?.id && !submiting)
         {
-            const res = await fetch(`${BASE_URL}/api/brands/add`, {
+            const res = await fetch(`${BASE_URL}/api/units/add`, {
                 method: "POST",
                 body: JSON.stringify(data)
             }).then(response => response.json())
     
             if (res.status === "success") {
                 reset()
-                toastCustom.success('Brand added successfully.')
-                router.push(routes.brands)
+                toastCustom.success('Unit added successfully.')
+                router.push(routes.units)
             }
         }
         else if(!submiting)
         {
-            const res = await fetch(`${BASE_URL}/api/brands/update`, {
+            const res = await fetch(`${BASE_URL}/api/units/update`, {
                 method: "POST",
-                body: JSON.stringify({...data, id: brand?.id})
+                body: JSON.stringify({...data, id: unit?.id})
             }).then(response => response.json())
     
             if (res.status === "success") {
                 reset()
-                toastCustom.info('Brand updated successfully.')
-                router.push(routes.brands)
+                toastCustom.info('Unit updated successfully.')
+                router.push(routes.units)
             }
         }
         onSubmit()
@@ -59,13 +60,14 @@ const BrandForm = ({ brand, onSubmit }: IBrandForm) => {
     }
 
     const updateFormValues = useCallback(() => {
-        if (brand?.id) {
-            setValue("id", brand.id);
-            setValue("brand_name", brand.brand_name);
+        if (unit?.id) {
+            setValue("id", unit.id);
+            setValue("unit_name", unit.unit_name);
+            setValue("unit_abbr", unit.unit_abbr);
         } else {
             reset();
         }
-    }, [brand, setValue, reset]);
+    }, [unit, setValue, reset]);
 
     useEffect(() => {
         updateFormValues()
@@ -80,16 +82,33 @@ const BrandForm = ({ brand, onSubmit }: IBrandForm) => {
                 <TextField
                     type="text"
                     placeholder={'Name'}
-                    className={errors.brand_name ? 'border-red-500' : 'border-gray-50'}
-                    {...register('brand_name', {
+                    className={errors.unit_name ? 'border-red-500' : 'border-gray-50'}
+                    {...register('unit_name', {
                         required: {
                             value: true,
                             message: "Name is required"
                         }
                     })}
                 />
-                {errors.brand_name && (
-                    <small className={'text-red-700'}>{errors.brand_name.message}</small>
+                {errors.unit_name && (
+                    <small className={'text-red-700'}>{errors.unit_name.message}</small>
+                )}
+            </div>
+            <div>
+                <label htmlFor="" className={'block mb-1'}>Abbrevation Value *</label>
+                <TextField
+                    type="text"
+                    placeholder={'Abbrevation Value'}
+                    className={errors.unit_name ? 'border-red-500' : 'border-gray-50'}
+                    {...register('unit_abbr', {
+                        required: {
+                            value: true,
+                            message: "Abbrevation value is required"
+                        }
+                    })}
+                />
+                {errors.unit_abbr && (
+                    <small className={'text-red-700'}>{errors.unit_abbr.message}</small>
                 )}
             </div>
             <div className={''}>
@@ -98,11 +117,11 @@ const BrandForm = ({ brand, onSubmit }: IBrandForm) => {
                     className={'w-full px-5 py-2 justify-center'}
                     loading={submiting}
                     disabled={submiting}
-                >{ brand ? 'Update' : 'Add'}
+                >{ unit ? 'Update' : 'Add'}
                 </DarkButton>
             </div>
         </form>
     )
 }
 
-export default BrandForm
+export default UnitForm

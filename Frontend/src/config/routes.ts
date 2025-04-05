@@ -3,14 +3,8 @@ export const routes = {
     dahsboard: '/dashboard',
     users: '/users',
     branches: '/branches',
-    brands: '/brands'
+    brands: '/brands',
+    units: '/units',
+    vendors: '/vendors',
+    categories: '/categories'
 }
-
-export const modulesList = [
-    { title: 'Branches', slug: 'branches' },
-    { title: 'Roles & Permissions', slug: 'roles-permissions' },
-    { title: 'Users', slug: 'users' },
-    { title: 'Brands', slug: 'brands' },
-    { title: 'Units', slug: 'units' },
-    { title: 'Vendors', slug: 'vendors' },
-]
