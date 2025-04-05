@@ -24,7 +24,7 @@ const FormWrapper = ({ title, formData, show, setShow, onSubmit } : IFormWrapper
                 setShow(false)
             }} />
             <div className={'mt-4'}>
-                <Form isClose={isClose} data={formData} onSubmit={() => {
+                <Form show={show} isClose={isClose} data={formData} onSubmit={() => {
                     onSubmit()
                     setShow(false)
                 }} />
