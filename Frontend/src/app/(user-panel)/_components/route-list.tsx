@@ -59,14 +59,14 @@ const routeList: IrouteList[] = [
         slug: 'categories'
     },
     {
-        icon: <Sheet size={20} strokeWidth={1.5} />,
-        title: 'Tables',
-        slug: 'tables'
-    },
-    {
         icon: <Package size={20} strokeWidth={1.5} />,
         title: 'Items',
         slug: 'items'
+    },
+    {
+        icon: <Sheet size={20} strokeWidth={1.5} />,
+        title: 'Tables',
+        slug: 'tables'
     },
     {
         icon: <ScanLine size={20} strokeWidth={1.5} />,
