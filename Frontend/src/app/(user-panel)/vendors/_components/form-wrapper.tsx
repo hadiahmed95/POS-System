@@ -1,0 +1,36 @@
+'use client'
+
+import Popup, { PopupHeader } from '@/components/popup'
+import React, { useState } from 'react'
+import { IVendor } from '../../type'
+import Form from './form'
+
+interface IFormWrapper {
+    title: string
+    formData: IVendor | null
+    show: boolean
+    setShow: (val: boolean) => void
+    onSubmit: () => void
+}
+
+const FormWrapper = ({ title, formData, show, setShow, onSubmit } : IFormWrapper) => {
+
+    const [isClose, setClose] = useState(false)
+
+    return (
+        <Popup show={show}>
+            <PopupHeader title={title} onClose={() => {
+                setClose(true)
+                setShow(false)
+            }} />
+            <div className={'mt-4'}>
+                <Form isClose={isClose} data={formData} onSubmit={() => {
+                    onSubmit()
+                    setShow(false)
+                }} />
+            </div>
+        </Popup>
+    )
+}
+
+export default FormWrapper

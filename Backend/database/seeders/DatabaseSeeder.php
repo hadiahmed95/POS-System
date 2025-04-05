@@ -83,6 +83,12 @@ class DatabaseSeeder extends Seeder
                 "updated_at" => now(),
             ],
             [
+                "module_name" => "Tables",
+                "module_slug" => "tables",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
                 "module_name" => "Items",
                 "module_slug" => "items",
                 "created_at" => now(),
@@ -97,6 +103,12 @@ class DatabaseSeeder extends Seeder
             [
                 "module_name" => "Customer",
                 "module_slug" => "customer",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "module_name" => "Orders",
+                "module_slug" => "orders",
                 "created_at" => now(),
                 "updated_at" => now(),
             ],

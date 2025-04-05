@@ -1,9 +1,36 @@
 <?php
+
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-// use App\Models;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use App\Models\UserHasRole;
+
+if (!function_exists('checkInternetConnection')) {
+    function checkInternetConnection() {
+        try {
+            $response = Http::get('https://www.google.com');
+            return true;
+        }
+        catch (\Exception $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('checkDatabaseConnection')) {
+    function checkDatabaseConnection() {
+        try {
+            DB::connection()->getPdo();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}
 
 if (!function_exists('setApiResponse')) {
-    function setApiResponse($status = "error", $message = "No data found!", $code = 200, $data = []) {
+    function setApiResponse($status = 0, $message = "No data found!", $code = 200, $data = []) {
         return response()->json([
             "status" => $status == 0 ? "error" : "success",
             "message" => $message,
@@ -12,8 +39,28 @@ if (!function_exists('setApiResponse')) {
     }
 }
 
-if (!function_exists('getRecord')) {
-    function getRecord(string $model, array $filter_data = [], array $with = []) {
+if (!function_exists('getPermissions')) {
+    function getPermissions($user_id) {
+        $filters = [
+            [
+                "column" => "user_id",
+                "condition" => "=",
+                "value" => $user_id
+            ]
+        ];
+        $relationships = ["module", "permission"];
+        $permissions = [];
+        $get_permissions = getRecord(UserHasRole::class, $filters, $relationships, false);
+        $decoded_data = json_decode($get_permissions->getContent(), true)['data'];
+        foreach($decoded_data as $data) {
+            $permissions[$data["module"]["module_slug"]][$data["permission"]["permission_slug"]] = $data["is_allowed"];
+        }
+        return setApiResponse(1, "Record fetched successfully", 200, $permissions);
+    }
+}
+
+if (!function_exists('getSingleRecord')) {
+    function getSingleRecord(string $model, array $filter_data = [], array $with = []) {
         $record = $model::select('*');
         foreach( $filter_data as $filter ) {
             $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
@@ -21,8 +68,41 @@ if (!function_exists('getRecord')) {
         if( !empty($with) ) {
             $record = $record->with($with);
         }
-        $record = $record -> paginate(20);
-        $record->page_links = $record->links();
+        $record = $record -> first();
+        if( !$record ) {
+            return setApiResponse(0, "No record found!", 400);
+        }
+        $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
+        return $response;
+    }
+}
+
+if (!function_exists('getRecord')) {
+    function getRecord(string $model, array $filter_data = [], array $with = [], $paginate = true, $records_per_page = 20) {
+        $record = $model::select('*');
+        foreach( $filter_data as $filter ) {
+            $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
+        }
+        if( !empty($with) ) {
+            $record = $record->with($with);
+        }
+        $record = ($paginate) ? $record -> paginate($records_per_page) : $record -> get();
+        $record->page_links = ($paginate) ? $record->links() : [];
+        $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
+        return $response;
+    }
+}
+
+if (!function_exists('getSingleRecord')) {
+    function getSingleRecord(string $model, array $filter_data = [], array $with = []) {
+        $record = $model::select('*');
+        foreach( $filter_data as $filter ) {
+            $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
+        }
+        if( !empty($with) ) {
+            $record = $record->with($with);
+        }
+        $record = $record->first();
         $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
         return $response;
     }
@@ -56,10 +136,15 @@ if (!function_exists('updateRecord')) {
         $model = new $model_class;
         $record = $model->find($id);
         if ($record) {
-            $response_data = $record->update($data);
-            return setApiResponse(1, "Record updated successfully!", 200, $response_data);
+            try {
+                $record->update($data);
+                return setApiResponse(1, "Record updated successfully!", 200, $data);
+            }
+            catch (\Exception $e) {
+                return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);
+            }
         }
-        return setApiResponse(0, "Something went wrong. Please try again!", 400);
+        return setApiResponse(0, "No record found!", 400);
     }
 }
 
@@ -75,9 +160,24 @@ if (!function_exists('deleteRecord')) {
         $model = new $model_class;
         $record = $model->find($id);
         if ($record) {
-            $record->delete();
-            setApiResponse(1, "Record deleted successfully!", 200);
+            try {
+                $record->delete();
+                return setApiResponse(1, "Record deleted successfully!", 200);
+            }
+            catch (\Exception $e) {
+                return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);
+            }
         }
-        setApiResponse(0, "Something went wrong. Please try again!", 400);
+        return setApiResponse(0, "No record found or the record had already deleted!", 400);
+    }
+}
+
+if (!function_exists('get_user_by_token')) {
+    function get_user_by_token($token) {
+        $user = User::where("token", $token)->first();
+        if (!$user) {
+            return setApiResponse(0, "Invalid token!", 400);
+        }
+        return setApiResponse(1, "Record fetched successfully", 200, $user);
     }
 }
