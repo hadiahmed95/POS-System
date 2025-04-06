@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('brand_id');
+            $table->unsignedBigInteger('brand_id')->nullable()->default(null);
             $table->foreign('brand_id')->references('id')->on('brands');
-            $table->unsignedBigInteger('unit_id');
+            $table->unsignedBigInteger('unit_id')->nullable()->default(null);;
             $table->foreign('unit_id')->references('id')->on('units');
-            $table->unsignedBigInteger('vendor_id');
+            $table->unsignedBigInteger('vendor_id')->nullable()->default(null);;
             $table->foreign('vendor_id')->references('id')->on('vendors');
             $table->unsignedBigInteger('added_by');
             $table->foreign('added_by')->references('id')->on('users');
             $table->text('image')->nullable();
             $table->string('name');
-            $table->string('barcode')->unique();
+            $table->string('barcode')->unique()->nullable();
             $table->string('old_barcode')->unique()->nullable();
             $table->string('sku')->nullable();
             $table->string('description')->nullable();

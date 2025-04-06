@@ -1,6 +1,6 @@
 'use client'
 
-import Popup, { PopupHeader } from '@/components/popup'
+import Popup, { PopupContent, PopupHeader } from '@/components/popup'
 import React, { useState } from 'react'
 import { ICategory } from '../../type'
 import Form from './form'
@@ -23,12 +23,12 @@ const FormWrapper = ({ title, formData, show, setShow, onSubmit } : IFormWrapper
                 setClose(true)
                 setShow(false)
             }} />
-            <div className={'mt-4'}>
+            <PopupContent>
                 <Form show={show} isClose={isClose} data={formData} onSubmit={() => {
                     onSubmit()
                     setShow(false)
                 }} />
-            </div>
+            </PopupContent>
         </Popup>
     )
 }

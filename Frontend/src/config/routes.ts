@@ -6,5 +6,8 @@ export const routes = {
     brands: '/brands',
     units: '/units',
     vendors: '/vendors',
-    categories: '/categories'
+    customers: '/customers',
+    categories: '/categories',
+    items: '/items',
+    tables: '/tables'
 }
