@@ -1,6 +1,6 @@
 'use client'
 
-import Popup, { PopupHeader } from '@/components/popup'
+import Popup, { PopupContent, PopupHeader } from '@/components/popup'
 import React, { useState } from 'react'
 import { IBrand } from '../../type'
 import BrandForm from './brand-form'
@@ -20,12 +20,12 @@ const AddBrand = ({ title, brand, show, setShow, onSubmit } : IAddBrand) => {
     return (
         <Popup show={show}>
             <PopupHeader title={title} onClose={() => setShow(false) } />
-            <div className={'mt-4'}>
+            <PopupContent>
                 <BrandForm brand={brand} onSubmit={() => {
                     onSubmit()
                     setShow(false)
                 }} />
-            </div>
+            </PopupContent>
         </Popup>
     )
 }

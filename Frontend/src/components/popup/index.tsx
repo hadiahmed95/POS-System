@@ -37,7 +37,7 @@ const Popup = ({ show, className, children, ...rest }:IPopup) => {
             className={`fixed inset-0 bg-black bg-opacity-30 z-10 justify-center items-center hidden opacity-0 p-2 transition-all duration-300`}
             {...rest}
         >
-            <div className={`max-w-[600px] max-h-[90vh] w-full bg-white rounded-lg p-5 shadow-xl ${className}`}>
+            <div className={`max-w-[600px] max-h-[90vh] w-full bg-white rounded-lg shadow-xl ${className}`}>
                 {children}
             </div>
         </div>
@@ -53,13 +53,21 @@ interface IPopupHeader {
 
 export const PopupHeader = ({ title, onClose }:IPopupHeader) => {
     return (
-        <div className={'flex justify-between items-center'}>
-            <h3 className={'text-xl font-medium'}>{title}</h3>
+        <div className={'flex justify-between items-center p-5 bg-violet-50 rounded-t-lg'}>
+            <h3 className={'text-xl text-violet-900 font-medium'}>{title}</h3>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 hover:text-red-500 cursor-pointer"
             onClick={() => onClose()}
             >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
+        </div>
+    )
+}
+
+export const PopupContent = ({ children }: Pick<IPopup, 'children'>) => {
+    return (
+        <div className={'p-5'}>
+            {children}
         </div>
     )
 }

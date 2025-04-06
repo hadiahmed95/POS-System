@@ -49,7 +49,7 @@ const RightPopup = ({ show, className, children, ...rest }:IPopup) => {
             className={`fixed inset-0 bg-black bg-opacity-30 z-10 pl-2 justify-right items-center hidden opacity-0 translate-x-full transition-all duration-300`}
             {...rest}
         >
-            <div ref={innerPopupRef} className={`max-w-[100vw] md:max-w-[40vw] h-[100vh] ml-auto overflow-auto w-full bg-white rounded-l-xl p-5 shadow-xl translate-x-full transition-all duration-300 ${className}`}>
+            <div ref={innerPopupRef} className={`max-w-[100vw] md:max-w-[70vw] lg:max-w-[50vw] h-[100vh] ml-auto overflow-auto w-full bg-white rounded-l-2xl p-5 shadow shadow-gray-500 translate-x-full transition-all duration-300 ${className}`}>
                 {children}
             </div>
         </div>

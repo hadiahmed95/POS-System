@@ -53,6 +53,12 @@ const routeList: IrouteList[] = [
         slug: 'vendors'
     },
     {
+        icon: <UsersRound size={20} strokeWidth={1.5} />,
+        title: 'Customers',
+        url: routes.customers,
+        slug: 'customer'
+    },
+    {
         icon: <Grid2x2Plus size={20} strokeWidth={1.5} />,
         title: 'Categories',
         url: routes.categories,
@@ -61,22 +67,19 @@ const routeList: IrouteList[] = [
     {
         icon: <Package size={20} strokeWidth={1.5} />,
         title: 'Items',
+        url: routes.items,
         slug: 'items'
     },
     {
         icon: <Sheet size={20} strokeWidth={1.5} />,
         title: 'Tables',
+        url: routes.tables,
         slug: 'tables'
     },
     {
         icon: <ScanLine size={20} strokeWidth={1.5} />,
         title: 'Purchases',
         slug: 'purchases'
-    },
-    {
-        icon: <UsersRound size={20} strokeWidth={1.5} />,
-        title: 'Customers',
-        slug: 'customer'
     },
     {
         icon: <UsersRound size={20} strokeWidth={1.5} />,

@@ -2,12 +2,12 @@
 
 import Popup, { PopupContent, PopupHeader } from '@/components/popup'
 import React, { useState } from 'react'
-import { IVendor } from '../../type'
+import { ITable } from '../../type'
 import Form from './form'
 
 interface IFormWrapper {
     title: string
-    formData: IVendor | null
+    formData: ITable | null
     show: boolean
     setShow: (val: boolean) => void
     onSubmit: () => void
