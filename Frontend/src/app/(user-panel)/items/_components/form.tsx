@@ -1,6 +1,6 @@
 'use client'
 
-import { DarkButton, LiteButton } from '@/components/button'
+import { DarkButton, LiteButton, Switcher } from '@/components/button'
 import { TextField } from '@/components/Fields'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
@@ -45,6 +45,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
     const [submiting, setSubmiting] = useState<boolean>(false)
     const [selectCategories, setSelectCategories] = useState<OptionType[]>([])
     const [image, setImage] = useState<any>()
+    const [type, setType] = useState<'normal' | 'group'>('normal')
     const [variations, setVariations] = useState([variationValues])
 
     const router = useRouter()
@@ -155,7 +156,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 </label>
             </div>
             <div>
-                <label htmlFor="" className={'block mb-1'}>Categories</label>
+                <label htmlFor="" className={'block mb-1 font-medium'}>Categories</label>
                 <Controller
                     name='categories'
                     control={control}
@@ -168,8 +169,11 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                             isClearable
                             isMulti
                             onChange={(selectedOption) => field.onChange(selectedOption)}
+                            classNames={{
+                                control: () => "ring-1 ring-gray-300"
+                            }}
                             styles={{
-                                control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "none"})
+                                control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "0 0 0 0px #fff, 0 0 0 calc(1px + 0px) rgb(209 213 219 / 1), 0 0 #0000, 0 0 #0000"})
                             }}
                         />
                     )}
@@ -180,11 +184,11 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
             </div>
 
             <div>
-                <label htmlFor="" className={'block mb-1'}>Name *</label>
+                <label htmlFor="" className={'block mb-1 font-medium'}>Name *</label>
                 <TextField
                     type="text"
                     placeholder={'Name'}
-                    className={errors.name ? 'border-red-500' : 'border-gray-50'}
+                    className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
                     {...register('name', {
                         required: {
                             value: true,
@@ -198,10 +202,10 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
             </div>
 
             <div>
-                <label htmlFor="" className={'block mb-1'}>Description</label>
+                <label htmlFor="" className={'block mb-1 font-medium'}>Description</label>
                 <TextArea
                     placeholder={'Description'}
-                    className={errors.description ? 'border-red-500' : 'border-gray-50'}
+                    className={errors.description ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
                     {...register('description', {
                         required: {
                             value: true,
@@ -214,64 +218,101 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 )}
             </div>
 
-            <hr />
+            <div>
+                <p className={'block mb-2 font-medium'}>Type</p>
+                <Switcher title={'Group Items'} checked={type === "group"} onChange={(value) => {
+                    setType(value ? 'group' : 'normal')
+                }} />
+            </div>
 
-            <h4 className={'text-lg font-medium'}>{'Variations'}</h4>
-            
             {
-                variations.map((variation, index) => {
-                    return (
-                    <div key={index} className={'p-2 border-8 border-gray-50 rounded-lg text-sm relative'}>
-                        {
-                            index > 0 && (
-                                <Trash2 
-                                    className={'w-4 absolute right-3 text-red-600 cursor-pointer'}
-                                    onClick={() => delVariation(index)}
-                                />
-                            )
-                        }
-
-                        <div className={'mb-4'}>
-                            <label htmlFor="" className={'block mb-1'}>Name *</label>
+                type === "normal" ? (
+                    <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
+                        <div>
+                            <label htmlFor="" className={'block mb-1'}>Price *</label>
                             <TextField
                                 type="text"
-                                placeholder={'Variation Name'}
-                                value={variation.name}
-                                onChange={(e) => {
-                                    changeVariationValue(index, 'name', e.target.value)
-                                }}
+                                placeholder={'Price'}
+                                className={errors.name ? 'border-red-500' : 'border-gray-200 ring-1 ring-gray-300'}
+                                // onChange={(e) => {
+                                //     changeVariationValue(index, 'price', e.target.value)
+                                // }}
                             />
                         </div>
-                        
-                        <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
-                            <div>
-                                <label htmlFor="" className={'block mb-1'}>Price *</label>
-                                <TextField
-                                    type="text"
-                                    placeholder={'Price'}
-                                    className={errors.name ? 'border-red-500' : 'border-gray-50'}
-                                    onChange={(e) => {
-                                        changeVariationValue(index, 'price', e.target.value)
-                                    }}
-                                />
-                            </div>
 
-                            <div>
-                                <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
-                                <TextField
-                                    type="text"
-                                    placeholder={'Discounted Price'}
-                                    className={errors.name ? 'border-red-500' : 'border-gray-50'}
-                                    onChange={(e) => {
-                                        changeVariationValue(index, 'discountedPrice', e.target.value)
-                                    }}
-                                />
-                            </div>
+                        <div>
+                            <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
+                            <TextField
+                                type="text"
+                                placeholder={'Discounted Price'}
+                                className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
+                                // onChange={(e) => {
+                                //     changeVariationValue(index, 'discountedPrice', e.target.value)
+                                // }}
+                            />
                         </div>
                     </div>
-                    )
-                })
+                ) : (
+                    <>
+                    <h4 className={'text-lg font-medium'}>{'Group Items'}</h4>
+                    {
+                        variations.map((variation, index) => {
+                            return (
+                            <div key={index} className={'p-5 bg-white rounded-lg text-sm relative shadow-sm shadow-gray-400'}>
+                                {
+                                    index > 0 && (
+                                        <Trash2 
+                                            className={'w-4 absolute right-3 text-red-600 cursor-pointer'}
+                                            onClick={() => delVariation(index)}
+                                        />
+                                    )
+                                }
+
+                                <div className={'mb-4'}>
+                                    <label htmlFor="" className={'block mb-1'}>Item *</label>
+                                    <TextField
+                                        type="text"
+                                        placeholder={'Select Item ...'}
+                                        value={variation.name}
+                                        onChange={(e) => {
+                                            changeVariationValue(index, 'name', e.target.value)
+                                        }}
+                                    />
+                                </div>
+                                
+                                <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
+                                    <div>
+                                        <label htmlFor="" className={'block mb-1'}>Price *</label>
+                                        <TextField
+                                            type="text"
+                                            placeholder={'Price'}
+                                            className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
+                                            onChange={(e) => {
+                                                changeVariationValue(index, 'price', e.target.value)
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
+                                        <TextField
+                                            type="text"
+                                            placeholder={'Discounted Price'}
+                                            className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
+                                            onChange={(e) => {
+                                                changeVariationValue(index, 'discountedPrice', e.target.value)
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            )
+                        })
+                    }
+                    </>
+                )
             }
+            {/* <hr /> */}
 
             <LiteButton 
                 type="button" 
