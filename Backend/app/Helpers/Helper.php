@@ -40,12 +40,12 @@ if (!function_exists('setApiResponse')) {
 }
 
 if (!function_exists('getPermissions')) {
-    function getPermissions($user_id) {
+    function getPermissions($role_id) {
         $filters = [
             [
-                "column" => "user_id",
+                "column" => "role_id",
                 "condition" => "=",
-                "value" => $user_id
+                "value" => $role_id
             ]
         ];
         $relationships = ["module", "permission"];

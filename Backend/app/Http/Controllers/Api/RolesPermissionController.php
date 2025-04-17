@@ -50,14 +50,14 @@ class RolesPermissionController extends Controller
     public function viewUserPermissions(Request $request) {
         $filters = [
             [
-                "column" => "user_id",
+                "column" => "role_id",
                 "condition" => "!=",
                 "value" => 1
             ],
             [
-                "column" => "user_id",
+                "column" => "role_id",
                 "condition" => "=",
-                "value" => $request -> user_id
+                "value" => $request -> role_id
             ]
         ];
         $relationships = ["module", "permission"];
