@@ -21,6 +21,8 @@ return new class extends Migration
             $table->foreign('vendor_id')->references('id')->on('vendors');
             $table->unsignedBigInteger('added_by');
             $table->foreign('added_by')->references('id')->on('users');
+            $table->unsignedBigInteger('cat_id');
+            $table->foreign('cat_id')->references('id')->on('categories');
             $table->text('image')->nullable();
             $table->string('name');
             $table->string('barcode')->unique()->nullable();
@@ -33,6 +35,7 @@ return new class extends Migration
             $table->string('box_barcode')->nullable();
             $table->float('box_price')->nullable();
             $table->integer('available')->default(0);
+            $table->enum('item_type', ["single", "group"])->default("single");
             $table->softDeletes();
             $table->timestamps();
         });
