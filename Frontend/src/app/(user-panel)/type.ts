@@ -80,8 +80,24 @@ interface ICustomer {
     phone: string
     licence_plate: string
     customer_type: CustomerType
-    created_at?: string
-    updated_at?: string
+    created_at?: Date
+    updated_at?: Date
+}
+
+interface IModule {
+    id?: number
+    module_name: string
+    module_slug: string
+    created_at?: Date
+    updated_at?: Date
+}
+
+interface IPermissions {
+    id?: number
+    permission_name: string
+    permission_slug: string
+    created_at?: Date
+    updated_at?: Date
 }
 
 export type {
@@ -93,5 +109,7 @@ export type {
     ICategory,
     IItem,
     ITable,
-    ICustomer
+    ICustomer,
+    IPermissions,
+    IModule
 }

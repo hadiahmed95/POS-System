@@ -19,6 +19,9 @@ class CheckPermission
         $token = $request->bearerToken();
         $user = User::where('token', $token)->first();
 
+        if($user->role_id === 1) {
+            return $next($request);
+        }
         $get_permissions = getPermissions($user->role_id);
         $full_url = $request->fullUrl();
         $url_array = explode("/", $full_url);

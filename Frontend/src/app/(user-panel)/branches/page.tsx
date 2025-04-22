@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import TableLoader from '../_components/table-loader'
+import PageTitleOver from '../_components/page-title-over'
 
 const Users = () => {
 
@@ -73,13 +74,13 @@ const Users = () => {
 
   return (
     <div>
-      <div className={`flex justify-between`}>
+      <PageTitleOver>
         <h2 className={'text-xl font-semibold'}>{'Branches'}</h2>
 
         <LinkButton href='/branches/add'>{'Add Branches'}</LinkButton>
-      </div>
+      </PageTitleOver>
 
-      <div className={'relative overflow-x-auto mt-5'}>
+      <div className={'relative overflow-x-auto mt-5 bg-white shadow-sm rounded-lg'}>
         <table className={'w-full text-sm text-left rtl:text-right text-gray-500'}>
           <thead className={'text-xs text-gray-700 uppercase bg-gray-100'}>
             <tr>

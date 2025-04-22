@@ -1,6 +1,6 @@
 'use client'
 
-import Popup, { PopupHeader } from '@/components/popup'
+import Popup, { PopupContent, PopupHeader } from '@/components/popup'
 import React, { useState } from 'react'
 import UserForm from './user-form'
 
@@ -17,9 +17,9 @@ const AddUser = ({ user, show, setShow } : IAddUser) => {
     return (
         <Popup show={show}>
             <PopupHeader title='Add User' onClose={() => setShow(false) } />
-            <div className={'mt-4'}>
-                <UserForm user={user} />
-            </div>
+                <PopupContent>
+                    <UserForm user={user} />
+                </PopupContent>
         </Popup>
     )
 }
