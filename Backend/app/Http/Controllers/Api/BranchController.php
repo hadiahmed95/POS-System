@@ -8,10 +8,19 @@ use App\Models\Branch;
 
 class BranchController extends Controller
 {
-    public function view() {
+    public function view(Request $request, $id = null) {
         $filters = [];
         $relationships = [];
-        return getRecord(Branch::class, $filters, $relationships);
+        if ($id) {
+            $filters = [
+                [
+                    "column" => "id",
+                    "condition" => "=",
+                    "value" => $id
+                ]
+            ];
+        }
+        return ($id != null) ? getSingleRecord(Branch::class, $filters, $relationships) : getRecord(Branch::class, $filters, $relationships);
     }
 
     public function add(Request $request) {
