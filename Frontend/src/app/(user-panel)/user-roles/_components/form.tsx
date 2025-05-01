@@ -68,31 +68,32 @@ const RoleForm = ({ roleId, modules, permissions }: IRoleForm) => {
 
     const submit = async (data: IBranch) => {
         setSubmiting(true)
+        console.log('data', {...data, role_permissions: selectedModules})
         if(!roleId && !submiting)
         {
-            const res = await fetch(`${BASE_URL}/api/branches/add`, {
-                method: "POST",
-                body: JSON.stringify(data)
-            }).then(response => response.json())
+            // const res = await fetch(`${BASE_URL}/api/branches/add`, {
+            //     method: "POST",
+            //     body: JSON.stringify(data)
+            // }).then(response => response.json())
     
-            if (res.status === "success") {
-                reset()
-                toastCustom.success('Branch added successfully.')
-                router.push(routes.branches)
-            }
+            // if (res.status === "success") {
+            //     reset()
+            //     toastCustom.success('Branch added successfully.')
+            //     router.push(routes.branches)
+            // }
         }
         else if(!submiting)
         {
-            const res = await fetch(`${BASE_URL}/api/branches/update`, {
-                method: "POST",
-                body: JSON.stringify({...data, id: roleId})
-            }).then(response => response.json())
+            // const res = await fetch(`${BASE_URL}/api/branches/update`, {
+            //     method: "POST",
+            //     body: JSON.stringify({...data, id: roleId})
+            // }).then(response => response.json())
     
-            if (res.status === "success") {
-                reset()
-                toastCustom.info('Branch updated successfully.')
-                router.push(routes.branches)
-            }
+            // if (res.status === "success") {
+            //     reset()
+            //     toastCustom.info('Branch updated successfully.')
+            //     router.push(routes.branches)
+            // }
         }
         setSubmiting(false)
     }

@@ -141,7 +141,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
             onSubmit={handleSubmit(submit)}
             autoComplete="off"
         >
-            <div className={'border-2 border-violet-800 p-2 rounded-xl'}>
+            <div className={'border-2 border-violet-600 shadow-xl ring-2 ring-violet-100 ring-offset-violet-50 p-2 rounded-xl'}>
                 <label htmlFor='image' className={'border border-gray-400 border-dashed bg-gray-50 h-[200px] rounded-xl flex flex-wrap flex-col items-center justify-center cursor-pointer select-none'}>
                     <input type="file" id="image" className={'hidden'}
                     onChange={(e) => {
@@ -188,7 +188,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 <TextField
                     type="text"
                     placeholder={'Name'}
-                    className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
+                    error={!!errors.name}
                     {...register('name', {
                         required: {
                             value: true,
@@ -205,7 +205,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 <label htmlFor="" className={'block mb-1 font-medium'}>Description</label>
                 <TextArea
                     placeholder={'Description'}
-                    className={errors.description ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
+                    error={!!errors.description}
                     {...register('description', {
                         required: {
                             value: true,
@@ -225,6 +225,8 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 }} />
             </div>
 
+            <hr />
+
             {
                 type === "normal" ? (
                     <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
@@ -233,7 +235,6 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                             <TextField
                                 type="text"
                                 placeholder={'Price'}
-                                className={errors.name ? 'border-red-500' : 'border-gray-200 ring-1 ring-gray-300'}
                                 // onChange={(e) => {
                                 //     changeVariationValue(index, 'price', e.target.value)
                                 // }}
@@ -245,7 +246,6 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                             <TextField
                                 type="text"
                                 placeholder={'Discounted Price'}
-                                className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
                                 // onChange={(e) => {
                                 //     changeVariationValue(index, 'discountedPrice', e.target.value)
                                 // }}
@@ -286,7 +286,6 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                                         <TextField
                                             type="text"
                                             placeholder={'Price'}
-                                            className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
                                             onChange={(e) => {
                                                 changeVariationValue(index, 'price', e.target.value)
                                             }}
@@ -298,7 +297,6 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                                         <TextField
                                             type="text"
                                             placeholder={'Discounted Price'}
-                                            className={errors.name ? 'border-red-500' : 'border-gray-300 ring-1 ring-gray-300'}
                                             onChange={(e) => {
                                                 changeVariationValue(index, 'discountedPrice', e.target.value)
                                             }}
@@ -309,18 +307,19 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                             )
                         })
                     }
+                    <LiteButton 
+                        type="button" 
+                        className={'w-max'}
+                        onClick={() => {
+                            addVariations()
+                        }}
+                    >
+                        {'Add Variation'}
+                    </LiteButton>
                     </>
                 )
             }
             {/* <hr /> */}
-
-            <LiteButton 
-                type="button" 
-                className={'w-max'}
-                onClick={() => {
-                    addVariations()
-                }}
-            >{'Add Variation'}</LiteButton>
 
             <div className={''}>
                 <DarkButton 

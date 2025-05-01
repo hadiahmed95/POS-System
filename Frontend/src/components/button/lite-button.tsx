@@ -12,7 +12,7 @@ const LiteButton = ({
 }: IButton) => {
   return (
     <button 
-        className={`px-3 py-1 rounded bg-violet-50 text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${className}`}
+        className={`px-3 py-1 rounded-lg bg-violet-50 text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${className}`}
         {...props}
     >
         {children}
