@@ -147,7 +147,7 @@ const Form = ({ show, isClose, data, onSubmit }: IForm) => {
                 <TextField
                     type="text"
                     placeholder={'Name'}
-                    className={errors.cat_name ? 'border-red-500' : 'border-gray-50'}
+                    className={errors.cat_name ? 'border-red-500' : 'border-gray-50 ring-1 ring-gray-300'}
                     {...register('cat_name', {
                         required: {
                             value: true,

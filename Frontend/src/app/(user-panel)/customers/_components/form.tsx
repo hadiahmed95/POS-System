@@ -113,7 +113,7 @@ const Form = ({ isClose, data, onSubmit }: IForm) => {
                 <TextField
                     type="text"
                     placeholder={'Name'}
-                    className={errors.name ? 'border-red-500' : 'border-gray-50'}
+                    className={errors.name ? 'border-red-500' : 'border-gray-50 ring-1 ring-gray-300'}
                     {...register('name', {
                         required: {
                             value: true,
@@ -131,7 +131,7 @@ const Form = ({ isClose, data, onSubmit }: IForm) => {
                 <TextField
                     type="tel"
                     placeholder={'Phone no'}
-                    className={errors.phone ? 'border-red-500' : 'border-gray-50'}
+                    className={errors.phone ? 'border-red-500' : 'border-gray-50 ring-1 ring-gray-300'}
                     {...register('phone', {
                         required: {
                             value: true,
@@ -149,7 +149,7 @@ const Form = ({ isClose, data, onSubmit }: IForm) => {
                 <TextField
                     type="email"
                     placeholder={'Email'}
-                    className={errors.phone ? 'border-red-500' : 'border-gray-50'}
+                    className={errors.phone ? 'border-red-500' : 'border-gray-50 ring-1 ring-gray-300'}
                     {...register('email')}
                 />
                 {errors.email && (
@@ -171,7 +171,7 @@ const Form = ({ isClose, data, onSubmit }: IForm) => {
                                 field.onChange((selectedOption as OptionType).value)
                             }}
                             styles={{
-                                control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "none"})
+                                control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "0 0 0 0px #fff, 0 0 0 calc(1px + 0px) rgb(209 213 219 / 1), 0 0 #0000, 0 0 #0000"})
                             }}
                         />
                     )}

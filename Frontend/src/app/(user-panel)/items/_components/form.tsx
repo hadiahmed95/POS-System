@@ -1,6 +1,6 @@
 'use client'
 
-import { DarkButton, LiteButton } from '@/components/button'
+import { DarkButton, LiteButton, Switcher } from '@/components/button'
 import { TextField } from '@/components/Fields'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
@@ -45,6 +45,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
     const [submiting, setSubmiting] = useState<boolean>(false)
     const [selectCategories, setSelectCategories] = useState<OptionType[]>([])
     const [image, setImage] = useState<any>()
+    const [type, setType] = useState<'normal' | 'group'>('normal')
     const [variations, setVariations] = useState([variationValues])
 
     const router = useRouter()
@@ -140,7 +141,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
             onSubmit={handleSubmit(submit)}
             autoComplete="off"
         >
-            <div className={'border-2 border-violet-800 p-2 rounded-xl'}>
+            <div className={'border-2 border-violet-600 shadow-xl ring-2 ring-violet-100 ring-offset-violet-50 p-2 rounded-xl'}>
                 <label htmlFor='image' className={'border border-gray-400 border-dashed bg-gray-50 h-[200px] rounded-xl flex flex-wrap flex-col items-center justify-center cursor-pointer select-none'}>
                     <input type="file" id="image" className={'hidden'}
                     onChange={(e) => {
@@ -155,7 +156,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 </label>
             </div>
             <div>
-                <label htmlFor="" className={'block mb-1'}>Categories</label>
+                <label htmlFor="" className={'block mb-1 font-medium'}>Categories</label>
                 <Controller
                     name='categories'
                     control={control}
@@ -168,8 +169,11 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                             isClearable
                             isMulti
                             onChange={(selectedOption) => field.onChange(selectedOption)}
+                            classNames={{
+                                control: () => "ring-1 ring-gray-300"
+                            }}
                             styles={{
-                                control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "none"})
+                                control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "0 0 0 0px #fff, 0 0 0 calc(1px + 0px) rgb(209 213 219 / 1), 0 0 #0000, 0 0 #0000"})
                             }}
                         />
                     )}
@@ -180,11 +184,11 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
             </div>
 
             <div>
-                <label htmlFor="" className={'block mb-1'}>Name *</label>
+                <label htmlFor="" className={'block mb-1 font-medium'}>Name *</label>
                 <TextField
                     type="text"
                     placeholder={'Name'}
-                    className={errors.name ? 'border-red-500' : 'border-gray-50'}
+                    error={!!errors.name}
                     {...register('name', {
                         required: {
                             value: true,
@@ -198,10 +202,10 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
             </div>
 
             <div>
-                <label htmlFor="" className={'block mb-1'}>Description</label>
+                <label htmlFor="" className={'block mb-1 font-medium'}>Description</label>
                 <TextArea
                     placeholder={'Description'}
-                    className={errors.description ? 'border-red-500' : 'border-gray-50'}
+                    error={!!errors.description}
                     {...register('description', {
                         required: {
                             value: true,
@@ -214,72 +218,108 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 )}
             </div>
 
+            <div>
+                <p className={'block mb-2 font-medium'}>Type</p>
+                <Switcher title={'Group Items'} checked={type === "group"} onChange={(value) => {
+                    setType(value ? 'group' : 'normal')
+                }} />
+            </div>
+
             <hr />
 
-            <h4 className={'text-lg font-medium'}>{'Variations'}</h4>
-            
             {
-                variations.map((variation, index) => {
-                    return (
-                    <div key={index} className={'p-2 border-8 border-gray-50 rounded-lg text-sm relative'}>
-                        {
-                            index > 0 && (
-                                <Trash2 
-                                    className={'w-4 absolute right-3 text-red-600 cursor-pointer'}
-                                    onClick={() => delVariation(index)}
-                                />
-                            )
-                        }
-
-                        <div className={'mb-4'}>
-                            <label htmlFor="" className={'block mb-1'}>Name *</label>
+                type === "normal" ? (
+                    <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
+                        <div>
+                            <label htmlFor="" className={'block mb-1'}>Price *</label>
                             <TextField
                                 type="text"
-                                placeholder={'Variation Name'}
-                                value={variation.name}
-                                onChange={(e) => {
-                                    changeVariationValue(index, 'name', e.target.value)
-                                }}
+                                placeholder={'Price'}
+                                // onChange={(e) => {
+                                //     changeVariationValue(index, 'price', e.target.value)
+                                // }}
                             />
                         </div>
-                        
-                        <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
-                            <div>
-                                <label htmlFor="" className={'block mb-1'}>Price *</label>
-                                <TextField
-                                    type="text"
-                                    placeholder={'Price'}
-                                    className={errors.name ? 'border-red-500' : 'border-gray-50'}
-                                    onChange={(e) => {
-                                        changeVariationValue(index, 'price', e.target.value)
-                                    }}
-                                />
-                            </div>
 
-                            <div>
-                                <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
-                                <TextField
-                                    type="text"
-                                    placeholder={'Discounted Price'}
-                                    className={errors.name ? 'border-red-500' : 'border-gray-50'}
-                                    onChange={(e) => {
-                                        changeVariationValue(index, 'discountedPrice', e.target.value)
-                                    }}
-                                />
-                            </div>
+                        <div>
+                            <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
+                            <TextField
+                                type="text"
+                                placeholder={'Discounted Price'}
+                                // onChange={(e) => {
+                                //     changeVariationValue(index, 'discountedPrice', e.target.value)
+                                // }}
+                            />
                         </div>
                     </div>
-                    )
-                })
-            }
+                ) : (
+                    <>
+                    <h4 className={'text-lg font-medium'}>{'Group Items'}</h4>
+                    {
+                        variations.map((variation, index) => {
+                            return (
+                            <div key={index} className={'p-5 bg-white rounded-lg text-sm relative shadow-sm shadow-gray-400'}>
+                                {
+                                    index > 0 && (
+                                        <Trash2 
+                                            className={'w-4 absolute right-3 text-red-600 cursor-pointer'}
+                                            onClick={() => delVariation(index)}
+                                        />
+                                    )
+                                }
 
-            <LiteButton 
-                type="button" 
-                className={'w-max'}
-                onClick={() => {
-                    addVariations()
-                }}
-            >{'Add Variation'}</LiteButton>
+                                <div className={'mb-4'}>
+                                    <label htmlFor="" className={'block mb-1'}>Item *</label>
+                                    <TextField
+                                        type="text"
+                                        placeholder={'Select Item ...'}
+                                        value={variation.name}
+                                        onChange={(e) => {
+                                            changeVariationValue(index, 'name', e.target.value)
+                                        }}
+                                    />
+                                </div>
+                                
+                                <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
+                                    <div>
+                                        <label htmlFor="" className={'block mb-1'}>Price *</label>
+                                        <TextField
+                                            type="text"
+                                            placeholder={'Price'}
+                                            onChange={(e) => {
+                                                changeVariationValue(index, 'price', e.target.value)
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
+                                        <TextField
+                                            type="text"
+                                            placeholder={'Discounted Price'}
+                                            onChange={(e) => {
+                                                changeVariationValue(index, 'discountedPrice', e.target.value)
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            )
+                        })
+                    }
+                    <LiteButton 
+                        type="button" 
+                        className={'w-max'}
+                        onClick={() => {
+                            addVariations()
+                        }}
+                    >
+                        {'Add Variation'}
+                    </LiteButton>
+                    </>
+                )
+            }
+            {/* <hr /> */}
 
             <div className={''}>
                 <DarkButton 
