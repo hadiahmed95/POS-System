@@ -8,10 +8,19 @@ use App\Models\Unit;
 
 class UnitController extends Controller
 {
-    public function view() {
+    public function view(Request $request, $id = null) {
         $filters = [];
         $relationships = [];
-        return getRecord(Unit::class, $filters, $relationships);
+        if ($id) {
+            $filters = [
+                [
+                    "column" => "id",
+                    "condition" => "=",
+                    "value" => $id
+                ]
+            ];
+        }
+        return ($id != null) ? getSingleRecord(Unit::class, $filters, $relationships) : getRecord(Unit::class, $filters, $relationships);
     }
 
     public function add(Request $request) {

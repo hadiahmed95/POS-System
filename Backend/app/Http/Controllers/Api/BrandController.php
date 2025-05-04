@@ -8,10 +8,19 @@ use App\Models\Brand;
 
 class BrandController extends Controller
 {
-    public function view() {
+    public function view(Request $request, $id = null) {
         $filters = [];
         $relationships = [];
-        return getRecord(Brand::class, $filters, $relationships);
+        if ($id) {
+            $filters = [
+                [
+                    "column" => "id",
+                    "condition" => "=",
+                    "value" => $id
+                ]
+            ];
+        }
+        return ($id != null) ? getSingleRecord(Brand::class, $filters, $relationships) : getRecord(Brand::class, $filters, $relationships);
     }
 
     public function add(Request $request) {
