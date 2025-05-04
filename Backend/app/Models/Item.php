@@ -9,4 +9,6 @@ class Item extends Model
 {
     use SoftDeletes;
     protected $fillable = [];
+
+    
 }
