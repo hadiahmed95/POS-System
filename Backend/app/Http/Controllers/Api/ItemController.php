@@ -41,20 +41,8 @@ class ItemController extends Controller
         if (!$request->has("name")) {
             $errors[] = "Please provide item name";
         }
-        if (!$request->has("brand_id")) {
-            $errors[] = "Please provide brand id";
-        }
-        if (!$request->has("unit_id")) {
-            $errors[] = "Please provide unit id";
-        }
-        if (!$request->has("vendor_id")) {
-            $errors[] = "Please provide vendor id";
-        }
         if (!$request->has("price")) {
             $errors[] = "Please provide item price";
-        }
-        if (!$request->has("barcode")) {
-            $errors[] = "Please provide item barcode";
         }
         if (!$request->has("box_quantity")) {
             $errors[] = "Please provide box quantity";
@@ -76,14 +64,9 @@ class ItemController extends Controller
             DB::beginTransaction();
             
             // Add the main item
-            $add_result = addRecord(Item::class, $request->except('grouped_items'));
-            $response_data = json_decode($add_result->getContent(), true);
+            $item = Item::create($request->except('grouped_items'));
             
-            if ($response_data['status'] !== 'success') {
-                throw new \Exception($response_data['message']);
-            }
-            
-            $item_id = $response_data['data']['id'];
+            $item_id = $item->id;
             
             // If it's a group item, add the grouped items in bulk
             if ($request->has("item_type") && $request->item_type == "group" && $request->has("grouped_items")) {
@@ -145,20 +128,8 @@ class ItemController extends Controller
         if (!$request->has("name")) {
             $errors[] = "Please provide item name";
         }
-        if (!$request->has("brand_id")) {
-            $errors[] = "Please provide brand id";
-        }
-        if (!$request->has("unit_id")) {
-            $errors[] = "Please provide unit id";
-        }
-        if (!$request->has("vendor_id")) {
-            $errors[] = "Please provide vendor id";
-        }
         if (!$request->has("price")) {
             $errors[] = "Please provide item price";
-        }
-        if (!$request->has("barcode")) {
-            $errors[] = "Please provide item barcode";
         }
         if (!$request->has("box_quantity")) {
             $errors[] = "Please provide box quantity";

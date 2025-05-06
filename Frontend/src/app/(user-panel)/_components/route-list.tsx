@@ -77,24 +77,33 @@ const routeList: IrouteList[] = [
         slug: 'tables'
     },
     {
+        icon: <UsersRound size={20} strokeWidth={1.5} />,
+        title: 'Orders',
+        url: routes.orders,
+        slug: 'orders'
+    },
+    {
         icon: <ScanLine size={20} strokeWidth={1.5} />,
         title: 'Purchases',
         slug: 'purchases'
     },
     {
-        icon: <UsersRound size={20} strokeWidth={1.5} />,
-        title: 'Orders',
-        slug: 'orders'
+        icon: <Banknote size={20} strokeWidth={1.5} />,
+        title: 'Kitchen',
+        slug: 'kitchen',
+        url: routes.kitchen
     },
     {
         icon: <Banknote size={20} strokeWidth={1.5} />,
         title: 'Sell',
-        slug: 'sales'
+        slug: 'reports/sales',
+        url: routes.salesReport
     },
     {
         icon: <ClipboardList size={20} strokeWidth={1.5} />,
         title: 'Reports',
-        slug: 'reports'
+        slug: 'reports',
+        url: routes.reports
     },
     {
         icon: <ClipboardList size={20} strokeWidth={1.5} />,

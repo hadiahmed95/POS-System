@@ -1,0 +1,150 @@
+'use client'
+
+import React, { useEffect, useRef } from 'react'
+import { IOrder } from '@/app/(user-panel)/type'
+import { useReactToPrint } from 'react-to-print'
+import { DarkButton } from '@/components/button'
+import { useAppSelector } from '../../_lib/store'
+
+interface IOrderReceiptProps {
+  order: IOrder
+  onClose: () => void
+}
+
+const OrderReceipt = ({ order, onClose }: IOrderReceiptProps) => {
+  const receiptRef = useRef<HTMLDivElement>(null)
+  const { branch } = useAppSelector(state => state.branch)
+  
+  const handlePrint = useReactToPrint({
+    // content: () => receiptRef.current,
+    onAfterPrint: () => {
+      onClose()
+    }
+  })
+  
+  // Automatically trigger print when component mounts
+  useEffect(() => {
+    // Slight delay to ensure the component is fully rendered
+    const timer = setTimeout(() => {
+      handlePrint()
+    }, 300)
+    
+    return () => clearTimeout(timer)
+  }, [handlePrint])
+  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+  
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-md">
+        <h3 className="text-lg font-medium mb-4">Print Receipt</h3>
+        
+        <div className="hidden">
+          <div ref={receiptRef} className="p-4 w-80 mx-auto font-mono text-sm">
+            {/* Receipt Header */}
+            <div className="text-center mb-4">
+              <h2 className="text-lg font-bold">{branch?.branch_name || 'Your POS System'}</h2>
+              <p className="text-xs">{branch?.branch_address || ''}</p>
+              <p className="text-xs">{branch?.branch_phone || ''}</p>
+            </div>
+            
+            <div className="border-b border-dashed border-gray-400 mb-2"></div>
+            
+            {/* Order Info */}
+            <div className="mb-2">
+              <p>Receipt #: {order.order_number}</p>
+              <p>Date: {formatDate(order.created_at)}</p>
+              {order.customer_name && <p>Customer: {order.customer_name}</p>}
+              {order.table_no && <p>Table: {order.table_no}</p>}
+            </div>
+            
+            <div className="border-b border-dashed border-gray-400 mb-2"></div>
+            
+            {/* Order Items */}
+            <div className="mb-2">
+              <div className="grid grid-cols-12 text-xs font-bold">
+                <div className="col-span-6">Item</div>
+                <div className="col-span-2 text-right">Qty</div>
+                <div className="col-span-2 text-right">Price</div>
+                <div className="col-span-2 text-right">Total</div>
+              </div>
+              {order.items.map((item, index) => (
+                <div key={index} className="grid grid-cols-12 text-xs py-1">
+                  <div className="col-span-6">
+                    <p>{item.name}</p>
+                    {item.variation_name && <p className="text-xs">({item.variation_name})</p>}
+                  </div>
+                  <div className="col-span-2 text-right">{item.quantity}</div>
+                  <div className="col-span-2 text-right">${item.price.toFixed(2)}</div>
+                  <div className="col-span-2 text-right">${(item.quantity * item.price).toFixed(2)}</div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="border-b border-dashed border-gray-400 mb-2"></div>
+            
+            {/* Totals */}
+            <div className="text-xs">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>${order.subtotal.toFixed(2)}</span>
+              </div>
+              
+              {order.discount > 0 && (
+                <div className="flex justify-between">
+                  <span>Discount:</span>
+                  <span>-${order.discount.toFixed(2)}</span>
+                </div>
+              )}
+              
+              {order.tax > 0 && (
+                <div className="flex justify-between">
+                  <span>Tax:</span>
+                  <span>${order.tax.toFixed(2)}</span>
+                </div>
+              )}
+              
+              <div className="flex justify-between font-bold mt-1">
+                <span>Total:</span>
+                <span>${order.total_amount.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            <div className="border-b border-dashed border-gray-400 my-2"></div>
+            
+            {/* Footer */}
+            <div className="text-center text-xs mt-4">
+              <p>Thank you for your business!</p>
+              <p>Please come again</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="text-center mb-4">
+          <p>The receipt is being sent to your printer.</p>
+          <p className="text-sm text-gray-500">If the print dialog doesn't appear, click the button below.</p>
+        </div>
+        
+        <div className="flex justify-between">
+          <DarkButton onClick={handlePrint} className="w-1/2 justify-center">
+            Print Receipt
+          </DarkButton>
+          <DarkButton variant="danger" onClick={onClose} className="w-1/2 ml-2 justify-center">
+            Close
+          </DarkButton>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default OrderReceipt
