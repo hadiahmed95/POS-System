@@ -31,11 +31,11 @@ const ItemPage = () => {
         {
           label: 'Yes',
           onClick: () => {
-            fetch(`${BASE_URL}/api/categories/delete`, {
+            fetch(`${BASE_URL}/api/items/delete`, {
               method: "POST",
               body: JSON.stringify({ id })
             }).then(_ => {
-              toastCustom.error('Category deleted successfully.')
+              toastCustom.error('Item deleted successfully.')
               setList(list.filter(li => Number(li.id) !== id))
             })
           }
@@ -55,12 +55,12 @@ const ItemPage = () => {
     hasFetched.current = true;
     setIsLoading(true)
     try {
-      // const res = await fetch(`${BASE_URL}/api/categories/view`, {
-      //   method: "POST"
-      // }).then(async response => response.json())
-      // if (res?.data?.data) {
-      //   setList(res.data.data)
-      // }
+      const res = await fetch(`${BASE_URL}/api/items/view`, {
+        method: "POST"
+      }).then(async response => response.json())
+      if (res?.data?.data) {
+        setList(res.data.data)
+      }
       setIsLoading(false)
     }
     catch (error) {
@@ -107,6 +107,7 @@ const ItemPage = () => {
               <th scope="col" className="px-6 py-3">Sr #</th>
               <th scope="col" className="px-6 py-3">Image</th>
               <th scope="col" className="px-6 py-3">Name</th>
+              <th scope="col" className="px-6 py-3">Price</th>
               <th scope="col" className="px-6 py-3">Action</th>
             </tr>
           </thead>
@@ -124,6 +125,7 @@ const ItemPage = () => {
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">{item.image}</td>
                   <td className="px-6 py-4">{item.name ?? '-'}</td>
+                  <td className="px-6 py-4">{item.price}</td>
                   <td className="px-6 py-4 flex items-center">
                     <DarkButton 
                       className='mr-2 inline-block w-max shadow-lg !p-[5px]'

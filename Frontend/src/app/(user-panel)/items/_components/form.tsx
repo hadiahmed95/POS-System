@@ -29,15 +29,18 @@ type OptionType = {
     label: string;
 };
 
+type ItemType = Omit<IItem, 'cat_id'> & { category: OptionType }
+
 const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
 
-    let initialValues: IItem = {
+    let initialValues: ItemType = {
         name: '',
         image: '',
         description: '',
-        categories: [],
+        category: { value: '0', label: 'Select Category ...' },
         variations: [],
-        available: 1
+        available: 1,
+        price: 0
     }
 
     const variationValues = { name: '', price: '', discountedPrice: '' }
@@ -49,7 +52,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
     const [variations, setVariations] = useState([variationValues])
 
     const router = useRouter()
-    const { register, handleSubmit, reset, setValue, getValues, control, formState: { errors } } = useForm<IItem>({
+    const { register, handleSubmit, reset, setValue, getValues, control, formState: { errors } } = useForm<ItemType>({
         defaultValues: initialValues
     })
 
@@ -69,36 +72,41 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
         setVariations(prev => prev.filter((_, i) => i !== index))
     }
 
-    const submit = async (data: IItem) => {
-        const _data = { ...data }
-
-        return false
+    const submit = async (data: ItemType) => {
+        let _data = {
+            name: data.name,
+            cat_id: data.category.value,
+            description: data.description,
+            price: data.price,
+            image: data.image,
+            box_quantity: 1
+        }
         
         setSubmiting(true)
         if(!data?.id && !submiting)
         {
-            const res = await fetch(`${BASE_URL}/api/categories/add`, {
+            const res = await fetch(`${BASE_URL}/api/items/add`, {
                 method: "POST",
                 body: JSON.stringify(_data)
             }).then(response => response.json())
     
             if (res.status === "success") {
                 reset()
-                toastCustom.success('Category added successfully.')
-                router.push(routes.categories)
+                toastCustom.success('Item added successfully.')
+                router.push(routes.items)
             }
         }
         else if(!submiting)
         {
-            const res = await fetch(`${BASE_URL}/api/categories/update`, {
+            const res = await fetch(`${BASE_URL}/api/items/update`, {
                 method: "POST",
-                body: JSON.stringify({..._data, id: _data?.id})
+                body: JSON.stringify({..._data, id: data?.id})
             }).then(response => response.json())
     
             if (res.status === "success") {
                 reset()
-                toastCustom.info('Category updated successfully.')
-                router.push(routes.categories)
+                toastCustom.info('Item updated successfully.')
+                router.push(routes.items)
             }
         }
         onSubmit()
@@ -109,6 +117,11 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
         if (data?.id) {
             setValue("id", data.id);
             setValue('name', data.name);
+            setValue('description', data.description);
+            setValue('price', data.price);
+
+            let edit_cat = categories.find(cat => cat.id && Number(cat.id) == Number(data.cat_id))
+            setValue('category', {label: edit_cat?.cat_name ?? '', value: (edit_cat?.id as string) ?? ''});
         } else {
             reset();
         }
@@ -130,7 +143,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
         {
             const _options: OptionType[] = categories.map(cat => ({
                 label: cat.cat_name,
-                value: cat.id ?? ''
+                value: (cat.id as string) ?? ''
             }))
             setSelectCategories(_options)
         }
@@ -155,10 +168,11 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                     <span className={'block text-gray-700 font-medium text-sm'}>Click to choose photo of item</span>
                 </label>
             </div>
+
             <div>
                 <label htmlFor="" className={'block mb-1 font-medium'}>Categories</label>
                 <Controller
-                    name='categories'
+                    name='category'
                     control={control}
                     render={({ field }) => (
                         <ReactSelect
@@ -167,7 +181,6 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                             defaultValue={selectCategories[1]}
                             options={selectCategories}
                             isClearable
-                            isMulti
                             onChange={(selectedOption) => field.onChange(selectedOption)}
                             classNames={{
                                 control: () => "ring-1 ring-gray-300"
@@ -178,14 +191,15 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                         />
                     )}
                 />
-                {errors.categories && (
-                    <small className={'text-red-700'}>{errors.categories.message}</small>
+                {errors.category && (
+                    <small className={'text-red-700'}>{errors.category.message}</small>
                 )}
             </div>
 
             <div>
-                <label htmlFor="" className={'block mb-1 font-medium'}>Name *</label>
+                <label htmlFor="name" className={'block mb-1 font-medium'}>Name *</label>
                 <TextField
+                    id='name'
                     type="text"
                     placeholder={'Name'}
                     error={!!errors.name}
@@ -202,8 +216,9 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
             </div>
 
             <div>
-                <label htmlFor="" className={'block mb-1 font-medium'}>Description</label>
+                <label htmlFor="description" className={'block mb-1 font-medium'}>Description</label>
                 <TextArea
+                    id='description'
                     placeholder={'Description'}
                     error={!!errors.description}
                     {...register('description', {
@@ -218,42 +233,34 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                 )}
             </div>
 
+            <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
+                <div>
+                    <label htmlFor="price" className={'block mb-1 font-medium'}>Price *</label>
+                    <TextField
+                        type="text"
+                        id='price'
+                        placeholder={'Price'}
+                        {...register('price', {
+                            required: {
+                                value: true,
+                                message: "Price is required"
+                            }
+                        })}
+                    />
+                </div>
+            </div>
+
             <div>
-                <p className={'block mb-2 font-medium'}>Type</p>
                 <Switcher title={'Group Items'} checked={type === "group"} onChange={(value) => {
                     setType(value ? 'group' : 'normal')
                 }} />
             </div>
 
-            <hr />
 
             {
-                type === "normal" ? (
-                    <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
-                        <div>
-                            <label htmlFor="" className={'block mb-1'}>Price *</label>
-                            <TextField
-                                type="text"
-                                placeholder={'Price'}
-                                // onChange={(e) => {
-                                //     changeVariationValue(index, 'price', e.target.value)
-                                // }}
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
-                            <TextField
-                                type="text"
-                                placeholder={'Discounted Price'}
-                                // onChange={(e) => {
-                                //     changeVariationValue(index, 'discountedPrice', e.target.value)
-                                // }}
-                            />
-                        </div>
-                    </div>
-                ) : (
+                type === "group" && (
                     <>
+                    <hr />
                     <h4 className={'text-lg font-medium'}>{'Group Items'}</h4>
                     {
                         variations.map((variation, index) => {
@@ -279,30 +286,6 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                                         }}
                                     />
                                 </div>
-                                
-                                <div className={'grid grid-cols-1 md:grid-cols-2 gap-5'}>
-                                    <div>
-                                        <label htmlFor="" className={'block mb-1'}>Price *</label>
-                                        <TextField
-                                            type="text"
-                                            placeholder={'Price'}
-                                            onChange={(e) => {
-                                                changeVariationValue(index, 'price', e.target.value)
-                                            }}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="" className={'block mb-1'}>Discounted Price *</label>
-                                        <TextField
-                                            type="text"
-                                            placeholder={'Discounted Price'}
-                                            onChange={(e) => {
-                                                changeVariationValue(index, 'discountedPrice', e.target.value)
-                                            }}
-                                        />
-                                    </div>
-                                </div>
                             </div>
                             )
                         })
@@ -314,7 +297,7 @@ const Form = ({ categories, isClose, data, onSubmit }: IForm) => {
                             addVariations()
                         }}
                     >
-                        {'Add Variation'}
+                        {'Add New Item'}
                     </LiteButton>
                     </>
                 )

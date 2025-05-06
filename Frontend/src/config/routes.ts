@@ -9,5 +9,9 @@ export const routes = {
     customers: '/customers',
     categories: '/categories',
     items: '/items',
-    tables: '/tables'
+    tables: '/tables',
+    orders: '/orders',
+    reports: '/reports',
+    salesReport: '/reports/sales',
+    kitchen: '/kitchen'
 }

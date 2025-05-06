@@ -1,17 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { IUserSlice, userReducer } from "./features/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { branchReducer } from "./features/branchSlice";
 
 export interface PreloadedState {
-    user: IUserSlice;
+    user: IUserSlice
 }
 
 export const createStore = (preloadedState: PreloadedState) => configureStore({
   reducer: {
-    user: userReducer
+    user: userReducer,
+    branch: branchReducer
   },
   preloadedState: {
-    ...preloadedState
+    ...preloadedState,
   }
 });
 

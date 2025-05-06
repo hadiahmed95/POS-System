@@ -36,7 +36,7 @@ interface IVendor {
 }
 
 interface ICategory {
-    id?: string
+    id?: string | number
     cat_name: string
     parent_id: string
     children?: ICategory[]
@@ -45,8 +45,8 @@ interface ICategory {
 }
 
 interface IItem {
-    id?: string
-    categories: ICategory[]
+    id?: string | number
+    cat_id: number
     variations: string[]
     added_by?: string
     image: string
@@ -56,13 +56,14 @@ interface IItem {
     sku?: string
     description?: string
     available: string | number
+    price: number
 }
 
 type TableType = 'indoor' | 'outdoor'
 type TableStatus = 'available' | 'reserved' | 'occupied'
 
 interface ITable {
-    id?: string
+    id?: string | number
     table_no: string
     capacity: string
     type: TableType
@@ -100,6 +101,35 @@ interface IPermissions {
     updated_at?: Date
 }
 
+interface IOrderItem {
+    id?: number | string
+    item_id: number | string
+    name: string
+    quantity: number
+    price: number
+    variation_name?: string
+    variation_id?: number | string
+}
+  
+interface IOrder {
+    id?: number | string
+    order_number: string
+    customer_name?: string
+    table_no?: string
+    items: IOrderItem[]
+    items_count: number
+    subtotal: number
+    discount: number
+    tax: number
+    total_amount: number
+    status: 'pending' | 'completed' | 'cancelled'
+    notes?: string
+    created_at: string
+    updated_at?: string
+    created_by?: number | string
+}
+  
+
 export type {
     IrouteList,
     IBranch,
@@ -111,5 +141,7 @@ export type {
     ITable,
     ICustomer,
     IPermissions,
-    IModule
+    IModule,
+    IOrder,
+    IOrderItem
 }
