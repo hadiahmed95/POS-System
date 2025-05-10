@@ -57,7 +57,8 @@ interface IItem {
     available: string | number
     price: number,
     box_quantity: number
-    item_type: 'single' | 'group'
+    item_type: 'single' | 'group',
+    grouped_items?: any[]
 }
 
 type TableType = 'indoor' | 'outdoor'
