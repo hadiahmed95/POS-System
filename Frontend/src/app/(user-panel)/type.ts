@@ -47,7 +47,6 @@ interface ICategory {
 interface IItem {
     id?: string | number
     cat_id: number
-    variations: string[]
     added_by?: string
     image: string
     name: string
@@ -56,7 +55,9 @@ interface IItem {
     sku?: string
     description?: string
     available: string | number
-    price: number
+    price: number,
+    box_quantity: number
+    item_type: 'single' | 'group'
 }
 
 type TableType = 'indoor' | 'outdoor'

@@ -64,7 +64,7 @@ class ItemController extends Controller
             DB::beginTransaction();
             
             // Add the main item
-            $item = Item::create($request->except('grouped_items'));
+            $item = Item::create($request->except('grouped_items', 'image'));
             
             $item_id = $item->id;
             
@@ -73,13 +73,13 @@ class ItemController extends Controller
                 $grouped_items_data = [];
                 
                 foreach ($request->grouped_items as $grouped_item) {
-                    if (!isset($grouped_item['item_id'])) {
+                    if (!isset($grouped_item)) {
                         throw new \Exception("Each grouped item must have an item_id");
                     }
                     
                     $grouped_items_data[] = [
                         'parent_item' => $item_id,
-                        'item_id' => $grouped_item['item_id'],
+                        'item_id' => $grouped_item,
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
@@ -167,13 +167,13 @@ class ItemController extends Controller
                 $grouped_items_data = [];
                 
                 foreach ($request->grouped_items as $grouped_item) {
-                    if (!isset($grouped_item['item_id'])) {
+                    if (!isset($grouped_item)) {
                         throw new \Exception("Each grouped item must have an item_id");
                     }
                     
                     $grouped_items_data[] = [
                         'parent_item' => $request->id,
-                        'item_id' => $grouped_item['item_id'],
+                        'item_id' => $grouped_item,
                         'created_at' => now(),
                         'updated_at' => now()
                     ];

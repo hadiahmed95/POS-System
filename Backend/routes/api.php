@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UnitController;
 use App\Http\Controllers\Api\VendorController;
 
-Route::middleware('check.connections')->group(function() {
+// Route::middleware('check.connections')->group(function() {
     Route::get('/user', function (Request $request) {
         return $request->user();
     })->middleware('auth:sanctum');
@@ -95,4 +95,4 @@ Route::middleware('check.connections')->group(function() {
             });
         });
     });
-});
+// });
