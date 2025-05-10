@@ -11,6 +11,7 @@ import AddBrand from './_components/add-branch'
 import { IBrand } from '../type'
 import { TrippleDotLoader } from '@/components/loaders'
 import TableLoader from '../_components/table-loader'
+import PageTitleOver from '../_components/page-title-over'
 
 const Users = () => {
 
@@ -82,7 +83,7 @@ const Users = () => {
 
   return (
     <div>
-      <div className={`flex items-center justify-between bg-white py-2 px-2 rounded-lg shadow-sm`}>
+      <PageTitleOver>
         <h2 className={'text-xl font-semibold'}>{'Brands'}</h2>
 
         <DarkButton
@@ -90,7 +91,7 @@ const Users = () => {
           setShowForm(true)
         }}
         >{'Add Brand'}</DarkButton>
-      </div>
+      </PageTitleOver>
 
       <AddBrand 
         title={'Add Brand'}

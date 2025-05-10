@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class UserHasRole extends Model
 {
     use SoftDeletes;
-    protected $fillable = ["user_id", "module_id", "permission_id", "is_allowed"];
+    protected $fillable = ["role_id", "module_id", "permission_id", "is_allowed"];
 
-    public function user() {
-        return $this->hasOne(User::class, 'id', 'user_id');
+    public function role() {
+        return $this->hasOne(Role::class, 'id', 'role_id');
     }
     
     public function module() {

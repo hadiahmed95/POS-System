@@ -158,6 +158,12 @@ class DatabaseSeeder extends Seeder
                 "created_at" => now(),
                 "updated_at" => now(),
             ],
+            [
+                "permission_name" => "Restore",
+                "permission_slug" => "restore",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
         ]);
 
         Branch::insert([
@@ -191,7 +197,7 @@ class DatabaseSeeder extends Seeder
         foreach($modules as $index => $module) {
             $module_id = $index + 1;
             $super_admin_permissions[] = [
-                "user_id" => 1,
+                "role_id" => 1,
                 "module_id" => $module_id,
                 "permission_id" => 1,
                 "is_allowed" => 1,
@@ -199,7 +205,7 @@ class DatabaseSeeder extends Seeder
                 "updated_at" => now(),
             ];
             $super_admin_permissions[] = [
-                "user_id" => 1,
+                "role_id" => 1,
                 "module_id" => $module_id,
                 "permission_id" => 2,
                 "is_allowed" => 1,
@@ -207,7 +213,7 @@ class DatabaseSeeder extends Seeder
                 "updated_at" => now(),
             ];
             $super_admin_permissions[] = [
-                "user_id" => 1,
+                "role_id" => 1,
                 "module_id" => $module_id,
                 "permission_id" => 3,
                 "is_allowed" => 1,
@@ -215,7 +221,7 @@ class DatabaseSeeder extends Seeder
                 "updated_at" => now(),
             ];
             $super_admin_permissions[] = [
-                "user_id" => 1,
+                "role_id" => 1,
                 "module_id" => $module_id,
                 "permission_id" => 4,
                 "is_allowed" => 1,
@@ -225,7 +231,7 @@ class DatabaseSeeder extends Seeder
 
             if( $module_id != 1 ) {
                 $admin_permissions[] = [
-                    "user_id" => 2,
+                    "role_id" => 2,
                     "module_id" => $module_id,
                     "permission_id" => 1,
                     "is_allowed" => 1,
@@ -233,7 +239,7 @@ class DatabaseSeeder extends Seeder
                     "updated_at" => now(),
                 ];
                 $admin_permissions[] = [
-                    "user_id" => 2,
+                    "role_id" => 2,
                     "module_id" => $module_id,
                     "permission_id" => 2,
                     "is_allowed" => 1,
@@ -241,7 +247,7 @@ class DatabaseSeeder extends Seeder
                     "updated_at" => now(),
                 ];
                 $admin_permissions[] = [
-                    "user_id" => 2,
+                    "role_id" => 2,
                     "module_id" => $module_id,
                     "permission_id" => 3,
                     "is_allowed" => 1,
@@ -249,7 +255,7 @@ class DatabaseSeeder extends Seeder
                     "updated_at" => now(),
                 ];
                 $admin_permissions[] = [
-                    "user_id" => 2,
+                    "role_id" => 2,
                     "module_id" => $module_id,
                     "permission_id" => 4,
                     "is_allowed" => 1,

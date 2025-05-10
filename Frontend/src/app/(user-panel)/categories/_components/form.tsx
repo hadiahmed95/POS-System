@@ -16,6 +16,7 @@ const ReactSelect = dynamic(() => import("react-select"), {
 });
 
 interface IForm {
+    show: boolean
     isClose: boolean
     data?: ICategory | null
     onSubmit: () => void
@@ -28,7 +29,7 @@ type OptionType = {
 
 type FormValueType = Omit<ICategory, 'parent_id'> & { parent_id: { value: string, label: string } }
 
-const Form = ({ isClose, data, onSubmit }: IForm) => {
+const Form = ({ show, isClose, data, onSubmit }: IForm) => {
 
     let initialValues: FormValueType = {
         cat_name: '',
@@ -40,6 +41,17 @@ const Form = ({ isClose, data, onSubmit }: IForm) => {
     const { register, handleSubmit, reset, setValue, getValues, control, formState: { errors } } = useForm<FormValueType>({
         defaultValues: initialValues
     })
+
+    const options: OptionType[] = [
+        { value : '', label: 'Select Parent ...'},
+        { value: 'purple', label: 'Purple' },
+        { value: 'orange', label: 'Orange' },
+        { value: 'yellow', label: 'Yellow' },
+        { value: 'green', label: 'Green' },
+        { value: 'forest', label: 'Forest' },
+        { value: 'slate', label: 'Slate' },
+        { value: 'silver', label: 'Silver' },
+      ];
 
     const submit = async (data: FormValueType) => {
         const _data = { ...data, parent_id: data.parent_id ? data.parent_id.value : '' }
@@ -100,34 +112,13 @@ const Form = ({ isClose, data, onSubmit }: IForm) => {
         }
     }, [isClose])
 
-    const options: OptionType[] = [
-        { value : '', label: 'Select Parent ...'},
-        { value: 'purple', label: 'Purple' },
-        { value: 'orange', label: 'Orange' },
-        { value: 'yellow', label: 'Yellow' },
-        { value: 'green', label: 'Green' },
-        { value: 'forest', label: 'Forest' },
-        { value: 'slate', label: 'Slate' },
-        { value: 'silver', label: 'Silver' },
-      ];
-
     return (
         <form className={'grid grid-cols-1 gap-5'}
             onSubmit={handleSubmit(submit)}
+            autoComplete="off"
         >
-            <div>
+            {/* <div>
                 <label htmlFor="" className={'block mb-1'}>Select Parent</label>
-                {/* <TextField
-                    type="text"
-                    placeholder={'Phone No'}
-                    className={errors.parent_id ? 'border-red-500' : 'border-gray-50'}
-                    {...register('parent_id', {
-                        required: {
-                            value: true,
-                            message: "Phone no is required"
-                        }
-                    })}
-                /> */}
                 <Controller
                     name="parent_id"
                     control={control}
@@ -149,14 +140,14 @@ const Form = ({ isClose, data, onSubmit }: IForm) => {
                 {errors.parent_id && (
                     <small className={'text-red-700'}>{errors.parent_id.message}</small>
                 )}
-            </div>
+            </div> */}
 
             <div>
                 <label htmlFor="" className={'block mb-1'}>Name *</label>
                 <TextField
                     type="text"
                     placeholder={'Name'}
-                    className={errors.cat_name ? 'border-red-500' : 'border-gray-50'}
+                    className={errors.cat_name ? 'border-red-500' : 'border-gray-50 ring-1 ring-gray-300'}
                     {...register('cat_name', {
                         required: {
                             value: true,

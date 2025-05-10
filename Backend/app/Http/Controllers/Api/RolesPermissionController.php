@@ -11,7 +11,7 @@ use App\Models\UserHasRole;
 
 class RolesPermissionController extends Controller
 {
-    public function viewRole(Request $request) {
+    public function viewRole(Request $request, $role_id = null) {
         $filters = [
             [
                 "column" => "id",
@@ -20,7 +20,14 @@ class RolesPermissionController extends Controller
             ]
         ];
         $relationships = [];
-        return getRecord(Role::class, $filters, $relationships);
+        if ($role_id) {
+            $filters[] = [
+                "column" => "id",
+                "condition" => "=",
+                "value" => $role_id
+            ];
+        }
+        return ($role_id != null) ? getSingleRecord(Role::class, $filters, $relationships) : getRecord(Role::class, $filters, $relationships);
     }
 
     public function addRole(Request $request) {
@@ -35,29 +42,47 @@ class RolesPermissionController extends Controller
         return deleteRecord(Role::class, $request->id);
     }
 
-    public function viewModules(Request $request) {
+    public function viewModules(Request $request, $module_id = null) {
         $filters = [];
         $relationships = [];
-        return getRecord(Module::class, $filters, $relationships);
+        if ($module_id) {
+            $filters = [
+                [
+                    "column" => "id",
+                    "condition" => "=",
+                    "value" => $module_id
+                ]
+            ];
+        }
+        return ($module_id != null) ? getSingleRecord(Module::class, $filters, $relationships) : getRecord(Module::class, $filters, $relationships);
     }
 
-    public function viewPermissions(Request $request) {
+    public function viewPermissions(Request $request, $permission_id = null) {
         $filters = [];
         $relationships = [];
-        return getRecord(Permission::class, $filters, $relationships);
+        if ($permission_id) {
+            $filters = [
+                [
+                    "column" => "id",
+                    "condition" => "=",
+                    "value" => $permission_id
+                ]
+            ];
+        }
+        return ($permission_id != null) ? getSingleRecord(Permission::class, $filters, $relationships) : getRecord(Permission::class, $filters, $relationships);
     }
 
     public function viewUserPermissions(Request $request) {
         $filters = [
             [
-                "column" => "user_id",
+                "column" => "role_id",
                 "condition" => "!=",
                 "value" => 1
             ],
             [
-                "column" => "user_id",
+                "column" => "role_id",
                 "condition" => "=",
-                "value" => $request -> user_id
+                "value" => $request -> role_id
             ]
         ];
         $relationships = ["module", "permission"];

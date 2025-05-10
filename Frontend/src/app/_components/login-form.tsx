@@ -32,6 +32,7 @@ const LoginForm = () => {
             const res = await response.json()
             if(res.status === "error") {
                 toastCustom.error(res.message)
+                setLoading(false)
             }
             if(res.status === "success")
             {

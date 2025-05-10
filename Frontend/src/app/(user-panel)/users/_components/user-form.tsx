@@ -3,30 +3,42 @@ import { TextField } from '@/components/Fields'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
+
+const ReactSelect = dynamic(() => import("react-select"), {
+  ssr: false,
+});
 
 interface IUserForm {
   user?: any
 }
 interface UserInterface {
+  branch_id: string
   name: string
   email: string
   password: string
   phone: string
 }
 
+const branches = [{
+  value: 1,
+  label: 'Main Branch'
+}]
+
 const UserForm = ({ user }: IUserForm) => {
 
   let initialValues = {
+    branch_id: '',
     name: '',
     email: '',
     password: '',
   }
   const router = useRouter()
 
-  const { register, handleSubmit, formState: { errors } } = useForm<UserInterface>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<UserInterface>({
     defaultValues: initialValues
   })
 
@@ -48,9 +60,22 @@ const UserForm = ({ user }: IUserForm) => {
     >
       <div>
         <label htmlFor="" className={'block mb-1'}>Select Branch</label>
-        <select name="" id="">
-          <option value="">Select Branch</option>
-        </select>
+        <Controller
+          name='branch_id'
+          control={control}
+          render={({ field }) => (
+            <ReactSelect
+              {...field}
+              placeholder={'Select Branch ...'}
+              defaultValue={branches[1]}
+              options={branches}
+              onChange={(selectedOption) => field.onChange(selectedOption)}
+              styles={{
+                control: (styles) => ({ ...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "none" })
+              }}
+            />
+          )}
+        />
         {/* <TextField
           type="text"
           placeholder={'Name'}

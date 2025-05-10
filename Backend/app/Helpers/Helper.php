@@ -40,12 +40,12 @@ if (!function_exists('setApiResponse')) {
 }
 
 if (!function_exists('getPermissions')) {
-    function getPermissions($user_id) {
+    function getPermissions($role_id) {
         $filters = [
             [
-                "column" => "user_id",
+                "column" => "role_id",
                 "condition" => "=",
-                "value" => $user_id
+                "value" => $role_id
             ]
         ];
         $relationships = ["module", "permission"];
@@ -93,21 +93,6 @@ if (!function_exists('getRecord')) {
     }
 }
 
-if (!function_exists('getSingleRecord')) {
-    function getSingleRecord(string $model, array $filter_data = [], array $with = []) {
-        $record = $model::select('*');
-        foreach( $filter_data as $filter ) {
-            $record = $record -> where($filter["column"], $filter["condition"], $filter["value"]);
-        }
-        if( !empty($with) ) {
-            $record = $record->with($with);
-        }
-        $record = $record->first();
-        $response = setApiResponse(1, "Record fetched successfully!", 200, $record);
-        return $response;
-    }
-}
-
 /**
      * Add a new record to the database.
      *
@@ -117,9 +102,20 @@ if (!function_exists('getSingleRecord')) {
 */
 if (!function_exists('addRecord')) {
     function addRecord($model_class, array $data) {
-        $model = new $model_class;
-        $response_data = $model->create($data);
-        return setApiResponse(1, "Record added successfully!", 200, $response_data);
+        try {
+            $model = new $model_class;
+            
+            // Insert method works for both single and multiple records
+            $inserted = $model::insert($data);
+            
+            if ($inserted) {
+                return setApiResponse(1, "Record added successfully!", 200, $data);
+            } else {
+                return setApiResponse(0, "Failed to add record(s)!", 400);
+            }
+        } catch (\Exception $e) {
+            return setApiResponse(0, "Failed to add record(s)!", 400, ["error" => $e->getMessage()]);
+        }
     }
 }
 
@@ -169,6 +165,57 @@ if (!function_exists('deleteRecord')) {
             }
         }
         return setApiResponse(0, "No record found or the record had already deleted!", 400);
+    }
+}
+
+/**
+ * Restore a soft-deleted record.
+ *
+ * @param string $model_class
+ * @param int $id
+ * @return \Illuminate\Http\JsonResponse
+ */
+if (!function_exists('restoreRecord')) {
+    function restoreRecord($model_class, int $id) {
+        $model = new $model_class;
+        $record = $model->withTrashed()->find($id);
+        
+        if ($record) {
+            try {
+                $record->restore();
+                return setApiResponse(1, "Record restored successfully!", 200);
+            }
+            catch (\Exception $e) {
+                return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);
+            }
+        }
+        return setApiResponse(0, "No record found or the record is not deleted!", 400);
+    }
+}
+
+/**
+ * Restore multiple soft-deleted records that match a condition.
+ *
+ * @param string $model_class
+ * @param array $conditions Array of condition arrays [['column' => 'x', 'condition' => '=', 'value' => 'y']]
+ * @return \Illuminate\Http\JsonResponse
+ */
+if (!function_exists('restoreRecordsBulk')) {
+    function restoreRecordsBulk($model_class, array $conditions) {
+        $model = new $model_class;
+        $query = $model->withTrashed();
+        
+        foreach ($conditions as $condition) {
+            $query->where($condition['column'], $condition['condition'], $condition['value']);
+        }
+        
+        try {
+            $query->update(['deleted_at' => null]);
+            return setApiResponse(1, "Records restored successfully!", 200);
+        }
+        catch (\Exception $e) {
+            return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);
+        }
     }
 }
 

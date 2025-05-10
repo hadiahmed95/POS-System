@@ -1,14 +1,14 @@
 'use client'
 
-import { DarkButton, LinkButton, LiteButton } from '@/components/button'
-import Popup, { PopupHeader } from '@/components/popup'
+import { DarkButton, LiteButton } from '@/components/button'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
-import { SquarePen, Trash2 } from 'lucide-react'
+import { PenIcon, SquarePen, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import AddUser from './_components/add-user'
+import PageTitleOver from '../_components/page-title-over'
 
 const Users = () => {
 
@@ -62,15 +62,15 @@ const Users = () => {
 
   return (
     <div>
-      <div className={`flex justify-between`}>
+      <PageTitleOver>
         <h2 className={'text-xl font-semibold'}>{'Users'}</h2>
 
-        <LiteButton onClick={() => setShowForm(true)}>{'Add User'}</LiteButton>
-      </div>
+        <DarkButton onClick={() => setShowForm(true)}>{'Add User'}</DarkButton>
+      </PageTitleOver>
 
       <AddUser user={user} show={showForm} setShow={setShowForm} />
 
-      <div className={'relative overflow-x-auto mt-5'}>
+      <div className={'relative overflow-x-auto mt-5 bg-white shadow-sm rounded-lg'}>
         <table className={'w-full text-sm text-left rtl:text-right text-gray-500'}>
           <thead className={'text-xs text-gray-700 uppercase bg-gray-100'}>
             <tr>
@@ -90,15 +90,15 @@ const Users = () => {
                   <td className="px-6 py-4"></td>
                   <td className="px-6 py-4">{user.email}</td>
                   <td className="px-6 py-4 flex items-center">
-                    <LiteButton className='mr-2 inline-block w-max'
-                      onClick={() => {
-                        setUser(user)
-                      }}
+                    <DarkButton 
+                      className='mr-2 inline-block w-max !p-[5px]'
+                      onClick={(e) => setUser(user)}
                     >
-                      <SquarePen />
-                    </LiteButton>
+                      <PenIcon className='p-1' />
+                    </DarkButton>
                     <DarkButton variant='danger'
-                      onClick={() => delRecord(user.id)}
+                      onClick={() => delRecord(Number(user.id ?? 0))}
+                      className={'inline-block w-max shadow-lg !p-[5px]'}
                     >
                       <Trash2 className={'w-5'} />
                     </DarkButton>

@@ -53,20 +53,34 @@ const routeList: IrouteList[] = [
         slug: 'vendors'
     },
     {
+        icon: <UsersRound size={20} strokeWidth={1.5} />,
+        title: 'Customers',
+        url: routes.customers,
+        slug: 'customer'
+    },
+    {
         icon: <Grid2x2Plus size={20} strokeWidth={1.5} />,
         title: 'Categories',
         url: routes.categories,
         slug: 'categories'
     },
     {
+        icon: <Package size={20} strokeWidth={1.5} />,
+        title: 'Items',
+        url: routes.items,
+        slug: 'items'
+    },
+    {
         icon: <Sheet size={20} strokeWidth={1.5} />,
         title: 'Tables',
+        url: routes.tables,
         slug: 'tables'
     },
     {
-        icon: <Package size={20} strokeWidth={1.5} />,
-        title: 'Items',
-        slug: 'items'
+        icon: <UsersRound size={20} strokeWidth={1.5} />,
+        title: 'Orders',
+        url: routes.orders,
+        slug: 'orders'
     },
     {
         icon: <ScanLine size={20} strokeWidth={1.5} />,
@@ -74,24 +88,22 @@ const routeList: IrouteList[] = [
         slug: 'purchases'
     },
     {
-        icon: <UsersRound size={20} strokeWidth={1.5} />,
-        title: 'Customers',
-        slug: 'customer'
-    },
-    {
-        icon: <UsersRound size={20} strokeWidth={1.5} />,
-        title: 'Orders',
-        slug: 'orders'
+        icon: <Banknote size={20} strokeWidth={1.5} />,
+        title: 'Kitchen',
+        slug: 'kitchen',
+        url: routes.kitchen
     },
     {
         icon: <Banknote size={20} strokeWidth={1.5} />,
         title: 'Sell',
-        slug: 'sales'
+        slug: 'reports/sales',
+        url: routes.salesReport
     },
     {
         icon: <ClipboardList size={20} strokeWidth={1.5} />,
         title: 'Reports',
-        slug: 'reports'
+        slug: 'reports',
+        url: routes.reports
     },
     {
         icon: <ClipboardList size={20} strokeWidth={1.5} />,

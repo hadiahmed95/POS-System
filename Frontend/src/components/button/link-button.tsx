@@ -16,7 +16,7 @@ const LinkButton = ({
   return (
     <Link
         href={href} 
-        className={`px-3 py-2 rounded bg-violet-800 text-violet-50 hover:text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${className}`}
+        className={`px-3 py-2 rounded-lg bg-violet-800 text-violet-50 hover:text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${className}`}
         {...props}
     >
         {children}

@@ -1,15 +1,17 @@
-import React, { InputHTMLAttributes } from 'react'
+import React, { InputHTMLAttributes, useEffect, useRef } from 'react'
 
 interface ITextField extends InputHTMLAttributes<HTMLInputElement> {
     className?: string
+    error?: boolean
 }
 
 
-const TextField = ({ className, ...rest }: ITextField) => {
+const TextField = ({ className, error, ...props }: ITextField) => {
+
     return (
-        <input 
-            {...rest}
-            className={`bg-gray-50 border outline-none px-4 py-2 w-full rounded border-gray-50 ${className}`}
+        <input
+            className={`bg-gray-50 outline-none px-4 py-2 w-full rounded ring-1 ${error ? 'ring-red-500' : 'ring-gray-300'} ${className}`}
+            {...props}
         />
     )
 }

@@ -21,7 +21,7 @@ const DashboardLayout = async ({
     .catch(e => e)
     const userData = user.status === "success" ? user.data  : null
 
-    const user_permissions = await fetch(`${BASE_URL}/api/user-permissions`, {method: "POST", body: JSON.stringify({token: userToken, id: userData.id})})
+    const user_permissions = await fetch(`${BASE_URL}/api/user-permissions`, {method: "POST", body: JSON.stringify({token: userToken, id: userData?.id})})
     .then(response => response.json())
     .catch(e => e)
     const permissionData = user_permissions.status === "success" ? user_permissions.data : null

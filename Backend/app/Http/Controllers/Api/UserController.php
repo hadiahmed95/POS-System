@@ -10,7 +10,7 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    public function view(Request $request) {
+    public function view(Request $request, $id = null) {
         // $loggedin_user = $request->attributes->get("user");
         $filters = [
             [
@@ -21,8 +21,17 @@ class UserController extends Controller
         ];
 
         // $relationship = ["branch", "role", "permissions"];
-        $relationship = ["branch"];
-        return getRecord(User::class, $filters, $relationship);
+        $relationships = ["branch"];
+        if ($id) {
+            $filters = [
+                [
+                    "column" => "id",
+                    "condition" => "=",
+                    "value" => $id
+                ]
+            ];
+        }
+        return ($id != null) ? getSingleRecord(User::class, $filters, $relationships) : getRecord(User::class, $filters, $relationships);
     }
 
     public function add(Request $request) {

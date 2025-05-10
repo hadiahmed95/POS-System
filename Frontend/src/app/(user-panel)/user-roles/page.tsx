@@ -1,16 +1,17 @@
-import { LiteButton } from '@/components/button'
+import { LinkButton, LiteButton } from '@/components/button'
 import React from 'react'
+import PageTitleOver from '../_components/page-title-over'
 
 const UsersAccess = () => {
   return (
     <div>
-      <div className={`flex justify-between`}>
-        <h2 className={'text-xl font-semibold'}>{'User Roles'}</h2>
+      <PageTitleOver>
+        <h2 className={'text-xl font-semibold'}>{'Roles'}</h2>
 
-        <LiteButton>{'Add User Role'}</LiteButton>
-      </div>
+        <LinkButton href='/user-roles/add'>{'Add Role'}</LinkButton>
+      </PageTitleOver>
 
-      <div className={'relative overflow-x-auto mt-5'}>
+      <div className={'relative overflow-x-auto mt-5 bg-white shadow-sm rounded-lg'}>
         <table className={'w-full text-sm text-left rtl:text-right text-gray-500'}>
           <thead className={'text-xs text-gray-700 uppercase bg-gray-100'}>
             <tr>
