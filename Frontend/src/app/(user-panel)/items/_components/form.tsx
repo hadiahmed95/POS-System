@@ -161,17 +161,23 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
     }
 
     const updateFormValues = useCallback(() => {
-        console.log('data', data);
         if (data?.id) {
             setValue("id", data.id);
             setValue('name', data.name);
             setValue('description', data.description);
             setValue('price', data.price);
             setValue('item_type', data.item_type);
-            // setOpenMultiItems(data.item_type !== "single")
+            setOpenMultiItems(data.item_type !== "single")
 
             let edit_cat = categories.find(cat => cat.id && Number(cat.id) == Number(data.cat_id))
             setValue('category', {label: edit_cat?.cat_name ?? '', value: (edit_cat?.id as string) ?? ''});
+
+            const fetch_item_ids = (data.grouped_items as any[]).map((item: any) => item.item_id)
+            let edit_group_item: OptionType[] = items.filter(item => item.id && fetch_item_ids.includes(item.id)).map(item => ({
+                value: item.id?.toString() ?? '',
+                label: item.name
+            }))
+            setValue('items', edit_group_item);
         } else {
             reset();
         }
@@ -363,9 +369,8 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
                 />
             </div>
 
-
             {
-                getValues('item_type') === "group" && (
+                openMultiItems && (
                     <>
                     <div>
                         <label htmlFor="" className={'block mb-1 font-medium'}>Items *</label>

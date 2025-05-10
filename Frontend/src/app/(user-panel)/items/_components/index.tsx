@@ -1,7 +1,7 @@
 'use client'
 
 import { toastCustom } from '@/components/toastCustom';
-import { BASE_URL } from '@/config/constants';
+import { API_URL, BASE_URL } from '@/config/constants';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert';
 import { IItem } from '../../type';
@@ -19,6 +19,7 @@ import {
   isOnline,
   syncWithServer
 } from '@/services/offline-services';
+import Image from 'next/image';
 
 const ItemPage = () => {
 
@@ -233,7 +234,14 @@ const ItemPage = () => {
               list.length > 0 ? list.map((item, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4">{index + 1}</td>
-                  <td className="px-6 py-4">{item.image}</td>
+                  <td className="px-6 py-4">
+                    <div className={'relative w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-100'}>
+                      {
+                        item.image && 
+                          <Image src={`${process.env.NEXT_PUBLIC_API_URL ?? ''}/storage/${item.image}`} alt={item.name} fill={true} className={'object-cover'} />
+                      }
+                    </div>
+                  </td>
                   <td className="px-6 py-4">{item.name ?? '-'}</td>
                   <td className="px-6 py-4">{item.price}</td>
                   <td className="px-6 py-4">
