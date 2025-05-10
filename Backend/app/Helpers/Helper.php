@@ -155,9 +155,15 @@ if (!function_exists('updateRecord')) {
                 // Process any file uploads
                 foreach ($data as $key => $value) {
                     if ($value instanceof \Illuminate\Http\UploadedFile) {
-                        // Delete the old file if it exists
-                        if ($record->$key && file_exists(storage_path('app/public/' . $record->$key))) {
-                            \Illuminate\Support\Facades\Storage::delete('public/' . $record->$key);
+                        // Handle file deletion
+                        if (!empty($record->$key)) {
+                            // Get the current file path from the database
+                            $oldPath = $record->$key;
+                            
+                            // Check if the file exists and delete it
+                            if (\Illuminate\Support\Facades\Storage::exists('public/' . $oldPath)) {
+                                \Illuminate\Support\Facades\Storage::delete('public/' . $oldPath);
+                            }
                         }
                         
                         // Store the new file in model-specific directory
