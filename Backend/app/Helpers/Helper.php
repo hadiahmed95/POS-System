@@ -94,22 +94,36 @@ if (!function_exists('getRecord')) {
 }
 
 /**
-     * Add a new record to the database.
-     *
-     * @param Model $model
-     * @param array $data
-     * @return Model
-*/
+ * Add a new record to the database.
+ *
+ * @param Model $model_class
+ * @param array $data
+ * @return \Illuminate\Http\JsonResponse
+ */
 if (!function_exists('addRecord')) {
     function addRecord($model_class, array $data) {
         try {
             $model = new $model_class;
+            $processedData = $data;
+            
+            // Get model name for folder structure
+            $modelName = strtolower(class_basename($model_class));
+            
+            // Process any file uploads
+            foreach ($data as $key => $value) {
+                if ($value instanceof \Illuminate\Http\UploadedFile) {
+                    // Store the file in model-specific directory
+                    $path = $value->store("uploads/{$modelName}", 'public');
+                    // Replace the file object with the file path
+                    $processedData[$key] = $path;
+                }
+            }
             
             // Insert method works for both single and multiple records
-            $inserted = $model::insert($data);
+            $inserted = $model::insert($processedData);
             
             if ($inserted) {
-                return setApiResponse(1, "Record added successfully!", 200, $data);
+                return setApiResponse(1, "Record added successfully!", 200, $processedData);
             } else {
                 return setApiResponse(0, "Failed to add record(s)!", 400);
             }
