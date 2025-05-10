@@ -5,6 +5,8 @@ import ReduxProvider from './_lib/provider'
 import { cookies } from 'next/headers'
 import { BASE_URL } from '@/config/constants'
 import { getSession } from '../lib/session'
+import { NetworkStatusProvider } from '@/context/NetworkStatusProvider'
+import NetworkStatusIndicator from '@/components/NetworkStatusIndicator'
 
 interface IDashboardLayout {
     children: React.ReactNode
@@ -33,15 +35,18 @@ const DashboardLayout = async ({
                     user: { user: userData, permissions: permissionData }
                 }}
             >
-            <div className={'flex bg-gray-50'}>
-                <AdminSidebar />
-                <div className='w-full'>
-                    <AdminHeader />
-                    <div className={'px-10 py-8'}>
-                        {children}
+            <NetworkStatusProvider>
+                <div className={'flex bg-gray-50'}>
+                    <AdminSidebar />
+                    <div className='w-full'>
+                        <AdminHeader />
+                        <div className={'px-10 py-8'}>
+                            {children}
+                        </div>
                     </div>
                 </div>
-            </div>
+                <NetworkStatusIndicator />
+            </NetworkStatusProvider>
             </ReduxProvider>
         )
         : (

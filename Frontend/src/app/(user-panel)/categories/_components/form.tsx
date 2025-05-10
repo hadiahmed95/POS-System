@@ -10,6 +10,12 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { ICategory } from '../../type'
 import dynamic from 'next/dynamic'
+import { 
+    isOnline, 
+    createCategoryLocally, 
+    updateCategoryLocally 
+} from '@/services/offline-storage'
+import { CloudOff } from 'lucide-react'
 
 const ReactSelect = dynamic(() => import("react-select"), {
     ssr: false,
@@ -38,6 +44,7 @@ const Form = ({ show, isClose, data, onSubmit }: IForm) => {
 
     const router = useRouter()
     const [submiting, setSubmiting] = useState<boolean>(false)
+    const [isOffline, setIsOffline] = useState<boolean>(!isOnline())
     const { register, handleSubmit, reset, setValue, getValues, control, formState: { errors } } = useForm<FormValueType>({
         defaultValues: initialValues
     })
@@ -51,40 +58,78 @@ const Form = ({ show, isClose, data, onSubmit }: IForm) => {
         { value: 'forest', label: 'Forest' },
         { value: 'slate', label: 'Slate' },
         { value: 'silver', label: 'Silver' },
-      ];
+    ];
 
     const submit = async (data: FormValueType) => {
         const _data = { ...data, parent_id: data.parent_id ? data.parent_id.value : '' }
         
         setSubmiting(true)
-        if(!data?.id && !submiting)
-        {
-            const res = await fetch(`${BASE_URL}/api/categories/add`, {
-                method: "POST",
-                body: JSON.stringify(_data)
-            }).then(response => response.json())
-    
-            if (res.status === "success") {
-                reset()
-                toastCustom.success('Category added successfully.')
-                router.push(routes.categories)
+        try {
+            // Check if we're online or offline
+            if (isOnline()) {
+                // We're online, use regular API call
+                if(!data?.id && !submiting) {
+                    // Creating new category
+                    const res = await fetch(`${BASE_URL}/api/categories/add`, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(_data)
+                    }).then(response => response.json())
+            
+                    if (res.status === "success") {
+                        reset()
+                        toastCustom.success('Category added successfully.')
+                        router.push(routes.categories)
+                        onSubmit()
+                    } else {
+                        toastCustom.error(res.message || 'Error adding category')
+                    }
+                }
+                else if(!submiting) {
+                    // Updating existing category
+                    const res = await fetch(`${BASE_URL}/api/categories/update`, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({..._data, id: data?.id})
+                    }).then(response => response.json())
+            
+                    if (res.status === "success") {
+                        reset()
+                        toastCustom.info('Category updated successfully.')
+                        router.push(routes.categories)
+                        onSubmit()
+                    } else {
+                        toastCustom.error(res.message || 'Error updating category')
+                    }
+                }
+            } else {
+                // We're offline, use local storage
+                if(!data?.id && !submiting) {
+                    // Create category locally
+                    createCategoryLocally(_data as ICategory);
+                    reset();
+                    toastCustom.success('Category added locally. Will sync when online.');
+                    router.push(routes.categories);
+                    onSubmit();
+                } else if(!submiting) {
+                    // Update category locally
+                    updateCategoryLocally({..._data, id: data?.id} as ICategory);
+                    reset();
+                    toastCustom.info('Category updated locally. Will sync when online.');
+                    router.push(routes.categories);
+                    onSubmit();
+                }
             }
+        } catch (error) {
+            console.error('Error submitting category:', error)
+            toastCustom.error('Error saving category. Please try again.')
+        } finally {
+            setSubmiting(false)
         }
-        else if(!submiting)
-        {
-            const res = await fetch(`${BASE_URL}/api/categories/update`, {
-                method: "POST",
-                body: JSON.stringify({..._data, id: _data?.id})
-            }).then(response => response.json())
-    
-            if (res.status === "success") {
-                reset()
-                toastCustom.info('Category updated successfully.')
-                router.push(routes.categories)
-            }
-        }
-        onSubmit()
-        setSubmiting(false)
     }
 
     const updateFormValues = useCallback(() => {
@@ -112,11 +157,35 @@ const Form = ({ show, isClose, data, onSubmit }: IForm) => {
         }
     }, [isClose])
 
+    // Update offline status when network state changes
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+        
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        
+        return () => {
+          window.removeEventListener('online', handleOnline);
+          window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
     return (
         <form className={'grid grid-cols-1 gap-5'}
             onSubmit={handleSubmit(submit)}
             autoComplete="off"
         >
+            {isOffline && (
+                <div className="bg-amber-50 border border-amber-300 rounded-md p-3 flex items-start">
+                    <CloudOff className="text-amber-500 w-5 h-5 mr-2 mt-0.5" />
+                    <div>
+                        <p className="text-amber-800 font-medium">Working in offline mode</p>
+                        <p className="text-sm text-amber-700">Changes will be saved locally and synced when you're back online.</p>
+                    </div>
+                </div>
+            )}
+            
             {/* <div>
                 <label htmlFor="" className={'block mb-1'}>Select Parent</label>
                 <Controller
@@ -125,9 +194,8 @@ const Form = ({ show, isClose, data, onSubmit }: IForm) => {
                     render={({ field }) => (
                         <ReactSelect
                             {...field}
-                            // className="basic-single"
                             placeholder={'Select Parent ...'}
-                            defaultValue={options[1]}
+                            defaultValue={options[0]}
                             options={options}
                             onChange={(selectedOption) => field.onChange(selectedOption)}
                             styles={{

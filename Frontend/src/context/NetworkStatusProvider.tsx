@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { initSyncListener, syncWithServer } from '@/services/offline-services'
+import { initSyncListener, syncWithServer } from '@/services/offline-storage'
 
 // Define the context type
 interface NetworkContextType {

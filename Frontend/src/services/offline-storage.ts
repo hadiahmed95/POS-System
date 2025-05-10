@@ -69,6 +69,65 @@ const PENDING_OPS_KEY = `${STORAGE_PREFIX}pending_operations`;
  */
 const LAST_SYNC_KEY = `${STORAGE_PREFIX}last_sync`;
 
+// Sync lock to prevent concurrent syncs
+let isSyncing = false;
+const SYNC_LOCK_KEY = `${STORAGE_PREFIX}sync_lock`;
+const SYNC_LOCK_TIMEOUT = 60000; // 1 minute timeout for sync lock
+
+/**
+ * Check if sync is already in progress
+ */
+const checkSyncLock = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  const syncLock = localStorage.getItem(SYNC_LOCK_KEY);
+  if (!syncLock) return false;
+  
+  try {
+    const { timestamp } = JSON.parse(syncLock);
+    const now = Date.now();
+    
+    // If the lock is older than the timeout, release it
+    if (now - timestamp > SYNC_LOCK_TIMEOUT) {
+      releaseSyncLock();
+      return false;
+    }
+    
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * Acquire sync lock
+ */
+const acquireSyncLock = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  if (isSyncing) return false;
+  
+  // Check if sync is already in progress
+  if (checkSyncLock()) return false;
+  
+  // Set sync lock
+  isSyncing = true;
+  localStorage.setItem(SYNC_LOCK_KEY, JSON.stringify({
+    timestamp: Date.now()
+  }));
+  
+  return true;
+};
+
+/**
+ * Release sync lock
+ */
+const releaseSyncLock = (): void => {
+  if (typeof window === 'undefined') return;
+  
+  isSyncing = false;
+  localStorage.removeItem(SYNC_LOCK_KEY);
+};
+
 /**
  * Save entities to local storage
  */
@@ -374,108 +433,173 @@ export const syncWithServer = async (): Promise<void> => {
     console.log('Offline, skipping sync');
     return;
   }
-  
-  const pendingOps = getPendingOperations();
-  
-  if (pendingOps.length === 0) {
-    console.log('No pending operations to sync');
+
+  // Check if sync is already in progress
+  if (!acquireSyncLock()) {
+    console.log('Sync already in progress, skipping');
     return;
   }
-  
-  console.log(`Syncing ${pendingOps.length} pending operations...`);
-  
-  // Process operations in the order they were created
-  const sortedOps = [...pendingOps].sort((a, b) => a.timestamp - b.timestamp);
-  
-  for (const op of sortedOps) {
-    try {
-      let response;
-      
-      // Special handling for operations with file data
-      if ((op.type === 'create' || op.type === 'update') && 
-          (op.data.image || op.data.file || op.data.photo) && 
-          typeof (op.data.image || op.data.file || op.data.photo) === 'string' && 
-          (op.data.image || op.data.file || op.data.photo).startsWith('data:')) {
-        
-        // Create FormData for file upload
-        const formData = new FormData();
-        
-        // Find which field contains the file data
-        const fileField = op.data.image ? 'image' : (op.data.file ? 'file' : 'photo');
-        const dataURL = op.data[fileField];
-        
-        // Add all entity fields except the file field
-        for (const [key, value] of Object.entries(op.data)) {
-          if (key !== fileField || !value?.toString().startsWith('data:')) {
-            formData.append(key, (value as string).toString());
-          }
-        }
-        
-        // Convert data URL to File and append to FormData
-        const file = dataURLtoFile(dataURL, `${op.entityType}-${Date.now()}.png`);
-        formData.append(fileField, file);
-        
-        // Make API call with FormData
-        response = await fetch(`${BASE_URL}${op.endpoint}`, {
-          method: 'POST',
-          body: formData
-        });
-      } else {
-        // Regular JSON operation
-        response = await fetch(`${BASE_URL}${op.endpoint}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(op.data),
-        });
-      }
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      
-      if (result.status === 'success') {
-        // Operation succeeded, remove from pending
-        removePendingOperation(op.id);
-        
-        // If this was a create operation, we need to update the local entity with the real ID
-        if (op.type === 'create' && result.data?.id) {
-          const entities = getLocalEntities(op.entityType);
-          const tempId = `temp-${op.timestamp}`;
-          
-          // Find the temp entity and update its ID
-          const updatedEntities = entities.map(entity => {
-            if (entity.id === tempId) {
-              return { ...entity, id: result.data.id };
-            }
-            return entity;
-          });
-          
-          saveEntitiesLocally(op.entityType, updatedEntities);
-        }
-      } else {
-        console.error(`Operation failed: ${result.message || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error(`Error syncing operation ${op.id}:`, error);
-      // We'll keep the operation in pending and try again later
+
+  try {
+    const pendingOps = getPendingOperations();
+    
+    if (pendingOps.length === 0) {
+      console.log('No pending operations to sync');
+      return;
     }
+    
+    console.log(`Syncing ${pendingOps.length} pending operations...`);
+    
+    // Track which operations have been processed to avoid duplicates
+    const processedOps = new Set<string>();
+    
+    // Process operations in the order they were created
+    const sortedOps = [...pendingOps].sort((a, b) => a.timestamp - b.timestamp);
+    
+    // First, group operations by entity ID to determine the final state
+    // This helps eliminate intermediate operations that would be overwritten
+    const entityOperations = new Map<string, Map<string | number, PendingOperation>>();
+
+    console.log('sortedOps', sortedOps);
+    
+    // Group operations by entity type and ID
+    for (const op of sortedOps) {
+      // Skip operations without an ID (should not happen in practice)
+      if (!op.data.id && op.type !== 'create') continue;
+      
+      // Get or create the map for this entity type
+      if (!entityOperations.has(op.entityType)) {
+        entityOperations.set(op.entityType, new Map<string | number, PendingOperation>());
+      }
+      
+      const entityMap = entityOperations.get(op.entityType)!;
+      
+      // Special handling for create operations
+      if (op.type === 'create') {
+        // For create operations with temp IDs, use the timestamp as the key
+        const key = `temp-${op.timestamp}`;
+        entityMap.set(key, op);
+      } 
+      // For update and delete, the last operation wins
+      else if (op.data.id) {
+        entityMap.set(op.data.id, op);
+      }
+    }
+    
+    // Now process the final state operations
+    for (const [entityType, entityMap] of entityOperations.entries()) {
+      for (const [entityId, op] of entityMap.entries()) {
+        try {
+          // Skip if this operation has already been processed
+          const opKey = `${op.type}-${op.entityType}-${entityId}`;
+          if (processedOps.has(opKey)) continue;
+          
+          let response;
+          
+          // Special handling for operations with file data
+          if ((op.type === 'create' || op.type === 'update') && 
+              (op.data.image || op.data.file || op.data.photo) && 
+              typeof (op.data.image || op.data.file || op.data.photo) === 'string' && 
+              (op.data.image || op.data.file || op.data.photo).startsWith('data:')) {
+            
+            // Create FormData for file upload
+            const formData = new FormData();
+            
+            // Find which field contains the file data
+            const fileField = op.data.image ? 'image' : (op.data.file ? 'file' : 'photo');
+            const dataURL = op.data[fileField];
+            
+            // Add all entity fields except the file field
+            for (const [key, value] of Object.entries(op.data)) {
+              if (key !== fileField || !value?.toString().startsWith('data:')) {
+                formData.append(key, (value as string).toString());
+              }
+            }
+            
+            // Convert data URL to File and append to FormData
+            const file = dataURLtoFile(dataURL, `${op.entityType}-${Date.now()}.png`);
+            formData.append(fileField, file);
+            
+            // Make API call with FormData
+            response = await fetch(`${BASE_URL}${op.endpoint}`, {
+              method: 'POST',
+              body: formData
+            });
+          } else {
+            // Regular JSON operation
+            response = await fetch(`${BASE_URL}${op.endpoint}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(op.data),
+            });
+          }
+          
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          
+          if (result.status === 'success') {
+            // Mark this operation as processed
+            processedOps.add(opKey);
+            
+            // Remove all operations for this entity from the pending list
+            // This ensures we don't process earlier operations that modify the same entity
+            const ops = pendingOps.filter(p => 
+              p.entityType === op.entityType && 
+              (p.data.id === entityId || 
+              (p.type === 'create' && p.timestamp === parseInt(entityId.toString().replace('temp-', ''))))
+            );
+            
+            for (const pendingOp of ops) {
+              removePendingOperation(pendingOp.id);
+            }
+            
+            // If this was a create operation, we need to update the local entity with the real ID
+            if (op.type === 'create' && result.data?.id) {
+              const entities = getLocalEntities(op.entityType);
+              const tempId = `temp-${op.timestamp}`;
+              
+              // Find the temp entity and update its ID
+              const updatedEntities = entities.map(entity => {
+                if (entity.id === tempId) {
+                  return { ...entity, id: result.data.id };
+                }
+                return entity;
+              });
+              
+              saveEntitiesLocally(op.entityType, updatedEntities);
+            }
+          } else {
+            console.error(`Operation failed: ${result.message || 'Unknown error'}`);
+          }
+        } catch (error) {
+          console.error(`Error syncing operation for ${op.entityType} ${entityId}:`, error);
+          // We'll keep the operation in pending and try again later
+        }
+      }
+    }
+    
+    // Check if we still have pending operations
+    const remainingOps = getPendingOperations();
+    if (remainingOps.length > 0) {
+      console.log(`${remainingOps.length} operations still pending`);
+    } else {
+      console.log('All operations synced successfully');
+      toastCustom.success('All changes synced with server');
+    }
+    
+    // Update last sync time
+    localStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
+  } catch (error) {
+    console.error('Error in syncWithServer:', error);
+  } finally {
+    // Always release the sync lock when done
+    releaseSyncLock();
   }
-  
-  // Check if we still have pending operations
-  const remainingOps = getPendingOperations();
-  if (remainingOps.length > 0) {
-    console.log(`${remainingOps.length} operations still pending`);
-  } else {
-    console.log('All operations synced successfully');
-    toastCustom.success('All changes synced with server');
-  }
-  
-  // Update last sync time
-  localStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
 };
 
 /**
