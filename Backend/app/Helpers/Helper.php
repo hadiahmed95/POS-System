@@ -134,12 +134,12 @@ if (!function_exists('addRecord')) {
 }
 
 /**
-     * Edit an existing record.
-     *
-     * @param Model $model
-     * @param int $id
-     * @param array $data
-     * @return bool
+ * Edit an existing record.
+ *
+ * @param Model $model
+ * @param int $id
+ * @param array $data
+ * @return \Illuminate\Http\JsonResponse
  */
 if (!function_exists('updateRecord')) {
     function updateRecord($model_class, int $id, array $data) {
@@ -147,8 +147,28 @@ if (!function_exists('updateRecord')) {
         $record = $model->find($id);
         if ($record) {
             try {
-                $record->update($data);
-                return setApiResponse(1, "Record updated successfully!", 200, $data);
+                $processedData = $data;
+                
+                // Get model name for folder structure
+                $modelName = strtolower(class_basename($model_class));
+                
+                // Process any file uploads
+                foreach ($data as $key => $value) {
+                    if ($value instanceof \Illuminate\Http\UploadedFile) {
+                        // Delete the old file if it exists
+                        if ($record->$key && file_exists(storage_path('app/public/' . $record->$key))) {
+                            \Illuminate\Support\Facades\Storage::delete('public/' . $record->$key);
+                        }
+                        
+                        // Store the new file in model-specific directory
+                        $path = $value->store("uploads/{$modelName}", 'public');
+                        // Replace the file object with the file path
+                        $processedData[$key] = $path;
+                    }
+                }
+                
+                $record->update($processedData);
+                return setApiResponse(1, "Record updated successfully!", 200, $processedData);
             }
             catch (\Exception $e) {
                 return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);
