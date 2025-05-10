@@ -111,7 +111,6 @@ const ItemPage = () => {
     try {
       // Use the fetchAndMergeItems function which handles both online and offline scenarios
       const items = await fetchAndMergeItems();
-      console.log('items', items);
       setList(items);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -148,7 +147,6 @@ const ItemPage = () => {
 
     const checkPendingOps = () => {
       const pendingOps = JSON.parse(localStorage.getItem('pos_offline_pending_operations') || '[]');
-      console.log('pendingOps', pendingOps);
       setPendingChanges(pendingOps.length);
     };
     checkPendingOps();
