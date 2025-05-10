@@ -17,6 +17,8 @@ const NetworkContext = createContext<NetworkContextType | undefined>(undefined)
 export const NetworkStatusProvider = ({ children }: { children: ReactNode }) => {
   const [isOnline, setIsOnline] = useState<boolean>(true)
   const [pendingChanges, setPendingChanges] = useState<number>(0)
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+
   
   useEffect(() => {
     // Set initial online status once mounted
@@ -56,8 +58,19 @@ export const NetworkStatusProvider = ({ children }: { children: ReactNode }) => 
       console.log('Cannot sync while offline')
       return
     }
+
+    if (isSyncing) {
+      console.log('Sync already in progress, skipping');
+      return;
+    }
+
+    setIsSyncing(true);
     
-    await syncWithServer()
+    try {
+      await syncWithServer();
+    } finally {
+      setIsSyncing(false);
+    }
     
     // Update pending changes count
     const pendingOps = JSON.parse(localStorage.getItem('pos_offline_pending_operations') || '[]')

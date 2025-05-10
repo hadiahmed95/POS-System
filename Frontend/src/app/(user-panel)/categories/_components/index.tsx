@@ -10,13 +10,8 @@ import TableLoader from '../../_components/table-loader';
 import { PenIcon, Trash2, CloudOff, RefreshCw } from 'lucide-react';
 import FormWrapper from './form-wrapper';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import { 
-  fetchAndMergeCategories, 
-  deleteCategoryLocally, 
-  getLocalCategories, 
-  isOnline, 
-  syncWithServer 
-} from '@/services/offline-storage';
+import { isOnline, syncWithServer } from '@/services/offline-storage';
+import { fetchAndMergeCategories, deleteCategoryLocally, getLocalCategories } from './api-calls';
 
 const CategoryPage = () => {
   const title = 'Categories'

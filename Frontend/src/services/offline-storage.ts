@@ -47,7 +47,7 @@ export interface PendingOperation {
  * Get the local storage key for an entity type
  */
 export const getStorageKey = (entityType: EntityType): string => {
-  return `${STORAGE_PREFIX}${entityType}s`;
+  return `${STORAGE_PREFIX}${entityType}`;
 };
 
 /**
@@ -256,7 +256,7 @@ export const createEntityLocally = <T extends EntityType>(
     saveEntitiesLocally(entityType, entities);
     
     // Add pending operation for syncing later
-    addPendingOperation('create', entityType, entity, endpoint);
+    addPendingOperation('create', entityType, newEntity, endpoint);
     
     return newEntity;
   } catch (error) {
@@ -331,6 +331,30 @@ export const deleteEntityLocally = <T extends EntityType>(
 };
 
 /**
+ * Remove an entity locally only
+ */
+export const removeEntityLocally = <T extends EntityType>(
+  entityType: T,
+  id: string | number
+): void => {
+  try {
+    if (typeof window === 'undefined') {
+      throw new Error('Cannot delete entity locally during server-side rendering');
+    }
+    
+    // Get existing entities
+    const entities = getLocalEntities(entityType);
+    
+    // Remove the entity
+    const updatedEntities = entities.filter(e => e.id !== id);
+    saveEntitiesLocally(entityType, updatedEntities);
+  } catch (error) {
+    console.error(`Error deleting ${entityType} locally:`, error);
+    throw error;
+  }
+};
+
+/**
  * Convert a data URL to a File object
  */
 export function dataURLtoFile(dataurl: string, filename: string): File {
@@ -361,10 +385,27 @@ export const fetchAndMergeEntities = async <T extends EntityType>(
   entityType: T,
   fetchEndpoint: string
 ): Promise<EntityTypeMap[T][]> => {
+
+  // Track if this particular entity type is being fetched
+  // You would need to implement a fetching state tracker for this
+  const fetchingKey = `${STORAGE_PREFIX}fetching_${entityType}`;
+
   try {
+
+    // Check if already fetching this entity type
+    if (typeof window !== 'undefined' && localStorage.getItem(fetchingKey)) {
+      console.log(`Already fetching ${entityType}, using local data`);
+      return getLocalEntities(entityType);
+    }
+
     // Only fetch if online
     if (!isOnline()) {
       return getLocalEntities(entityType);
+    }
+
+    // Set fetching flag
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(fetchingKey, 'true');
     }
     
     const response = await fetch(`${BASE_URL}${fetchEndpoint}`, {
@@ -420,8 +461,19 @@ export const fetchAndMergeEntities = async <T extends EntityType>(
     
     return getLocalEntities(entityType);
   } catch (error) {
+
+    // Clear fetching flag when done
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(fetchingKey);
+    }
+
     console.error(`Error fetching and merging ${entityType}s:`, error);
     return getLocalEntities(entityType);
+  } finally {
+    // Clear fetching flag when done
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(fetchingKey);
+    }
   }
 };
 
@@ -459,8 +511,6 @@ export const syncWithServer = async (): Promise<void> => {
     // First, group operations by entity ID to determine the final state
     // This helps eliminate intermediate operations that would be overwritten
     const entityOperations = new Map<string, Map<string | number, PendingOperation>>();
-
-    console.log('sortedOps', sortedOps);
     
     // Group operations by entity type and ID
     for (const op of sortedOps) {
@@ -489,6 +539,10 @@ export const syncWithServer = async (): Promise<void> => {
     // Now process the final state operations
     for (const [entityType, entityMap] of entityOperations.entries()) {
       for (const [entityId, op] of entityMap.entries()) {
+        const tempId = op.data.id;
+        if(op.type === "create") {
+          delete op.data.id;
+        }
         try {
           // Skip if this operation has already been processed
           const opKey = `${op.type}-${op.entityType}-${entityId}`;
@@ -543,6 +597,7 @@ export const syncWithServer = async (): Promise<void> => {
           const result = await response.json();
           
           if (result.status === 'success') {
+            removeEntityLocally(op.entityType, tempId)
             // Mark this operation as processed
             processedOps.add(opKey);
             
@@ -609,11 +664,30 @@ export const syncWithServer = async (): Promise<void> => {
 export const initSyncListener = (): void => {
   if (typeof window === 'undefined') return;
   
+  // Sync flag to prevent multiple simultaneous syncs
+  let isSyncing = false;
+
+  // Debounced sync function to prevent multiple rapid calls
+  const debouncedSync = debounce(async () => {
+    if (isSyncing || !isOnline()) return;
+    
+    isSyncing = true;
+    console.log('Starting sync process...');
+    
+    try {
+      await syncWithServer();
+    } catch (error) {
+      console.error('Error during sync:', error);
+    } finally {
+      isSyncing = false;
+    }
+  }, 1000);
+
   // Sync when coming back online
-  window.addEventListener('online', () => {
-    console.log('Back online, syncing...');
+  window.addEventListener('online', async () => {
+    console.log('Back online, scheduling sync...');
     toastCustom.info('Internet connection restored. Syncing data...');
-    syncWithServer();
+    await debouncedSync();
   });
   
   // Log when going offline
@@ -624,11 +698,27 @@ export const initSyncListener = (): void => {
   
   // Try to sync on init if online
   if (isOnline()) {
-    syncWithServer();
+    // Use a timeout to ensure this doesn't conflict with other initialization
+    setTimeout(debouncedSync, 2000);
   }
 };
 
-// Items-specific helper functions that use the generic functions above
+/**
+ * Debounce helper function to prevent multiple rapid calls
+ */
+function debounce(func: Function, wait: number) {
+  let timeout: NodeJS.Timeout;
+  
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 /**
  * Save items to local storage
@@ -670,31 +760,6 @@ export const deleteItemLocally = (id: string | number): void => {
  */
 export const fetchAndMergeItems = async (): Promise<IItem[]> => {
   return fetchAndMergeEntities('item', '/api/items/view');
-};
-
-// Categories helper functions
-export const saveCategoriesLocally = (categories: ICategory[]): void => {
-  saveEntitiesLocally('category', categories);
-};
-
-export const getLocalCategories = (): ICategory[] => {
-  return getLocalEntities('category');
-};
-
-export const createCategoryLocally = (category: Omit<ICategory, 'id'>): ICategory => {
-  return createEntityLocally('category', category, '/api/categories/add');
-};
-
-export const updateCategoryLocally = (category: ICategory): ICategory => {
-  return updateEntityLocally('category', category, '/api/categories/update');
-};
-
-export const deleteCategoryLocally = (id: string | number): void => {
-  deleteEntityLocally('category', id, '/api/categories/delete');
-};
-
-export const fetchAndMergeCategories = async (): Promise<ICategory[]> => {
-  return fetchAndMergeEntities('category', '/api/categories/view');
 };
 
 // Tables helper functions

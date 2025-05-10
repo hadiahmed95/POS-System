@@ -38,7 +38,7 @@ const DashboardLayout = async ({
             <NetworkStatusProvider>
                 <div className={'flex bg-gray-50'}>
                     <AdminSidebar />
-                    <div className='w-full'>
+                    <div className='w-full h-screen overflow-y-auto'>
                         <AdminHeader />
                         <div className={'px-10 py-8'}>
                             {children}

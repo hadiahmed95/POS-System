@@ -7,19 +7,16 @@ import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { ICategory } from '../../type'
 import dynamic from 'next/dynamic'
-import { 
-    isOnline, 
-    createCategoryLocally, 
-    updateCategoryLocally 
-} from '@/services/offline-storage'
+import { isOnline } from '@/services/offline-storage'
 import { CloudOff } from 'lucide-react'
+import { createCategoryLocally, updateCategoryLocally } from './api-calls'
 
-const ReactSelect = dynamic(() => import("react-select"), {
-    ssr: false,
-});
+// const ReactSelect = dynamic(() => import("react-select"), {
+//     ssr: false,
+// });
 
 interface IForm {
     show: boolean
