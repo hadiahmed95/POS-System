@@ -42,6 +42,12 @@ use App\Http\Controllers\Api\VendorController;
                     Route::get("/categories/{id?}", [CategoryController::class, "view"]);
                     Route::get("/tables/{id?}", [TableController::class, "view"]);
                     Route::get("/items/{id?}", [ItemController::class, "view"]);
+
+                    // Orders API
+                    Route::get("/orders/{id?}", [OrderController::class, "view"]);
+                    Route::get("/orders/table/{tableId}", [OrderController::class, "getTableOrders"]);
+                    Route::get("/kitchen/orders", [OrderController::class, "getKitchenOrders"]);
+                    Route::get("/orders/stats", [OrderController::class, "getStats"]);
                 });
         
                 Route::prefix('add')->group(function () {
@@ -54,6 +60,9 @@ use App\Http\Controllers\Api\VendorController;
                     Route::post("/categories", [CategoryController::class, "add"]);
                     Route::post("/tables", [TableController::class, "add"]);
                     Route::post("/items", [ItemController::class, "add"]);
+
+                    // Orders API
+                    Route::post("/orders", [OrderController::class, "add"]);
                 });
                 
                 Route::prefix('record')->group(function () {
@@ -69,6 +78,10 @@ use App\Http\Controllers\Api\VendorController;
                     Route::post("/categories", [CategoryController::class, "update"]);
                     Route::post("/tables", [TableController::class, "update"]);
                     Route::post("/items", [ItemController::class, "update"]);
+
+                    // Orders API
+                    Route::post("/orders", [OrderController::class, "update"]);
+                    Route::post("/orders/status", [OrderController::class, "updateStatus"]);
                 });
         
                 Route::prefix('delete')->group(function () {
@@ -80,6 +93,9 @@ use App\Http\Controllers\Api\VendorController;
                     Route::post("/categories", [CategoryController::class, "delete"]);
                     Route::post("/tables", [TableController::class, "delete"]);
                     Route::post("/items", [ItemController::class, "delete"]);
+
+                    // Orders API
+                    Route::post("/orders", [OrderController::class, "delete"]);
                 });
 
                 Route::prefix('restore')->group(function () {
