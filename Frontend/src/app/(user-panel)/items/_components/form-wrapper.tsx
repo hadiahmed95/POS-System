@@ -10,11 +10,12 @@ interface IFormWrapper {
     title: string
     formData: IItem | null
     show: boolean
+    items: IItem[]
     setShow: (val: boolean) => void
     onSubmit: () => void
 }
 
-const FormWrapper = ({ title, formData, show, setShow, onSubmit } : IFormWrapper) => {
+const FormWrapper = ({ title, formData, show, items, setShow, onSubmit } : IFormWrapper) => {
 
     const [isClose, setClose] = useState(false)
 
@@ -33,7 +34,12 @@ const FormWrapper = ({ title, formData, show, setShow, onSubmit } : IFormWrapper
                 setShow(false)
             }} />
             <div className={'mt-4'}>
-                <Form categories={categories} isClose={isClose} data={formData} onSubmit={() => {
+                <Form 
+                    categories={categories} 
+                    isClose={isClose} 
+                    data={formData} 
+                    items={items}
+                    onSubmit={() => {
                     onSubmit()
                     setShow(false)
                 }} />
