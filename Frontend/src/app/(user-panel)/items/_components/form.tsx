@@ -16,7 +16,7 @@ import {
   isOnline, 
   createItemLocally, 
   updateItemLocally 
-} from '@/services/offline-services'
+} from '@/services/offline-storage'
 
 const ReactSelect = dynamic(() => import("react-select"), {
     ssr: false,
