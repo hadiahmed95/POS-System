@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Branch;
+use App\Models\Customer;
 use App\Models\Module;
 use App\Models\Permission;
 use App\Models\Role;
@@ -267,5 +268,20 @@ class DatabaseSeeder extends Seeder
 
         UserHasRole::insert($super_admin_permissions);
         UserHasRole::insert($admin_permissions);
+
+        Customer::insert([
+            [
+                "name" => "Walk-in Customer",
+                "customer_type" => "walkin",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "name" => "Online",
+                "customer_type" => "online",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+        ]);
     }
 }

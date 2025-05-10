@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('licence_plate')->nullable();
-            $table->enum('customer_type', ['walkin', 'online', 'other']);
+            $table->enum('customer_type', ['walkin', 'online', 'other'])->default('walkin');
             $table->timestamps();
         });
     }
