@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GroupedItem extends Model
 {
@@ -14,13 +15,19 @@ class GroupedItem extends Model
         'item_id'
     ];
     
-    public function parentItem()
+    /**
+     * Get the parent item (the group)
+     */
+    public function parentItem(): BelongsTo
     {
-        return $this->belongsTo(Item::class, 'parent_item');
+        return $this->belongsTo(Item::class, 'parent_item', 'id');
     }
     
-    public function item()
+    /**
+     * Get the child item
+     */
+    public function item(): BelongsTo
     {
-        return $this->belongsTo(Item::class, 'item_id');
+        return $this->belongsTo(Item::class, 'item_id', 'id');
     }
 }
