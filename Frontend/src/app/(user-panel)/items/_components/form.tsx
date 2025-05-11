@@ -1,6 +1,6 @@
 'use client'
 
-import { DarkButton, LiteButton, Switcher } from '@/components/button'
+import { DarkButton, Switcher } from '@/components/button'
 import { TextField } from '@/components/Fields'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
@@ -11,12 +11,12 @@ import { Controller, useForm } from 'react-hook-form'
 import { ICategory, IItem } from '../../type'
 import dynamic from 'next/dynamic'
 import TextArea from '@/components/Fields/textarea'
-import { CloudUpload, Trash2, AlertCircle, CloudOff } from 'lucide-react'
+import { CloudUpload, CloudOff } from 'lucide-react'
 import { 
   isOnline, 
   createItemLocally, 
   updateItemLocally 
-} from '@/services/offline-services'
+} from '@/services/offline-storage'
 
 const ReactSelect = dynamic(() => import("react-select"), {
     ssr: false,
@@ -54,7 +54,7 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
     const [submiting, setSubmiting] = useState<boolean>(false)
     const [selectCategories, setSelectCategories] = useState<OptionType[]>([])
     const [image, setImage] = useState<any>()
-    const [type, setType] = useState<'single' | 'group'>('single')
+    const [openMultiItems, setOpenMultiItems] = useState<boolean>(false)
     const [isOffline, setIsOffline] = useState<boolean>(false);
     const [itemsList, setItemsList] = useState(items.map(item => ({value: item.id, label: item.name})))
 
@@ -73,7 +73,7 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
         formData.append('price', data.price.toString())
         formData.append('box_quantity', '1')
         formData.append('available', '1')
-        formData.append('item_type', type)
+        formData.append('item_type', data.item_type)
         if (image && image instanceof File) {
             formData.append('image', image)
         }
@@ -135,7 +135,7 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
                     box_quantity: 1,
                     image: imageDataUrl,
                     available: 1,
-                    item_type: type
+                    item_type: data.item_type
                 }
                 
                 if (data.id) {
@@ -150,20 +150,6 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
                 
                 reset()
                 router.push(routes.items)
-
-                // We're offline, use local storage
-                // if(!data?.id && !submiting) {
-                //     // Create item locally
-                //     createItemLocally(_data as IItem);
-                //     reset();
-                //     toastCustom.success('Item added. Will sync when online.');
-                // } else if(!submiting) {
-                //     // Update item locally
-                //     updateItemLocally({..._data, id: data?.id} as IItem);
-                //     reset();
-                //     toastCustom.info('Item updated. Will sync when online.');
-                // }
-                // router.push(routes.items);
             }
             onSubmit();
         } catch (error) {
@@ -180,9 +166,18 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
             setValue('name', data.name);
             setValue('description', data.description);
             setValue('price', data.price);
+            setValue('item_type', data.item_type);
+            setOpenMultiItems(data.item_type !== "single")
 
             let edit_cat = categories.find(cat => cat.id && Number(cat.id) == Number(data.cat_id))
             setValue('category', {label: edit_cat?.cat_name ?? '', value: (edit_cat?.id as string) ?? ''});
+
+            const fetch_item_ids = (data.grouped_items as any[]).map((item: any) => item.item_id)
+            let edit_group_item: OptionType[] = items.filter(item => item.id && fetch_item_ids.includes(item.id)).map(item => ({
+                value: item.id?.toString() ?? '',
+                label: item.name
+            }))
+            setValue('items', edit_group_item);
         } else {
             reset();
         }
@@ -363,14 +358,19 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
             </div>
 
             <div>
-                <Switcher title={'Group Items'} checked={type === "group"} onChange={(value) => {
-                    setType(value ? 'group' : 'single')
-                }} />
+                <Controller
+                    name='item_type'
+                    control={control}
+                    render={({ field }) => (
+                        <Switcher title={'Group Items'} checked={field.value === "group"} onChange={(value) => {
+                            field.onChange(value ? 'group' : 'single')
+                        }} />
+                    )}
+                />
             </div>
 
-
             {
-                type === "group" && (
+                openMultiItems && (
                     <>
                     <div>
                         <label htmlFor="" className={'block mb-1 font-medium'}>Items *</label>

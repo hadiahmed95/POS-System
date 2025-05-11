@@ -14,7 +14,6 @@ interface IFormWrapper {
 }
 
 const FormWrapper = ({ title, formData, show, setShow, onSubmit } : IFormWrapper) => {
-
     const [isClose, setClose] = useState(false)
 
     return (

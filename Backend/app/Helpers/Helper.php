@@ -94,22 +94,36 @@ if (!function_exists('getRecord')) {
 }
 
 /**
-     * Add a new record to the database.
-     *
-     * @param Model $model
-     * @param array $data
-     * @return Model
-*/
+ * Add a new record to the database.
+ *
+ * @param Model $model_class
+ * @param array $data
+ * @return \Illuminate\Http\JsonResponse
+ */
 if (!function_exists('addRecord')) {
     function addRecord($model_class, array $data) {
         try {
             $model = new $model_class;
+            $processedData = $data;
+            
+            // Get model name for folder structure
+            $modelName = strtolower(class_basename($model_class));
+            
+            // Process any file uploads
+            foreach ($data as $key => $value) {
+                if ($value instanceof \Illuminate\Http\UploadedFile) {
+                    // Store the file in model-specific directory
+                    $path = $value->store("uploads/{$modelName}", 'public');
+                    // Replace the file object with the file path
+                    $processedData[$key] = $path;
+                }
+            }
             
             // Insert method works for both single and multiple records
-            $inserted = $model::insert($data);
+            $inserted = $model::insert($processedData);
             
             if ($inserted) {
-                return setApiResponse(1, "Record added successfully!", 200, $data);
+                return setApiResponse(1, "Record added successfully!", 200, $processedData);
             } else {
                 return setApiResponse(0, "Failed to add record(s)!", 400);
             }
@@ -120,12 +134,12 @@ if (!function_exists('addRecord')) {
 }
 
 /**
-     * Edit an existing record.
-     *
-     * @param Model $model
-     * @param int $id
-     * @param array $data
-     * @return bool
+ * Edit an existing record.
+ *
+ * @param Model $model
+ * @param int $id
+ * @param array $data
+ * @return \Illuminate\Http\JsonResponse
  */
 if (!function_exists('updateRecord')) {
     function updateRecord($model_class, int $id, array $data) {
@@ -133,8 +147,35 @@ if (!function_exists('updateRecord')) {
         $record = $model->find($id);
         if ($record) {
             try {
-                $record->update($data);
-                return setApiResponse(1, "Record updated successfully!", 200, $data);
+                $processedData = $data;
+                
+                // Get model name for folder structure
+                $modelName = strtolower(class_basename($model_class));
+                
+                // Process any file uploads
+                foreach ($data as $key => $value) {
+                    if ($value instanceof \Illuminate\Http\UploadedFile) {
+                        // If there's an existing file, delete it
+                        if (!empty($record->$key)) {
+                            // Get the full path to the file in public storage
+                            $fullPath = public_path('storage/' . $record->$key);
+                            
+                            // Delete the file if it exists
+                            if (file_exists($fullPath)) {
+                                unlink($fullPath);
+                            }
+                        }
+                        
+                        // Store the new file in model-specific directory
+                        $path = $value->store("uploads/{$modelName}", 'public');
+                        
+                        // Replace the file object with the file path
+                        $processedData[$key] = $path;
+                    }
+                }
+                
+                $record->update($processedData);
+                return setApiResponse(1, "Record updated successfully!", 200, $processedData);
             }
             catch (\Exception $e) {
                 return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);

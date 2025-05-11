@@ -15,10 +15,11 @@ import {
   fetchAndMergeItems,
   deleteItemLocally,
   getLocalItems,
-  initSyncListener,
   isOnline,
   syncWithServer
-} from '@/services/offline-services';
+} from '@/services/offline-storage';
+import { useNetwork } from '@/context/NetworkStatusProvider';
+import Image from 'next/image';
 
 const ItemPage = () => {
 
@@ -33,7 +34,8 @@ const ItemPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [isOffline, setIsOffline] = useState<boolean>(false);
-  const [pendingChanges, setPendingChanges] = useState<number>(0)
+
+  const { pendingChanges, syncData } = useNetwork()
 
   const delRecord = (id: number) => {
     confirmAlert({
@@ -81,21 +83,12 @@ const ItemPage = () => {
     
     try {
       toastCustom.info('Syncing changes with server...');
-      await syncWithServer();
+      await syncData();
       
       // Reload data to ensure we have the latest
       hasFetched.current = false;
       await load();
       
-      // Check for pending changes again
-      const pendingOps = JSON.parse(localStorage.getItem('pos_offline_pending_operations') || '[]');
-      setPendingChanges(pendingOps.length);
-      
-      if (pendingOps.length === 0) {
-        toastCustom.success('All changes synced successfully');
-      } else {
-        toastCustom.warning(`${pendingOps.length} changes still pending`);
-      }
     } catch (error) {
       console.error('Error syncing with server:', error);
       toastCustom.error('Error syncing with server');
@@ -111,6 +104,7 @@ const ItemPage = () => {
     try {
       // Use the fetchAndMergeItems function which handles both online and offline scenarios
       const items = await fetchAndMergeItems();
+
       setList(items);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -137,26 +131,15 @@ const ItemPage = () => {
     // Set initial offline status once mounted
     setIsOffline(!isOnline());
 
-    initSyncListener();
     // Set up handlers for online/offline events
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    // Check for pending operations
-
-    const checkPendingOps = () => {
-      const pendingOps = JSON.parse(localStorage.getItem('pos_offline_pending_operations') || '[]');
-      setPendingChanges(pendingOps.length);
-    };
-    checkPendingOps();
-    // Set up interval to check pending operations
-    const interval = setInterval(checkPendingOps, 3000);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      clearInterval(interval);
     };
   }, []);
 
@@ -233,7 +216,14 @@ const ItemPage = () => {
               list.length > 0 ? list.map((item, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4">{index + 1}</td>
-                  <td className="px-6 py-4">{item.image}</td>
+                  <td className="px-6 py-4">
+                    <div className={'relative w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-100'}>
+                      {
+                        item.image && 
+                          <Image src={`${process.env.NEXT_PUBLIC_API_URL ?? ''}/storage/${item.image}`} alt={item.name} fill={true} className={'object-cover'} />
+                      }
+                    </div>
+                  </td>
                   <td className="px-6 py-4">{item.name ?? '-'}</td>
                   <td className="px-6 py-4">{item.price}</td>
                   <td className="px-6 py-4">

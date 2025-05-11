@@ -1,11 +1,21 @@
 
 interface IrouteList {
-    icon: React.JSX.Element | null;
+    type?: 'group' | 'route'
+    icon?: React.JSX.Element | null;
     title: string;
     active?: boolean;
     children?: IrouteList[] | undefined;
     url?: string
     slug?: string
+}
+
+interface IUser {
+    id?: number;
+    branch_id: string;
+    role_id: string;
+    name: string;
+    email: string
+    phone: string
 }
 
 interface IBranch {
@@ -58,6 +68,7 @@ interface IItem {
     price: number,
     box_quantity: number
     item_type: 'single' | 'group'
+    grouped_items: any[]
 }
 
 type TableType = 'indoor' | 'outdoor'
@@ -133,6 +144,7 @@ interface IOrder {
 
 export type {
     IrouteList,
+    IUser,
     IBranch,
     IBrand,
     IUnit,
