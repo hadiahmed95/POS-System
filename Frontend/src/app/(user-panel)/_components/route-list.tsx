@@ -3,6 +3,7 @@ import { IrouteList } from "../type"
 import { routes } from "@/config/routes"
 
 const routeList: IrouteList[] = [
+    {  type: 'group', title: 'Main' },
     {
         active: true,
         icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
@@ -28,6 +29,31 @@ const routeList: IrouteList[] = [
             }
         ]
     },
+    { type: 'group', title: 'Sales and Orders' },
+    {
+        icon: <UsersRound size={20} strokeWidth={1.5} />,
+        title: 'Orders',
+        url: routes.orders,
+        slug: 'orders'
+    },
+    {
+        icon: <Banknote size={20} strokeWidth={1.5} />,
+        title: 'Sales',
+        slug: 'reports/sales',
+        url: routes.salesReport
+    },
+    // {
+    //     icon: <ScanLine size={20} strokeWidth={1.5} />,
+    //     title: 'Purchases',
+    //     slug: 'purchases'
+    // },
+    // {
+    //     icon: <UsersRound size={20} strokeWidth={1.5} />,
+    //     title: 'Customers',
+    //     url: routes.customers,
+    //     slug: 'customer'
+    // },
+    { type: 'group', title: 'Business Management' },
     {
         icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
         title: 'Branches',
@@ -35,29 +61,18 @@ const routeList: IrouteList[] = [
         slug: 'branches'
     },
     {
-        icon: <Bandage size={20} strokeWidth={1.5} />,
-        title: 'Brands',
-        url: routes.brands,
-        slug: 'brands'
+        icon: <Banknote size={20} strokeWidth={1.5} />,
+        title: 'Kitchen',
+        slug: 'kitchen',
+        url: routes.kitchen
     },
     {
-        icon: <Boxes size={20} strokeWidth={1.5} />,
-        title: 'Units',
-        url: routes.units,
-        slug: 'units'
+        icon: <Sheet size={20} strokeWidth={1.5} />,
+        title: 'Tables',
+        url: routes.tables,
+        slug: 'tables'
     },
-    {
-        icon: <ContactRound size={20} strokeWidth={1.5} />,
-        title: 'Vendors',
-        url: routes.vendors,
-        slug: 'vendors'
-    },
-    {
-        icon: <UsersRound size={20} strokeWidth={1.5} />,
-        title: 'Customers',
-        url: routes.customers,
-        slug: 'customer'
-    },
+    { type: 'group', title: 'Inventory' },
     {
         icon: <Grid2x2Plus size={20} strokeWidth={1.5} />,
         title: 'Categories',
@@ -71,45 +86,36 @@ const routeList: IrouteList[] = [
         slug: 'items'
     },
     {
-        icon: <Sheet size={20} strokeWidth={1.5} />,
-        title: 'Tables',
-        url: routes.tables,
-        slug: 'tables'
+        icon: <Bandage size={20} strokeWidth={1.5} />,
+        title: 'Brands',
+        url: routes.brands,
+        slug: 'brands'
     },
-    {
-        icon: <UsersRound size={20} strokeWidth={1.5} />,
-        title: 'Orders',
-        url: routes.orders,
-        slug: 'orders'
-    },
-    {
-        icon: <ScanLine size={20} strokeWidth={1.5} />,
-        title: 'Purchases',
-        slug: 'purchases'
-    },
-    {
-        icon: <Banknote size={20} strokeWidth={1.5} />,
-        title: 'Kitchen',
-        slug: 'kitchen',
-        url: routes.kitchen
-    },
-    {
-        icon: <Banknote size={20} strokeWidth={1.5} />,
-        title: 'Sell',
-        slug: 'reports/sales',
-        url: routes.salesReport
-    },
-    {
-        icon: <ClipboardList size={20} strokeWidth={1.5} />,
-        title: 'Reports',
-        slug: 'reports',
-        url: routes.reports
-    },
-    {
-        icon: <ClipboardList size={20} strokeWidth={1.5} />,
-        title: 'Expenses',
-        slug: 'expenses'
-    },
+    // {
+    //     icon: <Boxes size={20} strokeWidth={1.5} />,
+    //     title: 'Units',
+    //     url: routes.units,
+    //     slug: 'units'
+    // },
+    // {
+    //     icon: <ContactRound size={20} strokeWidth={1.5} />,
+    //     title: 'Vendors',
+    //     url: routes.vendors,
+    //     slug: 'vendors'
+    // },
+    
+    // {
+    //     icon: <ClipboardList size={20} strokeWidth={1.5} />,
+    //     title: 'Reports',
+    //     slug: 'reports',
+    //     url: routes.reports
+    // },
+    // {
+    //     icon: <ClipboardList size={20} strokeWidth={1.5} />,
+    //     title: 'Expenses',
+    //     slug: 'expenses'
+    // },
+    { type: 'group', title: 'System' },
     {
         icon: <Cog size={20} strokeWidth={1.5} />,
         title: 'Settings',

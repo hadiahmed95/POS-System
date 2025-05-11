@@ -19,7 +19,7 @@ const AdminSidebar = () => {
                     <ul className={'py-8'}>
                         {
                             routeList.map((route, index) => 
-                                <li key={index} className={`px-5 py-1`}>
+                                route.type !== 'group'  ? <li key={index} className={`px-5 py-1`}>
                                     {
                                         !route.children ? (
                                             <Link href={route.url ?? '#'}
@@ -32,6 +32,10 @@ const AdminSidebar = () => {
                                             <ChildrenComponent route={route} />
                                         )
                                     }
+                                </li> : <li key={index} className={`px-5 py-1`}>
+                                    <p className={`px-1 py-2 rounded-r text-sm text-gray-500`}>
+                                        <span>{route.title}</span>
+                                    </p>
                                 </li>
                             )
                         }
