@@ -9,14 +9,24 @@ import { routes } from '@/config/routes'
 import { Minus, Plus, Search, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
-import { IItem } from '@/app/(user-panel)/type'
+import { IItem, ITable, IUser } from '@/app/(user-panel)/type'
 import { Clock } from 'lucide-react'
+import { Controller } from 'react-hook-form'
+import dynamic from 'next/dynamic'
+
+const ReactSelect = dynamic(() => import("react-select"), {
+    ssr: false,
+});
 
 const CreateOrderForm = () => {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [itemsLoading, setItemsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+
+  // Data States
+  const [users, setUsers] = useState<IUser[]>([])
+  const [tables, setTables] = useState<ITable[]>([])
   const [items, setItems] = useState<IItem[]>([])
   const [filteredItems, setFilteredItems] = useState<IItem[]>([])
   const [selectedItems, setSelectedItems] = useState<Array<{
@@ -28,11 +38,48 @@ const CreateOrderForm = () => {
     variation_id?: number | string
   }>>([])
   
-  const [customerName, setCustomerName] = useState('')
+  // Form Fields
+  const [orderTaker, setOrderTaker] = useState('')
   const [orderNotes, setOrderNotes] = useState('')
   const [tableNo, setTableNo] = useState('')
   const [estimatedPrepTime, setEstimatedPrepTime] = useState<number>(15)
   
+  // Fetch all users from the API
+  const fetchUsers = useCallback(async () => {
+    setItemsLoading(true)
+    try {
+      const response = await fetch(`${BASE_URL}/api/users/view`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+      if (data?.data?.data) {
+        setUsers(data.data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching items:', error)
+    } finally {
+      setItemsLoading(false)
+    }
+  }, [])
+
+  // Fetch all users from the API
+  const fetchTables = useCallback(async () => {
+    setItemsLoading(true)
+    try {
+      const response = await fetch(`${BASE_URL}/api/tables/view`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+      if (data?.data?.data) {
+        setTables(data.data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching items:', error)
+    } finally {
+      setItemsLoading(false)
+    }
+  }, [])
+
   // Fetch all items from the API
   const fetchItems = useCallback(async () => {
     setItemsLoading(true)
@@ -51,10 +98,18 @@ const CreateOrderForm = () => {
       setItemsLoading(false)
     }
   }, [])
+
+  useEffect(() => {
+    fetchTables()
+  }, [fetchTables])
   
-//   useEffect(() => {
-//     fetchItems()
-//   }, [fetchItems])
+  useEffect(() => {
+    fetchUsers()
+  }, [fetchUsers])
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
   
   // Filter items based on search query
   useEffect(() => {
@@ -132,7 +187,7 @@ const CreateOrderForm = () => {
     
     try {
       const orderData = {
-        customer_name: customerName,
+        order_taker: orderTaker,
         table_no: tableNo,
         items: selectedItems,
         notes: orderNotes,
@@ -166,27 +221,43 @@ const CreateOrderForm = () => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Left side - Customer info and item selection */}
       <div className="col-span-2 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="customerName" className="block mb-1 font-medium">Customer Name</label>
-            <TextField
-              id="customerName"
-              type="text"
-              placeholder="Customer Name (Optional)"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-            />
+            <label htmlFor="customerName" className="block mb-1 font-medium">Order Taker</label>
+              <ReactSelect
+                placeholder={'Select Order Taker ...'}
+                defaultValue={users.filter(u => u.id === Number(orderTaker)).map(u => ({value: u.id, label: u.name}))}
+                options={users.map(u => ({value: u.id, label: u.name}))}
+                isClearable
+                onChange={(selectedOption) => {
+                  setOrderTaker(selectedOption ? selectedOption.value : null)
+                }}
+                classNames={{
+                    control: () => "ring-1 ring-gray-300"
+                }}
+                styles={{
+                    control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "0 0 0 0px #fff, 0 0 0 calc(1px + 0px) rgb(209 213 219 / 1), 0 0 #0000, 0 0 #0000"})
+                }}
+              />
           </div>
           
           <div>
             <label htmlFor="tableNo" className="block mb-1 font-medium">Table No.</label>
-            <TextField
-              id="tableNo"
-              type="text"
-              placeholder="Table Number"
-              value={tableNo}
-              onChange={(e) => setTableNo(e.target.value)}
-            />
+            <ReactSelect
+                placeholder={'Select Table No.'}
+                defaultValue={tables.filter(t => t.id === tableNo).map(u => ({value: u.id, label: u.table_no}))}
+                options={tables.map(u => ({value: u.id, label: u.table_no}))}
+                isClearable
+                onChange={(selectedOption) => {
+                  setTableNo(selectedOption ? selectedOption.value : null)
+                }}
+                classNames={{
+                    control: () => "ring-1 ring-gray-300"
+                }}
+                styles={{
+                    control: (styles) => ({...styles, backgroundColor: "rgb(249, 250, 251)", border: "none", boxShadow: "0 0 0 0px #fff, 0 0 0 calc(1px + 0px) rgb(209 213 219 / 1), 0 0 #0000, 0 0 #0000"})
+                }}
+              />
           </div>
         </div>
         
@@ -217,7 +288,7 @@ const CreateOrderForm = () => {
                     key={item.id}
                     className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
                     onClick={() => {
-                      if (item.variations && item.variations.length > 0) {
+                      if (item.grouped_items && item.grouped_items.length > 0) {
                         // If item has variations, don't add it directly
                       } else {
                         addItemToOrder(item)
@@ -225,21 +296,20 @@ const CreateOrderForm = () => {
                     }}
                   >
                     <div className="font-medium">{item.name}</div>
-                    {!item.variations || item.variations.length === 0 ? (
-                      <div className="text-sm text-gray-600">${item.price?.toFixed(2) || '0.00'}</div>
-                    ) : (
+                    <div className="text-sm text-gray-600">${item.price?.toFixed(2) || '0.00'}</div>
+                    {item.grouped_items && item.grouped_items.length > 0 && (
                       <div className="mt-2 space-y-1">
-                        {item.variations.map((variation, index) => (
+                        {item.grouped_items.map((variation, index) => (
                           <div 
                             key={index}
                             className="text-sm border-t pt-1 flex justify-between cursor-pointer hover:bg-gray-100 px-1"
                             onClick={(e) => {
                               e.stopPropagation()
-                              addItemToOrder(item, variation)
+                              addItemToOrder(item, variation.item)
                             }}
                           >
-                            <span className="text-gray-600">{'variation.name'}</span>
-                            <span className="font-medium">${0?.toFixed(2) || '0.00'}</span>
+                            <span className="text-gray-600">{variation.item.name}</span>
+                            {/* <span className="font-medium">${variation.item.price?.toFixed(2) || '0.00'}</span> */}
                           </div>
                         ))}
                       </div>

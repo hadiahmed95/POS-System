@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UnitController;
 use App\Http\Controllers\Api\VendorController;
+use App\Http\Controllers\Api\OrderController;
 
 // Route::middleware('check.connections')->group(function() {
     Route::get('/user', function (Request $request) {
