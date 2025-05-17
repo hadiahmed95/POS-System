@@ -1,12 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { IKitchenOrder, KitchenOrderStatus } from './kitchen-display'
+import { IKitchenOrder } from './kitchen-display'
 import { CheckCircle, Clock, ChefHat, BellRing, MoreVertical } from 'lucide-react'
+import { OrderStatusType } from '../../type'
 
 interface IOrderCardProps {
   order: IKitchenOrder
-  updateStatus: (orderId: number | string, status: KitchenOrderStatus) => Promise<void>
+  updateStatus: (orderId: number | string, status: OrderStatusType) => Promise<void>
 }
 
 const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
@@ -48,9 +49,9 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
   // Get card styles based on status
   const getCardStyles = () => {
     switch (order.kitchen_status) {
-      case 'new':
+      case 'pending':
         return 'border-l-4 border-blue-500 bg-blue-50'
-      case 'preparing':
+      case 'processing':
         return 'border-l-4 border-yellow-500 bg-yellow-50'
       case 'ready':
         return 'border-l-4 border-green-500 bg-green-50'
@@ -64,12 +65,12 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
   // Get status text and icon
   const getStatusInfo = () => {
     switch (order.kitchen_status) {
-      case 'new':
+      case 'pending':
         return { 
           text: 'New Order', 
           icon: <Clock className="w-5 h-5 text-blue-500" /> 
         }
-      case 'preparing':
+      case 'processing':
         return { 
           text: 'Preparing', 
           icon: <ChefHat className="w-5 h-5 text-yellow-500" /> 
@@ -105,20 +106,19 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
   const statusInfo = getStatusInfo()
   
   return (
-    <div className={`rounded-lg shadow overflow-hidden ${getCardStyles()}`}>
+    <div className={`rounded-lg shadow overflow-hidden max-h-max ${getCardStyles()}`}>
       {/* Header */}
-      <div className="bg-white p-3 flex justify-between items-center border-b">
+      <div className="bg-white p-3 flex flex-wrap justify-between items-center border-b">
         <div className="flex items-center">
           {statusInfo.icon}
           <span className="font-bold text-lg ml-2">#{order.order_number}</span>
         </div>
-        
-        <div className="flex items-center">
-          <span className="text-sm text-gray-500 mr-2">
-            {formatTime(order.created_at)}
-          </span>
-          
-          <div className="relative">
+        <span className="block text-sm text-gray-500 mr-2 leading-7">
+          {formatTime(order.created_at)}
+        </span>
+        {
+          (order.status !== "cancelled" && order.status !== "completed") &&
+          <div className="relative h-7">
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-1 rounded-full hover:bg-gray-100"
@@ -129,10 +129,10 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
             {isMenuOpen && (
               <div className="absolute right-0 mt-1 bg-white rounded-md shadow-lg z-10 min-w-[160px]">
                 <div className="py-1">
-                  {order.kitchen_status !== 'new' && (
+                  {order.kitchen_status !== 'pending' && (
                     <button
                       onClick={() => {
-                        updateStatus(order.id as number, 'new')
+                        updateStatus(order.id as number, 'pending')
                         setIsMenuOpen(false)
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -141,10 +141,10 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
                     </button>
                   )}
                   
-                  {order.kitchen_status !== 'preparing' && (
+                  {order.kitchen_status !== 'processing' && (
                     <button
                       onClick={() => {
-                        updateStatus(order.id as number, 'preparing')
+                        updateStatus(order.id as number, 'processing')
                         setIsMenuOpen(false)
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -180,20 +180,20 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
               </div>
             )}
           </div>
-        </div>
+        }  
       </div>
       
       {/* Status bar */}
       <div className="flex items-center justify-between px-3 py-1 bg-opacity-30" 
         style={{
-          backgroundColor: order.kitchen_status === 'new' ? 'rgba(59, 130, 246, 0.1)' : 
-                          order.kitchen_status === 'preparing' ? 'rgba(245, 158, 11, 0.1)' :
+          backgroundColor: order.kitchen_status === 'pending' ? 'rgba(59, 130, 246, 0.1)' : 
+                          order.kitchen_status === 'processing' ? 'rgba(245, 158, 11, 0.1)' :
                           order.kitchen_status === 'ready' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)'
         }}
       >
         <span className="text-sm font-medium">{statusInfo.text}</span>
         
-        {order.kitchen_status === 'preparing' && (
+        {order.kitchen_status === 'processing' && (
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
             <span className="text-sm">
@@ -202,7 +202,7 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
           </div>
         )}
         
-        {order.kitchen_status === 'new' && (
+        {order.kitchen_status === 'pending' && (
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
             <span className="text-sm">{formatElapsedTime(order.created_at)}</span>
@@ -224,12 +224,12 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
         </div>
         
         {/* Order items */}
-        <div className="space-y-1 mb-3">
+        <div className="space-y-1">
           {order.items.map((item, index) => (
-            <div key={index} className="flex justify-between items-start py-1 border-b border-dashed border-gray-200 last:border-0">
+            <div key={index} className="flex justify-between items-start py-1 m-0 border-b border-dashed border-gray-200 last:border-0">
               <div>
                 <span className="font-medium">{item.quantity}x</span>{' '}
-                <span>{item.name}</span>
+                <span>{item.item_name}</span>
                 {item.variation_name && (
                   <span className="text-sm text-gray-600 block ml-5">
                     {item.variation_name}
@@ -251,9 +251,9 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
       
       {/* Actions */}
       <div className="px-3 py-2 bg-gray-50 border-t">
-        {order.kitchen_status === 'new' && (
+        {order.kitchen_status === 'pending' && (
           <button
-            onClick={() => updateStatus(order.id as number, 'preparing')}
+            onClick={() => updateStatus(order.id as number, 'processing')}
             className="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md font-medium flex items-center justify-center"
           >
             <ChefHat className="w-4 h-4 mr-2" />
@@ -261,7 +261,7 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
           </button>
         )}
         
-        {order.kitchen_status === 'preparing' && (
+        {order.kitchen_status === 'processing' && (
           <button
             onClick={() => updateStatus(order.id as number, 'ready')}
             className="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-md font-medium flex items-center justify-center"
@@ -278,6 +278,16 @@ const OrderCard = ({ order, updateStatus }: IOrderCardProps) => {
           >
             <CheckCircle className="w-4 h-4 mr-2" />
             Complete Order
+          </button>
+        )}
+
+        {order.kitchen_status === 'completed' && (
+          <button
+            className="w-full py-2 text-gray-500 rounded-md font-medium flex items-center justify-center"
+            disabled
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Completed
           </button>
         )}
       </div>

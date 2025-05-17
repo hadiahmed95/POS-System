@@ -17,6 +17,7 @@ class Order extends Model
         'customer_id',
         'created_by',
         'order_number',
+        'table_no',
         'order_date',
         'subtotal',
         'discount',
@@ -24,7 +25,8 @@ class Order extends Model
         'total',
         'status',
         'payment_status',
-        'notes'
+        'notes',
+        'order_taker_id'
     ];
     
     /**

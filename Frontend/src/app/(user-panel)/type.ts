@@ -114,33 +114,67 @@ interface IPermissions {
 }
 
 interface IOrderItem {
-    id?: number | string
-    item_id: number | string
-    name: string
-    quantity: number
-    price: number
-    variation_name?: string
-    variation_id?: number | string
+    id?: number | string;
+    order_id?: number | string;
+    item_id: number | string;
+    item_name: string;
+    quantity: number;
+    unit_price: number;
+    discount?: number;
+    total?: number;
+    notes?: string;
+    variation_name?: string;
+    variation_id?: number | string;
 }
-  
+
+type OrderStatusType = 'pending' | 'processing' | 'ready' | 'completed' | 'cancelled';
 interface IOrder {
-    id?: number | string
-    order_number: string
-    customer_name?: string
-    table_no?: string
-    items: IOrderItem[]
-    items_count: number
-    subtotal: number
-    discount: number
-    tax: number
-    total_amount: number
-    status: 'pending' | 'completed' | 'cancelled'
-    notes?: string
-    created_at: string
-    updated_at?: string
-    created_by?: number | string
+    id?: number | string;
+    branch_id?: number | string;
+    table_id?: number | string;
+    customer_id?: number | string;
+    created_by?: number | string;
+    order_taker_id?: number | string;
+    order_number: string;
+    order_date?: string;
+    subtotal: number;
+    discount: number;
+    tax: number;
+    total: number;
+    total_amount?: number; // For frontend display
+    status: OrderStatusType;
+    payment_status?: 'unpaid' | 'partially_paid' | 'paid';
+    notes?: string;
+    items: IOrderItem[];
+    table?: ITable;
+    items_count?: number;
+    customer_name?: string;
+    table_no?: string;
+    preparation_time?: number; // For kitchen display
+    kitchen_status?: OrderStatusType; // For kitchen display
+    preparation_started_at?: string; // For kitchen display
+    created_at: string;
+    updated_at?: string;
 }
-  
+
+// Order statistics interface
+interface IOrderStats {
+    total_orders: number;
+    total_sales: number;
+    avg_order_value: number;
+    pending_orders: number;
+    processing_orders: number;
+    completed_orders: number;
+    cancelled_orders: number;
+}
+
+// Order report data interface
+interface IOrderReport {
+    date: string;
+    total_orders: number;
+    total_sales: number;
+    avg_order_value: number;
+} 
 
 export type {
     IrouteList,
@@ -155,6 +189,9 @@ export type {
     ICustomer,
     IPermissions,
     IModule,
+    IOrderItem,
+    OrderStatusType,
     IOrder,
-    IOrderItem
+    IOrderStats,
+    IOrderReport
 }

@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by');
             $table->foreign('created_by')->references('id')->on('users');
             $table->string('order_number')->unique(); // Unique order number for reference
+            $table->string('table_no')->default('')->nullable();
             $table->dateTime('order_date')->useCurrent();
             $table->float('subtotal');
             $table->float('discount')->default(0);

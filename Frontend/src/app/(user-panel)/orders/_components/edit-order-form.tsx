@@ -6,10 +6,16 @@ import TextArea from '@/components/Fields/textarea'
 import { toastCustom } from '@/components/toastCustom'
 import { BASE_URL } from '@/config/constants'
 import { routes } from '@/config/routes'
-import { Minus, Plus, Search, Trash2 } from 'lucide-react'
+import { Minus, Plus, Search, Trash2, Clock, CreditCard } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
-import { IItem } from '@/app/(user-panel)/type'
+import { IItem, IOrder, ITable, IUser } from '@/app/(user-panel)/type'
+import dynamic from 'next/dynamic'
+import { useAppSelector } from '@/app/(user-panel)/_lib/store'
+
+const ReactSelect = dynamic(() => import("react-select"), {
+    ssr: false,
+});
 
 interface IEditOrderFormProps {
   orderId: string
@@ -17,25 +23,49 @@ interface IEditOrderFormProps {
 
 const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
   const router = useRouter()
+  const { user } = useAppSelector(state => state.user)
+  
+  // Loading states
   const [loading, setLoading] = useState(false)
   const [loadingOrder, setLoadingOrder] = useState(true)
   const [itemsLoading, setItemsLoading] = useState(false)
+  const [tablesLoading, setTablesLoading] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  
+  // Search state
   const [searchQuery, setSearchQuery] = useState('')
-  const [items, setItems] = useState<IItem[]>([])
-  const [filteredItems, setFilteredItems] = useState<IItem[]>([])
+  
+  // Form states
+  const [orderTakerId, setOrderTakerId] = useState<string>('')
+  const [tableId, setTableId] = useState<string>('')
+  const [originalTableId, setOriginalTableId] = useState<string>('')
+  const [customerId, setCustomerId] = useState<string>('')
+  const [customerName, setCustomerName] = useState<string>('')
+  const [orderNotes, setOrderNotes] = useState<string>('')
+  const [discount, setDiscount] = useState<number>(0)
+  const [tax, setTax] = useState<number>(0)
+  const [orderStatus, setOrderStatus] = useState<string>('pending')
+  const [paymentStatus, setPaymentStatus] = useState<string>('unpaid')
+  
+  // Selected items for order
   const [selectedItems, setSelectedItems] = useState<Array<{
-    id: number | string,
+    id?: string | number,
+    item_id: string | number,
     name: string,
     quantity: number,
-    price: number,
-    variation?: string,
-    variation_id?: number | string
+    unit_price: number,
+    variation_name?: string,
+    variation_id?: string | number,
+    notes?: string
   }>>([])
   
-  const [customerName, setCustomerName] = useState('')
-  const [orderNotes, setOrderNotes] = useState('')
-  const [tableNo, setTableNo] = useState('')
-  const [orderStatus, setOrderStatus] = useState<'pending' | 'completed' | 'cancelled'>('pending')
+  // Data lists
+  const [users, setUsers] = useState<IUser[]>([])
+  const [tables, setTables] = useState<ITable[]>([])
+  const [availableTables, setAvailableTables] = useState<ITable[]>([])
+  const [items, setItems] = useState<IItem[]>([])
+  const [filteredItems, setFilteredItems] = useState<IItem[]>([])
+  const [categories, setCategories] = useState<{[key: string]: IItem[]}>({})
   
   // Fetch order details
   const fetchOrderDetails = useCallback(async () => {
@@ -44,35 +74,90 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
       const response = await fetch(`${BASE_URL}/api/orders/${orderId}`, {
         method: 'GET'
       })
+      
       const data = await response.json()
       
-      if (data?.data) {
+      if (data?.status === 'success' && data?.data) {
         const order = data.data
-        setCustomerName(order.customer_name || '')
-        setTableNo(order.table_no || '')
-        setOrderNotes(order.notes || '')
-        setOrderStatus(order.status)
         
-        // Convert order items to the format used in the form
+        // Set form fields
+        setOrderTakerId(order.order_taker_id?.toString() || order.created_by?.toString() || '')
+        setTableId(order.table_id?.toString() || '')
+        setOriginalTableId(order.table_id?.toString() || '')
+        setCustomerId(order.customer_id?.toString() || '')
+        setCustomerName(order.customer_name || '')
+        setOrderNotes(order.notes || '')
+        setDiscount(order.discount || 0)
+        setTax(order.tax || 0)
+        setOrderStatus(order.status || 'pending')
+        setPaymentStatus(order.payment_status || 'unpaid')
+        
+        // Set order items
         if (order.items && Array.isArray(order.items)) {
           setSelectedItems(order.items.map((item: any) => ({
-            id: item.variation_id ? `${item.item_id}-${item.variation_id}` : item.item_id,
-            name: item.name,
+            id: item.id,
+            item_id: item.item_id,
+            name: item.name || item.item?.name || '',
             quantity: item.quantity,
-            price: item.price,
-            variation: item.variation_name,
-            variation_id: item.variation_id
+            unit_price: item.unit_price || item.price || 0,
+            variation_name: item.variation_name,
+            variation_id: item.variation_id,
+            notes: item.notes
           })))
         }
+      } else {
+        toastCustom.error('Failed to load order details')
+        router.push(routes.orders)
       }
     } catch (error) {
       console.error('Error fetching order details:', error)
-      toastCustom.error('Failed to load order details')
+      toastCustom.error('Error loading order')
+      router.push(routes.orders)
     } finally {
       setLoadingOrder(false)
     }
-  }, [orderId])
+  }, [orderId, router])
   
+  // Fetch all users from the API
+  const fetchUsers = useCallback(async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/users/view`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+      if (data?.data?.data) {
+        setUsers(data.data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+    }
+  }, [])
+
+  // Fetch all tables from the API
+  const fetchTables = useCallback(async () => {
+    setTablesLoading(true)
+    try {
+      const response = await fetch(`${BASE_URL}/api/tables/view`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+      if (data?.data?.data) {
+        const allTables = data.data.data
+        setTables(allTables)
+        
+        // Filter available tables or include the current table
+        const available = allTables.filter((table: ITable) => 
+          table.status === 'available' || table.id?.toString() === originalTableId
+        )
+        setAvailableTables(available)
+      }
+    } catch (error) {
+      console.error('Error fetching tables:', error)
+    } finally {
+      setTablesLoading(false)
+    }
+  }, [originalTableId])
+
   // Fetch all items from the API
   const fetchItems = useCallback(async () => {
     setItemsLoading(true)
@@ -82,8 +167,20 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
       })
       const data = await response.json()
       if (data?.data?.data) {
-        setItems(data.data.data)
-        setFilteredItems(data.data.data)
+        const allItems = data.data.data
+        setItems(allItems)
+        setFilteredItems(allItems)
+        
+        // Group items by category
+        const itemsByCategory: {[key: string]: IItem[]} = {}
+        allItems.forEach((item: IItem) => {
+          const catId = item.cat_id?.toString() || 'uncategorized'
+          if (!itemsByCategory[catId]) {
+            itemsByCategory[catId] = []
+          }
+          itemsByCategory[catId].push(item)
+        })
+        setCategories(itemsByCategory)
       }
     } catch (error) {
       console.error('Error fetching items:', error)
@@ -92,10 +189,13 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
     }
   }, [])
   
+  // Handle initial data loading
   useEffect(() => {
     fetchOrderDetails()
+    fetchUsers()
+    fetchTables()
     fetchItems()
-  }, [fetchOrderDetails, fetchItems])
+  }, [fetchOrderDetails, fetchUsers, fetchTables, fetchItems])
   
   // Filter items based on search query
   useEffect(() => {
@@ -111,15 +211,24 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
   
   // Add item to order
   const addItemToOrder = (item: IItem, variation?: any) => {
-    const itemId = variation ? `${item.id}-${variation.id}` : item.id
+    const itemId = item.id
+    let price = item.price
+    let variationName = undefined
+    let variationId = undefined
+    
+    if (variation) {
+      variationName = variation.name
+      variationId = variation.id
+      price = variation.price || price
+    }
     
     // Check if item already exists in the order
     const existingItemIndex = selectedItems.findIndex(
       (selectedItem) => {
         if (variation) {
-          return selectedItem.id === itemId
+          return selectedItem.item_id === itemId && selectedItem.variation_id === variationId
         }
-        return selectedItem.id === item.id && !selectedItem.variation_id
+        return selectedItem.item_id === itemId && !selectedItem.variation_id
       }
     )
     
@@ -131,12 +240,12 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
     } else {
       // Add new item to order
       setSelectedItems([...selectedItems, {
-        id: itemId ?? '',
+        item_id: itemId ?? '',
         name: item.name,
         quantity: 1,
-        price: variation ? variation.price : (item.price || 0),
-        variation: variation ? variation.name : undefined,
-        variation_id: variation ? variation.id : undefined
+        unit_price: price,
+        variation_name: variationName,
+        variation_id: variationId
       }])
     }
   }
@@ -144,7 +253,14 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
   // Update item quantity in order
   const updateItemQuantity = (index: number, value: number) => {
     const updatedItems = [...selectedItems]
-    updatedItems[index].quantity = value
+    updatedItems[index].quantity = value < 1 ? 1 : value
+    setSelectedItems(updatedItems)
+  }
+  
+  // Add notes to an item
+  const addItemNotes = (index: number, notes: string) => {
+    const updatedItems = [...selectedItems]
+    updatedItems[index].notes = notes
     setSelectedItems(updatedItems)
   }
   
@@ -155,12 +271,33 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
     setSelectedItems(updatedItems)
   }
   
-  // Calculate order total
-  const calculateTotal = () => {
+  // Calculate subtotal
+  const calculateSubtotal = () => {
     return selectedItems.reduce((total, item) => {
-      return total + (item.price * item.quantity)
+      return total + (item.unit_price * item.quantity)
     }, 0)
   }
+  
+  // Calculate total
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal()
+    return subtotal - discount + tax
+  }
+  
+  // Status options
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ]
+  
+  // Payment status options
+  const paymentStatusOptions = [
+    { value: 'unpaid', label: 'Unpaid' },
+    { value: 'partially_paid', label: 'Partially Paid' },
+    { value: 'paid', label: 'Paid' }
+  ]
   
   // Update order
   const updateOrder = async () => {
@@ -169,21 +306,43 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
       return
     }
     
+    if (!orderTakerId) {
+      toastCustom.error('Please select an order taker')
+      return
+    }
+    
+    setIsUpdating(true)
     setLoading(true)
     
     try {
       const orderData = {
         id: orderId,
+        branch_id: user?.branch_id,
+        order_taker_id: orderTakerId,
+        table_id: tableId || null,
+        customer_id: customerId || null,
         customer_name: customerName,
-        table_no: tableNo,
-        items: selectedItems,
+        items: selectedItems.map(item => ({
+          item_id: item.item_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          variation_id: item.variation_id,
+          notes: item.notes
+        })),
+        subtotal: calculateSubtotal(),
+        discount: discount,
+        tax: tax,
+        total: calculateTotal(),
         notes: orderNotes,
-        total_amount: calculateTotal(),
-        status: orderStatus
+        status: orderStatus,
+        payment_status: paymentStatus
       }
       
       const response = await fetch(`${BASE_URL}/api/orders/update`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(orderData)
       })
       
@@ -193,18 +352,19 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
         toastCustom.success('Order updated successfully')
         router.push(routes.orders)
       } else {
-        toastCustom.error('Failed to update order')
+        toastCustom.error(data.message || 'Failed to update order')
       }
     } catch (error) {
       console.error('Error updating order:', error)
       toastCustom.error('An error occurred while updating the order')
     } finally {
+      setIsUpdating(false)
       setLoading(false)
     }
   }
   
   if (loadingOrder) {
-    return <div className="text-center py-8">Loading order details...</div>
+    return <div className="p-8 text-center">Loading order details...</div>
   }
   
   return (
@@ -212,6 +372,51 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
       {/* Left side - Customer info and item selection */}
       <div className="col-span-2 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label htmlFor="orderTaker" className="block mb-1 font-medium">Order Taker *</label>
+            <ReactSelect
+              id="orderTaker"
+              placeholder="Select Order Taker..."
+              value={users.filter(u => u.id?.toString() === orderTakerId).map(u => ({ value: u.id?.toString(), label: u.name }))[0]}
+              options={users.map(u => ({ value: u.id?.toString(), label: u.name }))}
+              onChange={(selectedOption: any) => setOrderTakerId(selectedOption?.value || '')}
+              isSearchable
+              isClearable
+              classNames={{
+                control: () => "ring-1 ring-gray-300"
+              }}
+              styles={{
+                control: (styles) => ({ ...styles, backgroundColor: "rgb(249, 250, 251)", border: "none" })
+              }}
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="table" className="block mb-1 font-medium">Table</label>
+            <ReactSelect
+              id="table"
+              placeholder="Select Table..."
+              value={tables.filter(t => t.id?.toString() === tableId).map(t => ({ 
+                value: t.id?.toString(), 
+                label: `Table ${t.table_no} (${t.capacity} seats)` 
+              }))[0]}
+              options={availableTables.map(t => ({ 
+                value: t.id?.toString(), 
+                label: `Table ${t.table_no} (${t.capacity} seats)` 
+              }))}
+              onChange={(selectedOption: any) => setTableId(selectedOption?.value || '')}
+              isSearchable
+              isClearable
+              isLoading={tablesLoading}
+              classNames={{
+                control: () => "ring-1 ring-gray-300"
+              }}
+              styles={{
+                control: (styles) => ({ ...styles, backgroundColor: "rgb(249, 250, 251)", border: "none" })
+              }}
+            />
+          </div>
+          
           <div>
             <label htmlFor="customerName" className="block mb-1 font-medium">Customer Name</label>
             <TextField
@@ -222,35 +427,10 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
               onChange={(e) => setCustomerName(e.target.value)}
             />
           </div>
-          
-          <div>
-            <label htmlFor="tableNo" className="block mb-1 font-medium">Table No.</label>
-            <TextField
-              id="tableNo"
-              type="text"
-              placeholder="Table Number"
-              value={tableNo}
-              onChange={(e) => setTableNo(e.target.value)}
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="status" className="block mb-1 font-medium">Order Status</label>
-            <select
-              id="status"
-              className="w-full p-2 bg-gray-50 border-none rounded-md"
-              value={orderStatus}
-              onChange={(e) => setOrderStatus(e.target.value as any)}
-            >
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
         </div>
         
         <div>
-          <label className="block mb-1 font-medium">Search Items</label>
+          <label className="block mb-1 font-medium">Search Items to Add</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Search className="w-4 h-4 text-gray-500" />
@@ -266,46 +446,45 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
         </div>
         
         <div className="border rounded-lg overflow-hidden">
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-[300px] overflow-y-auto p-4">
             {itemsLoading ? (
               <div className="p-4 text-center">Loading items...</div>
             ) : filteredItems.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-3">
-                {filteredItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => {
-                      if (item.variations && item.variations.length > 0) {
-                        // If item has variations, don't add it directly
-                      } else {
-                        addItemToOrder(item)
-                      }
-                    }}
-                  >
-                    <div className="font-medium">{item.name}</div>
-                    {!item.variations || item.variations.length === 0 ? (
+              searchQuery ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {filteredItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => addItemToOrder(item)}
+                    >
+                      <div className="font-medium">{item.name}</div>
                       <div className="text-sm text-gray-600">${item.price?.toFixed(2) || '0.00'}</div>
-                    ) : (
-                      <div className="mt-2 space-y-1">
-                        {item.variations.map((variation, index) => (
-                          <div 
-                            key={index}
-                            className="text-sm border-t pt-1 flex justify-between cursor-pointer hover:bg-gray-100 px-1"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              addItemToOrder(item, variation)
-                            }}
-                          >
-                            <span className="text-gray-600">{'variation.name'}</span>
-                            <span className="font-medium">${0?.toFixed(2) || '0.00'}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                // Show items grouped by category when not searching
+                Object.entries(categories).map(([catId, categoryItems]) => (
+                  <div key={catId} className="mb-6">
+                    <h3 className="text-lg font-medium mb-2">
+                      {categoryItems[0]?.name || 'Uncategorized'}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {categoryItems.map((item) => (
+                        <div
+                          key={item.id}
+                          className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
+                          onClick={() => addItemToOrder(item)}
+                        >
+                          <div className="font-medium">{item.name}</div>
+                          <div className="text-sm text-gray-600">${item.price?.toFixed(2) || '0.00'}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
+                ))
+              )
             ) : (
               <div className="p-4 text-center text-gray-500">No items found</div>
             )}
@@ -319,19 +498,19 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
         
         {selectedItems.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No items added to order
+            No items in this order
           </div>
         ) : (
-          <div className="space-y-3 mb-4">
+          <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto">
             {selectedItems.map((item, index) => (
               <div key={index} className="bg-white rounded p-3 shadow-sm">
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-medium">{item.name}</div>
-                    {item.variation && (
-                      <div className="text-xs text-gray-500">{item.variation}</div>
+                    {item.variation_name && (
+                      <div className="text-xs text-gray-500">{item.variation_name}</div>
                     )}
-                    <div className="text-sm text-gray-600 mt-1">${item.price.toFixed(2)}</div>
+                    <div className="text-sm text-gray-600 mt-1">${item.unit_price.toFixed(2)}</div>
                   </div>
                   <button 
                     className="text-red-500 hover:text-red-700"
@@ -351,7 +530,7 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
                     type="number"
                     min="1"
                     value={item.quantity}
-                    onChange={(e) => updateItemQuantity(index, Number(e.target.value) || 1)}
+                    onChange={(e) => updateItemQuantity(index, parseInt(e.target.value) || 1)}
                     className="w-12 text-center border-y py-1 text-sm"
                   />
                   <button 
@@ -361,8 +540,17 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
                     <Plus className="w-4 h-4" />
                   </button>
                   <div className="ml-auto font-medium">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${(item.unit_price * item.quantity).toFixed(2)}
                   </div>
+                </div>
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    placeholder="Add notes for this item..."
+                    value={item.notes || ''}
+                    onChange={(e) => addItemNotes(index, e.target.value)}
+                    className="w-full text-xs p-1 border rounded bg-gray-50"
+                  />
                 </div>
               </div>
             ))}
@@ -370,9 +558,41 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
         )}
         
         <div className="border-t pt-3 mb-4">
-          <div className="flex justify-between font-medium">
-            <span>Total:</span>
-            <span>${calculateTotal().toFixed(2)}</span>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label htmlFor="discount" className="text-sm">Discount:</label>
+              <div className="w-1/2">
+                <TextField
+                  id="discount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={discount}
+                  onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                  className="text-right text-sm py-1"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <label htmlFor="tax" className="text-sm">Tax:</label>
+              <div className="w-1/2">
+                <TextField
+                  id="tax"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={tax}
+                  onChange={(e) => setTax(parseFloat(e.target.value) || 0)}
+                  className="text-right text-sm py-1"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-between font-medium pt-2 border-t">
+              <span>Total:</span>
+              <span>${calculateTotal().toFixed(2)}</span>
+            </div>
           </div>
         </div>
         
@@ -382,7 +602,42 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
             placeholder="Add notes about the order..."
             value={orderNotes}
             onChange={(e) => setOrderNotes(e.target.value)}
+            rows={3}
           />
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block mb-1 font-medium">Order Status</label>
+            <ReactSelect
+              options={statusOptions}
+              value={statusOptions.find(option => option.value === orderStatus)}
+              onChange={(selectedOption: any) => setOrderStatus(selectedOption?.value || 'pending')}
+              className="w-full"
+              classNames={{
+                control: () => "ring-1 ring-gray-300"
+              }}
+              styles={{
+                control: (styles) => ({ ...styles, backgroundColor: "rgb(249, 250, 251)", border: "none" })
+              }}
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-1 font-medium">Payment Status</label>
+            <ReactSelect
+              options={paymentStatusOptions}
+              value={paymentStatusOptions.find(option => option.value === paymentStatus)}
+              onChange={(selectedOption: any) => setPaymentStatus(selectedOption?.value || 'unpaid')}
+              className="w-full"
+              classNames={{
+                control: () => "ring-1 ring-gray-300"
+              }}
+              styles={{
+                control: (styles) => ({ ...styles, backgroundColor: "rgb(249, 250, 251)", border: "none" })
+              }}
+            />
+          </div>
         </div>
         
         <div className="flex justify-between">
@@ -395,7 +650,7 @@ const EditOrderForm = ({ orderId }: IEditOrderFormProps) => {
           <DarkButton
             onClick={updateOrder}
             className="w-2/3 ml-2 justify-center"
-            loading={loading}
+            loading={isUpdating}
             disabled={loading || selectedItems.length === 0}
           >
             Update Order
