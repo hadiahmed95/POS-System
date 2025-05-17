@@ -2,11 +2,11 @@
 
 import React from 'react'
 import { CheckCircle, Clock, ChefHat, BellRing, FileText } from 'lucide-react'
-import { KitchenOrderStatus } from './kitchen-display'
+import { OrderStatusType } from '../../type'
 
 interface IOrderFilterProps {
-  statusFilter: KitchenOrderStatus | 'all'
-  setStatusFilter: (status: KitchenOrderStatus | 'all') => void
+  statusFilter: OrderStatusType | 'all'
+  setStatusFilter: (status: OrderStatusType | 'all') => void
   orderCounts: {
     all: number
     new: number
@@ -35,9 +35,9 @@ const OrderFilter = ({ statusFilter, setStatusFilter, orderCounts }: IOrderFilte
       </button>
       
       <button
-        onClick={() => setStatusFilter('new')}
+        onClick={() => setStatusFilter('pending')}
         className={`flex items-center px-3 py-2 rounded-md ${
-          statusFilter === 'new'
+          statusFilter === 'pending'
             ? 'bg-blue-100 text-blue-800 font-medium shadow-sm'
             : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
         }`}
@@ -50,9 +50,9 @@ const OrderFilter = ({ statusFilter, setStatusFilter, orderCounts }: IOrderFilte
       </button>
       
       <button
-        onClick={() => setStatusFilter('preparing')}
+        onClick={() => setStatusFilter('processing')}
         className={`flex items-center px-3 py-2 rounded-md ${
-          statusFilter === 'preparing'
+          statusFilter === 'processing'
             ? 'bg-yellow-100 text-yellow-800 font-medium shadow-sm'
             : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
         }`}

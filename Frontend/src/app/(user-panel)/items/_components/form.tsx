@@ -48,7 +48,8 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
         price: 0,
         items: null,
         box_quantity: 1,
-        item_type: 'single'
+        item_type: 'single',
+        grouped_items: []
     }
 
     const [submiting, setSubmiting] = useState<boolean>(false)
@@ -135,7 +136,8 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
                     box_quantity: 1,
                     image: imageDataUrl,
                     available: 1,
-                    item_type: data.item_type
+                    item_type: data.item_type,
+                    grouped_items: []
                 }
                 
                 if (data.id) {
@@ -363,7 +365,10 @@ const Form = ({ categories, isClose, data, items, onSubmit }: IForm) => {
                     control={control}
                     render={({ field }) => (
                         <Switcher title={'Group Items'} checked={field.value === "group"} onChange={(value) => {
-                            field.onChange(value ? 'group' : 'single')
+                            {
+                                setOpenMultiItems(!!value)
+                                field.onChange(value ? 'group' : 'single')
+                            }
                         }} />
                     )}
                 />
