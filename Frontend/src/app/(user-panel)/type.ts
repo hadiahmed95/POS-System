@@ -26,6 +26,12 @@ interface IBranch {
     branch_phone: string
 }
 
+interface IRole {
+    id?: string
+    role_name: string
+    permissions: any[]
+}
+
 interface IBrand {
     id?: string
     brand_name: string
@@ -180,6 +186,7 @@ export type {
     IrouteList,
     IUser,
     IBranch,
+    IRole,
     IBrand,
     IUnit,
     IVendor,
