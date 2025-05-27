@@ -101,7 +101,7 @@ if (!function_exists('getRecord')) {
  * @return \Illuminate\Http\JsonResponse
  */
 if (!function_exists('addRecord')) {
-    function addRecord($model_class, array $data) {
+    function addRecord($model_class, array $data, array $with = []) {
         try {
             $model = new $model_class;
             $processedData = $data;
@@ -120,10 +120,16 @@ if (!function_exists('addRecord')) {
             }
             
             // Insert method works for both single and multiple records
-            $inserted = $model::insert($processedData);
+            $inserted = $model::insertGetId($processedData);
+            
+            $record = $model;
+            if( !empty($with) ) {
+                $record = $record->with($with);
+            }
+            $record = $record->find($inserted);
             
             if ($inserted) {
-                return setApiResponse(1, "Record added successfully!", 200, $processedData);
+                return setApiResponse(1, "Record added successfully!", 200, $record);
             } else {
                 return setApiResponse(0, "Failed to add record(s)!", 400);
             }
@@ -142,7 +148,7 @@ if (!function_exists('addRecord')) {
  * @return \Illuminate\Http\JsonResponse
  */
 if (!function_exists('updateRecord')) {
-    function updateRecord($model_class, int $id, array $data) {
+    function updateRecord($model_class, int $id, array $data, array $with = []) {
         $model = new $model_class;
         $record = $model->find($id);
         if ($record) {
@@ -175,7 +181,12 @@ if (!function_exists('updateRecord')) {
                 }
                 
                 $record->update($processedData);
-                return setApiResponse(1, "Record updated successfully!", 200, $processedData);
+
+                if( !empty($with) ) {
+                    $record = $model->with($with)->find($id);
+                }
+
+                return setApiResponse(1, "Record updated successfully!", 200, $record);
             }
             catch (\Exception $e) {
                 return setApiResponse(0, "Something went wrong. Please try again!", 400, ["error" => $e->getMessage()]);

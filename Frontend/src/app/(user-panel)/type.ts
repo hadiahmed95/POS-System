@@ -5,6 +5,7 @@ interface IrouteList {
     title: string;
     active?: boolean;
     children?: IrouteList[] | undefined;
+    match?: string[]
     url?: string
     slug?: string
 }
@@ -16,6 +17,8 @@ interface IUser {
     name: string;
     email: string
     phone: string
+    branch?: IBranch
+    role?: IRole
 }
 
 interface IBranch {
@@ -182,6 +185,11 @@ interface IOrderReport {
     avg_order_value: number;
 } 
 
+type OptionType = {
+    value: string;
+    label: string;
+};
+
 export type {
     IrouteList,
     IUser,
@@ -200,5 +208,6 @@ export type {
     OrderStatusType,
     IOrder,
     IOrderStats,
-    IOrderReport
+    IOrderReport,
+    OptionType
 }

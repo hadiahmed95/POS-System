@@ -4,7 +4,6 @@ import BackendAxios from "@/config/axios"
 export async function POST(req: Request) {
     const token = await getSession('auth_token')
     const body = await req.json()
-    console.log('body', body)
     const res = await BackendAxios.post('add/users', body, {
         headers: {
             "Authorization": `Bearer ${token}`
@@ -13,7 +12,7 @@ export async function POST(req: Request) {
     .then(async (response) => response.data)
     .catch(e => {
         console.log('error', e)
-        return e.response
+        return e.response.data
     })
     return Response.json(res)
 }

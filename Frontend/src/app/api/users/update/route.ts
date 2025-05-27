@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     .then(async (response) => response.data)
     .catch(e => {
         console.log('error', e)
-        return e.response
+        return e.response.data
     })
     return Response.json(res)
 }

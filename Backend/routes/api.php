@@ -72,6 +72,7 @@ use App\Http\Controllers\Api\OrderController;
 
                 Route::prefix('edit')->group(function () {
                     Route::post("/roles", [RolesPermissionController::class, "updateRole"]);
+                    Route::post("/users", [UserController::class, "update"]);
                     Route::post("/branches", [BranchController::class, "update"]);
                     Route::post("/brands", [BrandController::class, "update"]);
                     Route::post("/units", [UnitController::class, "update"]);
@@ -87,6 +88,7 @@ use App\Http\Controllers\Api\OrderController;
         
                 Route::prefix('delete')->group(function () {
                     Route::post("/roles", [RolesPermissionController::class, "deleteRole"]);
+                    Route::post("/users", [UserController::class, "delete"]);
                     Route::post("/branches", [BranchController::class, "delete"]);
                     Route::post("/brands", [BrandController::class, "delete"]);
                     Route::post("/units", [UnitController::class, "delete"]);
