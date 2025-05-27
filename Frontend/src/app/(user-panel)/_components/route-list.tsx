@@ -14,6 +14,7 @@ const routeList: IrouteList[] = [
     {
         icon: <Users size={20} strokeWidth={1.5} />,
         title: 'Users Management',
+        match: ['users', 'user-roles'],
         children: [
             {
                 icon: null,

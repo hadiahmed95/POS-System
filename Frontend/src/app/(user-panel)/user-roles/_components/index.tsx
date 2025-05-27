@@ -6,6 +6,7 @@ import { BASE_URL } from '@/config/constants';
 import { IRole } from '../../type';
 import { PenIcon, Trash2 } from 'lucide-react';
 import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import { toastCustom } from '@/components/toastCustom';
 import TableLoader from '../../_components/table-loader';
 import PageTitleOver from '../../_components/page-title-over';
@@ -96,7 +97,7 @@ const RolesTableList = ({modules, permissions}: IRolesTableList) => {
                 {
                   isLoading ?
                     <tr>
-                      <td colSpan={5}>
+                      <td colSpan={4}>
                         <TableLoader />
                       </td>
                     </tr>
@@ -135,7 +136,7 @@ const RolesTableList = ({modules, permissions}: IRolesTableList) => {
                         </tr>
                     }) : (
                     <tr>
-                      <td colSpan={5}>
+                      <td colSpan={4}>
                         <p className={'p-4 text-center'}>{'No Record Found!'}</p>
                       </td>
                     </tr>
