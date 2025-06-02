@@ -9,6 +9,7 @@ import { IloginForm } from '@/config/types'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { routeList } from '../(user-panel)/_components/route-list'
 
 const LoginForm = () => {
 
@@ -36,7 +37,11 @@ const LoginForm = () => {
             }
             if(res.status === "success")
             {
-                router.push(routes.dahsboard)
+                const permissionSlugs: string[] = res.data.permissions.map((perm: any) => perm.module.module_slug)
+                const route = routeList.find(route => route.slug && permissionSlugs.includes(route.slug))
+                if(route?.slug){
+                    router.push(route?.slug)
+                }
             }
         }).catch(e => {
             toastCustom.error(e.message);

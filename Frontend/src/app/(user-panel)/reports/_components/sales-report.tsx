@@ -286,31 +286,37 @@ const SalesReport = () => {
         <div className="mt-6 p-4 bg-violet-50 rounded-lg border border-violet-100">
           <h3 className="text-lg font-medium text-violet-800 mb-2">Report Insights</h3>
           <div className="space-y-2 text-sm text-violet-800">
-            <p>
+            <p className='mb-3'>
               <span className="font-medium">Daily Average: </span>
-              ${(summary.total_sales / salesData.length).toFixed(2)} sales from {(summary.total_orders / salesData.length).toFixed(1)} orders per day
+              <span className='inline-block bg-white text-gray-700 ml-2 p-1 rounded ring-1 ring-violet-800'>
+                ${(summary.total_sales / salesData.length).toFixed(2)} sales from {(summary.total_orders / salesData.length).toFixed(1)} orders per day
+              </span>
             </p>
             
             {salesData.length > 0 && (
               <>
-                <p>
+                <p className='!mb-3'>
                   <span className="font-medium">Best Day: </span>
-                  {formatDate(salesData.reduce((best, current) => 
-                    current.total_sales > best.total_sales ? current : best, salesData[0]
-                  ).date)} 
-                  with ${salesData.reduce((best, current) => 
-                    current.total_sales > best.total_sales ? current : best, salesData[0]
-                  ).total_sales.toFixed(2)} in sales
+                  <span className='inline-block bg-white text-gray-700 ml-2 p-1 rounded ring-1 ring-violet-800'>
+                    {formatDate(salesData.reduce((best, current) => 
+                      current.total_sales > best.total_sales ? current : best, salesData[0]
+                    ).date)} 
+                    &nbsp; with ${salesData.reduce((best, current) => 
+                      current.total_sales > best.total_sales ? current : best, salesData[0]
+                    ).total_sales.toFixed(2)} in sales
+                  </span>
                 </p>
                 
                 <p>
                   <span className="font-medium">Busiest Day: </span>
-                  {formatDate(salesData.reduce((best, current) => 
-                    current.total_orders > best.total_orders ? current : best, salesData[0]
-                  ).date)} 
-                  with {salesData.reduce((best, current) => 
-                    current.total_orders > best.total_orders ? current : best, salesData[0]
-                  ).total_orders} orders
+                  <span className='inline-block bg-white text-gray-700 ml-2 p-1 rounded ring-1 ring-violet-800'>
+                    {formatDate(salesData.reduce((best, current) => 
+                      current.total_orders > best.total_orders ? current : best, salesData[0]
+                    ).date)} 
+                    &nbsp; with {salesData.reduce((best, current) => 
+                      current.total_orders > best.total_orders ? current : best, salesData[0]
+                    ).total_orders} orders
+                  </span>
                 </p>
               </>
             )}

@@ -14,5 +14,6 @@ export const routes = {
     orders: '/orders',
     reports: '/reports',
     salesReport: '/reports/sales',
-    kitchen: '/kitchen'
+    kitchen: '/kitchen',
+    settings: '/settings'
 }

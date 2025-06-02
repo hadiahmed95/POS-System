@@ -453,9 +453,6 @@ class OrderController extends Controller
                     $request->date_from . ' 00:00:00',
                     $request->date_to . ' 23:59:59'
                 ]);
-            } else {
-                // Default to today if no date range specified
-                $query->whereDate('order_date', today());
             }
             
             // Apply branch filter if provided

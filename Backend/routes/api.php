@@ -27,7 +27,7 @@ use App\Http\Controllers\Api\OrderController;
         Route::middleware('check.token')->group(function () {
             Route::get("/user-permissions/{id?}", [RolesPermissionController::class, "viewUserPermissions"]);
 
-            Route::middleware('check.permission')->group(function () {
+            // Route::middleware('check.permission')->group(function () {
                 
                 Route::prefix('view')->group(function () {
                     Route::get("/users/{id?}", [UserController::class, "view"]);
@@ -45,10 +45,10 @@ use App\Http\Controllers\Api\OrderController;
                     Route::get("/items/{id?}", [ItemController::class, "view"]);
 
                     // Orders API
-                    Route::get("/orders/{id?}", [OrderController::class, "view"]);
                     Route::get("/orders/table/{tableId}", [OrderController::class, "getTableOrders"]);
                     Route::get("/kitchen/orders", [OrderController::class, "getKitchenOrders"]);
                     Route::get("/orders/stats", [OrderController::class, "getStats"]);
+                    Route::get("/orders/{id?}", [OrderController::class, "view"]);
                 });
         
                 Route::prefix('add')->group(function () {
@@ -111,7 +111,7 @@ use App\Http\Controllers\Api\OrderController;
                     Route::post("/tables", [TableController::class, "restore"]);
                     Route::post("/items", [ItemController::class, "restore"]);
                 });
-            });
+            // });
         });
     });
 // });

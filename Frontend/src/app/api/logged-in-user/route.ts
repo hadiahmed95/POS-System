@@ -8,9 +8,15 @@ export async function POST(request: Request) {
             "Authorization": `Bearer ${token}`
         }
     })
-    .then(async (response) => response.data)
+    .then(async (response) => ({
+        ...response.data,
+        statusCode: response.status
+    }))
     .catch(e => {
-        return e.response.data
+        return {
+            ...e.response.data,
+            statusCode: e.status
+        }
     })
     return Response.json(res)
 }

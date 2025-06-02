@@ -1,6 +1,7 @@
 
 interface IrouteList {
     type?: 'group' | 'route'
+    screens?: string[]
     icon?: React.JSX.Element | null;
     title: string;
     active?: boolean;
@@ -150,7 +151,6 @@ interface IOrder {
     discount: number;
     tax: number;
     total: number;
-    total_amount?: number; // For frontend display
     status: OrderStatusType;
     payment_status?: 'unpaid' | 'partially_paid' | 'paid';
     notes?: string;

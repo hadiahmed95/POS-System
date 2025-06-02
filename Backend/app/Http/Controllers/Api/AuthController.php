@@ -16,14 +16,18 @@ class AuthController extends Controller
         }
         else {
             $user = User::where("email", $request->email)
-                    ->with("branch", "role", "permissions")
+                    ->with("branch", "role")
+                    ->with(["permissions" => function ($q) {
+                        $q->with('module');
+                    }])
                     ->first();
 
             if(empty($user)) {
                 $response = setApiResponse(0, "Invalid credentials!", 403);
             }
             else {
-                if( !Hash::check($request->password, $user->password) ) {
+                $check = Hash::check($request->password, $user->password);
+                if( !$check ) {
                     $response = setApiResponse(0, "Incorrect Password!", 403);
                 }
                 else {
