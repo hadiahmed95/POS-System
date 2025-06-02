@@ -46,7 +46,7 @@ class UserController extends Controller
         }
 
         $data = $request->all();
-        $data['password'] = Hash::make($data['email'].$data['password']);
+        $data['password'] = Hash::make($data['password']);
         $relationships = ["branch", "role"];
         return addRecord(User::class, $data, $relationships);
     }
@@ -55,7 +55,8 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'branch_id' => 'required|integer',
             'role_id' => 'required|integer',
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'email' => 'required',
         ]);
     
         if ($validator->fails()) {
@@ -64,10 +65,10 @@ class UserController extends Controller
 
         $data = $request->all();
         if(isset($data['password'])) {
-            $data['password'] = Hash::make($data['email'].$data['password']);
+            $data['password'] = Hash::make($data['password']);
         }
         $relationships = ["branch", "role"];
-        return updateRecord(User::class, $request->id, $request->all(), $relationships);
+        return updateRecord(User::class, $request->id, $data, $relationships);
     }
 
     public function delete(Request $request) {

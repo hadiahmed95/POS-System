@@ -25,6 +25,9 @@ export async function POST(request: Request) {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
+        }).catch(e => {
+            console.log('statsRes Error: ', e);
+            return e
         });
         
         if (res.data.status === 'success' && statsRes.data.status === 'success') {

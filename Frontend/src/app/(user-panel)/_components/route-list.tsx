@@ -3,18 +3,18 @@ import { IrouteList } from "../type"
 import { routes } from "@/config/routes"
 
 const routeList: IrouteList[] = [
-    {  type: 'group', title: 'Main' },
+    {  type: 'group', title: 'Main', screens: ['dashboard', 'users', 'roles-permissions'] },
     {
         active: true,
         icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
         title: 'Dashboard',
-        slug: 'dashboard',
-        url: routes.dahsboard
+        url: routes.dahsboard,
+        slug: 'dashboard'
     },
     {
         icon: <Users size={20} strokeWidth={1.5} />,
         title: 'Users Management',
-        match: ['users', 'user-roles'],
+        match: ['users', 'roles-permissions'],
         children: [
             {
                 icon: null,
@@ -25,12 +25,12 @@ const routeList: IrouteList[] = [
             {
                 icon: null,
                 title: 'Role Management',
-                url: '/user-roles',
+                url: routes.user_roles,
                 slug: 'roles-permissions'
             }
         ]
     },
-    { type: 'group', title: 'Sales and Orders' },
+    { type: 'group', title: 'Sales and Orders', screens: ['orders', 'sales'] },
     {
         icon: <UsersRound size={20} strokeWidth={1.5} />,
         title: 'Orders',
@@ -40,8 +40,8 @@ const routeList: IrouteList[] = [
     {
         icon: <Banknote size={20} strokeWidth={1.5} />,
         title: 'Sales',
-        slug: 'reports/sales',
-        url: routes.salesReport
+        url: routes.salesReport,
+        slug: 'sales'
     },
     // {
     //     icon: <ScanLine size={20} strokeWidth={1.5} />,
@@ -54,7 +54,7 @@ const routeList: IrouteList[] = [
     //     url: routes.customers,
     //     slug: 'customer'
     // },
-    { type: 'group', title: 'Business Management' },
+    { type: 'group', title: 'Business Management', screens: ['branches', 'kitchen', 'tables'] },
     {
         icon: <LayoutDashboard size={20} strokeWidth={1.5} />,
         title: 'Branches',
@@ -64,8 +64,8 @@ const routeList: IrouteList[] = [
     {
         icon: <Banknote size={20} strokeWidth={1.5} />,
         title: 'Kitchen',
-        slug: 'kitchen',
-        url: routes.kitchen
+        url: routes.kitchen,
+        slug: 'kitchen'
     },
     {
         icon: <Sheet size={20} strokeWidth={1.5} />,
@@ -73,7 +73,8 @@ const routeList: IrouteList[] = [
         url: routes.tables,
         slug: 'tables'
     },
-    { type: 'group', title: 'Inventory' },
+
+    { type: 'group', title: 'Inventory', screens: ['categories', 'items', 'brands'] },
     {
         icon: <Grid2x2Plus size={20} strokeWidth={1.5} />,
         title: 'Categories',
@@ -120,7 +121,7 @@ const routeList: IrouteList[] = [
     {
         icon: <Cog size={20} strokeWidth={1.5} />,
         title: 'Settings',
-        slug: 'settings'
+        url: routes.settings
     }
 ]
 

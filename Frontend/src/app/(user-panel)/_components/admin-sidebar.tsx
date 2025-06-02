@@ -6,10 +6,14 @@ import { ChevronRight } from "lucide-react"
 import { IrouteList } from '../type'
 import { routeList } from './route-list'
 import { usePathname } from 'next/navigation'
+import { useAppSelector } from '../_lib/store'
 
 const AdminSidebar = () => {
 
     const pathName = usePathname()
+
+    const { permissions } = useAppSelector(state => state.user)
+    const screenSlugList: string[] = [...new Set(permissions?.map((p: any) => p.module.module_slug))]
 
     return (
         <div className={`bg-white h-screen w-full max-w-[250px] shadow-lg`}>
@@ -18,12 +22,20 @@ const AdminSidebar = () => {
                 <div className='h-max overflow-auto' style={{height: 'calc(100vh - 55px)'}}>
                     <ul className={'py-8'}>
                         {
-                            routeList.map((route, index) => 
+                            routeList
+                            .filter(route => 
+                                (route.type === "group" && !route.screens) ||
+                                (route.type === "group" && !!screenSlugList.find(l => route.screens?.includes(l))) ||
+                                (route.type !== "group" && !route.slug && !route.match) || 
+                                (route.type !== "group" && route.slug && screenSlugList.includes(route.slug)) || 
+                                (route.type !== "group" && route.match && !!screenSlugList.find(slug => route.match?.includes(slug)))
+                            )
+                            .map((route, index) => 
                                 route.type !== 'group'  ? <li key={index} className={`px-5 py-1`}>
                                     {
                                         !route.children ? (
                                             <Link href={route.url ?? '#'}
-                                                className={`flex items-center gap-2 px-1 py-2 rounded-r text-sm hover:text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${pathName.includes(route.slug ?? '') && `border-l-2 text-violet-800 border-violet-800 bg-violet-100`}`}
+                                                className={`flex items-center gap-2 px-1 py-2 rounded-r text-sm hover:text-violet-800 hover:border-violet-800 hover:bg-violet-100 ${pathName.includes(route.url ?? '') && `border-l-2 text-violet-800 border-violet-800 bg-violet-100`}`}
                                             >
                                                 <span>{route.icon && route.icon}</span>
                                                 <span>{route.title}</span>

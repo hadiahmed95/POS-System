@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { IPermissions } from "../../type"
 
 export interface IUserSlice {
     user: any
-    permissions: Record<string, Record<string, number>> | null
+    permissions: any[]
 }
 
 let initialState: IUserSlice = {
     user: '',
-    permissions: null
+    permissions: []
 }
 
 const userSlice = createSlice({

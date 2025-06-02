@@ -277,6 +277,11 @@ if (!function_exists('get_user_by_token')) {
         if (!$user) {
             return setApiResponse(0, "Invalid token!", 400);
         }
-        return setApiResponse(1, "Record fetched successfully", 200, $user);
+
+        $permissions = UserHasRole::with('module')->where('role_id', $user->role_id)->get();
+        return setApiResponse(1, "Record fetched successfully", 200, [
+            'user' => $user,
+            'permissions' => $permissions
+        ]);
     }
 }

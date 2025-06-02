@@ -28,5 +28,6 @@ export async function POST(request: Request) {
     .catch(e => {
         return e.response.data
     })
+    console.log('state res: ', res)
     return Response.json(res)
 }
