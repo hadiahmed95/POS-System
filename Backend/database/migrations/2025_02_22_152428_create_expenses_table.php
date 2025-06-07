@@ -13,12 +13,25 @@ return new class extends Migration
     {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('expense_type');
-            $table->foreign('expense_type')->references('id')->on('expense_types');
+            $table->unsignedBigInteger('branch_id');
+            $table->foreign('branch_id')->references('id')->on('branches');
+            $table->unsignedBigInteger('expense_type_id');
+            $table->foreign('expense_type_id')->references('id')->on('expense_types');
             $table->unsignedBigInteger('added_by');
             $table->foreign('added_by')->references('id')->on('users');
-            $table->dateTime('expense_date');
+            $table->string('expense_title');
+            $table->text('description')->nullable();
             $table->float('amount');
+            $table->date('expense_date');
+            $table->enum('payment_method', ['cash', 'bank_transfer', 'cheque', 'credit_card'])->default('cash');
+            $table->string('receipt_number')->nullable();
+            $table->text('receipt_image')->nullable(); // For storing receipt photo
+            $table->enum('status', ['pending', 'approved', 'rejected', 'paid'])->default('pending');
+            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->foreign('approved_by')->references('id')->on('users');
+            $table->date('approved_date')->nullable();
+            $table->text('approval_notes')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

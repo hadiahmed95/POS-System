@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\ExpenseType;
 use App\Models\Module;
 use App\Models\Permission;
 use App\Models\Role;
@@ -120,8 +121,20 @@ class DatabaseSeeder extends Seeder
                 "updated_at" => now(),
             ],
             [
+                "module_name" => "Expense Types",
+                "module_slug" => "expense-types",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
                 "module_name" => "Expenses",
                 "module_slug" => "expenses",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "module_name" => "Salary",
+                "module_slug" => "salary",
                 "created_at" => now(),
                 "updated_at" => now(),
             ],
@@ -283,5 +296,58 @@ class DatabaseSeeder extends Seeder
                 "updated_at" => now(),
             ],
         ]);
+
+        $expenseTypes = [
+            [
+                "expense_name" => "Office Supplies",
+                "added_by" => 1, // Super Admin
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "expense_name" => "Utilities",
+                "added_by" => 1,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "expense_name" => "Rent",
+                "added_by" => 1,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "expense_name" => "Marketing",
+                "added_by" => 1,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "expense_name" => "Travel",
+                "added_by" => 1,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "expense_name" => "Equipment",
+                "added_by" => 1,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "expense_name" => "Maintenance",
+                "added_by" => 1,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "expense_name" => "Training",
+                "added_by" => 1,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ]
+        ];
+
+        ExpenseType::insert($expenseTypes);
     }
 }
