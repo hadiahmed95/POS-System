@@ -217,7 +217,7 @@ const ItemPage = () => {
                 <tr key={index}>
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">
-                    <div className={'relative w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-100'}>
+                    <div className={'relative w-[60px] h-[60px] rounded-lg overflow-hidden bg-gray-100'}>
                       {
                         item.image && 
                           <Image src={`${process.env.NEXT_PUBLIC_API_URL ?? ''}/storage/${item.image}`} alt={item.name} fill={true} className={'object-cover'} />
@@ -237,23 +237,25 @@ const ItemPage = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 flex items-center">
-                    <DarkButton 
-                      className='mr-2 inline-block w-max shadow-lg !p-[5px]'
-                      onClick={(e) => {
-                        setFormData(item)
-                        setShowForm(true)
-                      }}
-                    >
-                      <PenIcon className='p-1' />
-                    </DarkButton>
-                    <DarkButton 
-                      variant='danger'
-                      className={'inline-block w-max shadow-lg !p-[5px]'}
-                      onClick={() => delRecord(Number(item.id ?? 0))}
-                    >
-                      <Trash2 className={'w-5'} />
-                    </DarkButton>
+                  <td className="px-6 py-4">
+                    <div className='flex items-center'>
+                      <DarkButton 
+                        className='mr-2 inline-block w-max shadow-lg !p-[5px]'
+                        onClick={(e) => {
+                          setFormData(item)
+                          setShowForm(true)
+                        }}
+                      >
+                        <PenIcon className='p-1' />
+                      </DarkButton>
+                      <DarkButton 
+                        variant='danger'
+                        className={'inline-block w-max shadow-lg !p-[5px]'}
+                        onClick={() => delRecord(Number(item.id ?? 0))}
+                      >
+                        <Trash2 className={'w-5'} />
+                      </DarkButton>
+                    </div>
                   </td>
                 </tr>
               )) : (

@@ -20,28 +20,38 @@ const OrdersWidget = () => {
 
   const loadData = useCallback(async () => {
     setLoading(true)
-    // try {
-    //   const [ordersRes, statsRes] = await Promise.all([
-    //     fetch(`${BASE_URL}/api/orders/recent`, {
-    //       method: 'POST'
-    //     }).then(res => res.json()),
-    //     fetch(`${BASE_URL}/api/orders/stats`, {
-    //       method: 'POST'
-    //     }).then(res => res.json())
-    //   ])
+    try {
+      const [
+        ordersRes,
+        statsRes
+      ] = await Promise.all([
+        fetch(`${BASE_URL}/api/orders/recent`, {
+          method: 'POST'
+        }).then(res => res.json()),
+        fetch(`${BASE_URL}/api/orders/stats`, {
+        method: 'POST',
+        body: JSON.stringify({})
+      }).then(res => res.json())
+      ])
+        
+      if (ordersRes?.data?.data) {
+        setRecentOrders(ordersRes.data.data)
+      }
 
-    //   if (ordersRes?.data?.data) {
-    //     setRecentOrders(ordersRes.data.data)
-    //   }
-
-    //   if (statsRes?.data) {
-    //     setStats(statsRes.data)
-    //   }
-    // } catch (error) {
-    //   console.error('Error loading dashboard data:', error)
-    // } finally {
-    //   setLoading(false)
-    // }
+      if (statsRes?.data) {
+        const { total_orders, total_sales, processing_orders, pending_orders, completed_orders, cancelled_orders, avg_order_value } = statsRes.data
+        setStats({
+          totalOrders: total_orders,
+          totalSales: total_sales,
+          pendingOrders: pending_orders,
+          completedOrders: completed_orders
+        })
+      }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -112,7 +122,7 @@ const OrdersWidget = () => {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">${order.total_amount.toFixed(2)}</p>
+                  <p className="font-medium">${order.total?.toFixed(2)}</p>
                   <p className={`text-xs ${
                     order.status === 'completed' ? 'text-green-600' :
                     order.status === 'pending' ? 'text-yellow-600' : 'text-red-600'

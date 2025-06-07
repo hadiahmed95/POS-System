@@ -8,12 +8,13 @@ import { routes } from '@/config/routes'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { IBranch, IModule, IPermissions } from '../../type'
+import { IRole, IModule, IPermissions } from '../../type'
 
 interface IRoleForm {
-    roleId?: string | number,
+    role?: IRole,
     modules: IModule[],
     permissions: IPermissions[]
+    clearRole?: () => void
 }
 
 interface IModuleForm {
@@ -21,16 +22,16 @@ interface IModuleForm {
     permissions: number[]
 }
 
-const RoleForm = ({ roleId, modules, permissions }: IRoleForm) => {
+const RoleForm = ({ role, modules, permissions, clearRole }: IRoleForm) => {
 
-    let initialValues: Pick<IBranch, 'branch_name'> = {
-        branch_name: ''
+    let initialValues: Pick<IRole, 'role_name'> = {
+        role_name: ''
     }
     const router = useRouter()
     const [submiting, setSubmiting] = useState<boolean>(false)
     const [selectedModules, setSelectedModules] = useState<IModuleForm[]>([])
 
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<IBranch>({
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<IRole>({
         defaultValues: initialValues
     })
 
@@ -66,87 +67,122 @@ const RoleForm = ({ roleId, modules, permissions }: IRoleForm) => {
 
     }, [selectedModules, permission_ids])
 
-    const submit = async (data: IBranch) => {
+    const submit = async (data: IRole) => {
         setSubmiting(true)
-        console.log('data', {...data, role_permissions: selectedModules})
-        if(!roleId && !submiting)
+        let _data = {...data, role_permissions: selectedModules}
+        if(!role?.id && !submiting)
         {
-            // const res = await fetch(`${BASE_URL}/api/branches/add`, {
-            //     method: "POST",
-            //     body: JSON.stringify(data)
-            // }).then(response => response.json())
+            const res = await fetch(`${BASE_URL}/api/roles/add`, {
+                method: "POST",
+                body: JSON.stringify(_data)
+            }).then(response => response.json())
     
-            // if (res.status === "success") {
-            //     reset()
-            //     toastCustom.success('Branch added successfully.')
-            //     router.push(routes.branches)
-            // }
+            if (res.status === "success") {
+                reset()
+                setSelectedModules([])
+                toastCustom.success('Role added successfully.')
+                router.push(routes.user_roles)
+            }
         }
         else if(!submiting)
         {
-            // const res = await fetch(`${BASE_URL}/api/branches/update`, {
-            //     method: "POST",
-            //     body: JSON.stringify({...data, id: roleId})
-            // }).then(response => response.json())
+            const res = await fetch(`${BASE_URL}/api/roles/update`, {
+                method: "POST",
+                body: JSON.stringify({..._data, id: role?.id})
+            }).then(response => response.json())
     
-            // if (res.status === "success") {
-            //     reset()
-            //     toastCustom.info('Branch updated successfully.')
-            //     router.push(routes.branches)
-            // }
+            if (res.status === "success") {
+                reset()
+                setSelectedModules([])
+                toastCustom.info('Role updated successfully.')
+                router.push(routes.user_roles)
+                if(typeof clearRole !== "undefined") {
+                    clearRole()
+                }
+            }
         }
         setSubmiting(false)
     }
 
     useEffect(() => {
         const load = () => {
-            if(roleId)
+            if(role)
             {
-                console.log('branch loading ...')
-                fetch(`${BASE_URL}/api/branches/${roleId}`, {
-                    method: "GET"
-                })
-                .then(async response => {
-                    const res = await response.json()
-                    setValue('id', res.data.id)
-                    setValue('branch_name', res.data.branch_name)
-                    setValue('branch_phone', res.data.branch_phone)
-                    setValue('branch_address', res.data.branch_address)
-                    setValue('branch_description', res.data.branch_description)
-                })
+                setValue('id', role.id)
+                setValue('role_name', role.role_name)
+                console.log('role', role.permissions.map(p => p.module))
+
+                const filtered: IModuleForm[] = Object.values(
+                role.permissions.reduce((acc, { module_id, permission_id }) => {
+                    if (!acc[module_id]) {
+                    acc[module_id] = {
+                        module_id,
+                        permissions: []
+                    };
+                    }
+                    acc[module_id].permissions.push(permission_id);
+                    return acc;
+                }, {})
+                );
+                setSelectedModules(filtered)
             }
         }
         load()
-    }, [roleId])
+    }, [role])
 
     return (
-        <form className={'p-5 bg-white rounded'}
+        <form className={'bg-white rounded grid grid-cols-3'}
             onSubmit={handleSubmit(submit)}
         >
-            
-            <div>
-                <label htmlFor="" className={'block mb-1 font-medium'}>Name *</label>
-                <TextField
-                    type="text"
-                    placeholder={'Name'}
-                    className={errors.branch_name ? 'border-red-500' : 'border-gray-50'}
-                    {...register('branch_name', {
-                        required: {
-                            value: true,
-                            message: "Name is required"
-                        }
-                    })}
-                />
-                {errors.branch_name && (
-                    <small className={'text-red-700'}>{errors.branch_name.message}</small>
-                )}
+            <div className={'col-span-1 border-r border-gray-200'}>
+                <label htmlFor="" className={'block mb-1 font-medium py-2 px-5 bg-gray-100'}>Name *</label>
+                <div className='py-2 px-5 sticky top-[60px]'>
+                    <TextField
+                        type="text"
+                        placeholder={'Name'}
+                        className={`${errors.role_name ? 'border-red-500' : 'border-gray-50'}`}
+                        {...register('role_name', {
+                            required: {
+                                value: true,
+                                message: "Name is required"
+                            }
+                        })}
+                    />
+                    {errors.role_name && (
+                        <small className={'text-red-700'}>{errors.role_name.message}</small>
+                    )}
+                    <div className={'col-span-2 mt-5 flex gap-2'}>
+                        <DarkButton 
+                            variant={'danger'}
+                            type={'button'} 
+                            className={'w-max px-5 py-1'}
+                            loading={submiting}
+                            disabled={submiting}
+                            onClick={() => {
+                                router.push(routes.user_roles)
+                                if(typeof clearRole !== "undefined") {
+                                    clearRole()
+                                }
+                            }}
+                        >{ 'Cancel'}
+                        </DarkButton>
+                        <DarkButton 
+                            type={'submit'} 
+                            className={'w-max px-5 py-1'}
+                            loading={submiting}
+                            disabled={submiting}
+                        >{ role?.id ? 'Update' : 'Add'}
+                        </DarkButton>
+                    </div>
+                </div>
+
             </div>
 
-            <div className='my-5'>
-                <label htmlFor="" className={'block font-medium'}>Screens</label>
+            <div className='mb-5 col-span-2'>
+                <label htmlFor="" className={'block font-medium bg-gray-100 py-2 px-5'}>Screens</label>
 
                 {/* Modules List  */}
-                <div className={'text-sm grid grid-cols-2'}>
+                <div className={'text-sm grid grid-cols-2 py-2 px-5'}>
                     {
                         modules.map((module, mIndex) =>
                             <div key={mIndex} className={'grid grid-cols-6 gap-3 border-b border-gray-200 my-5 pb-2'}>
@@ -182,16 +218,6 @@ const RoleForm = ({ roleId, modules, permissions }: IRoleForm) => {
                         )
                     }
                 </div>
-            </div>
-
-            <div className={'col-span-2'}>
-                <DarkButton 
-                    type={'submit'} 
-                    className={'w-max px-5 py-1'}
-                    loading={submiting}
-                    disabled={submiting}
-                >{ roleId ? 'Update' : 'Add'}
-                </DarkButton>
             </div>
         </form>
     )

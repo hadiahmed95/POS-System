@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Item;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -88,9 +89,8 @@ class OrderController extends Controller
             'branch_id' => 'required|exists:branches,id',
             'order_taker_id' => 'required|exists:users,id',
             'created_by' => 'required|exists:users,id',
-            'table_id' => 'nullable|exists:tables,id',
+            'table_id' => 'required|exists:tables,id',
             'customer_id' => 'nullable|exists:customers,id',
-            'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
@@ -98,14 +98,14 @@ class OrderController extends Controller
             'tax' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+
+        
         
         if ($validator->fails()) {
             return setApiResponse(0, "Validation failed!", 400, $validator->errors());
         }
         
         try {
-            // Start transaction
-            DB::beginTransaction();
             
             // Calculate order totals
             $items = $request->items;
@@ -119,6 +119,8 @@ class OrderController extends Controller
             $discount = $request->discount ?? 0;
             $tax = $request->tax ?? 0;
             $total = $subtotal - $discount + $tax;
+
+            $table = Table::find($request->table_id);
             
             // Create order
             $orderData = [
@@ -128,6 +130,7 @@ class OrderController extends Controller
                 'created_by' => $request->created_by,
                 'order_number' => Order::generateOrderNumber(),
                 'order_date' => now(),
+                'table_no' => $table->table_no,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'tax' => $tax,
@@ -135,15 +138,18 @@ class OrderController extends Controller
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
                 'notes' => $request->notes,
+                'order_taker_id' => (int)$request->order_taker_id
             ];
             
             $order = Order::create($orderData);
             
             // Create order items
             foreach ($items as $item) {
+                $_item = Item::find($item['item_id']);
                 $orderItem = [
                     'order_id' => $order->id,
                     'item_id' => $item['item_id'],
+                    'item_name' => $_item->name,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'discount' => $item['discount'] ?? 0,
@@ -162,17 +168,13 @@ class OrderController extends Controller
                 }
             }
             
-            // Commit transaction
-            DB::commit();
-            
             // Fetch the complete order with relationships
             $order = Order::with(['items.item', 'table', 'customer', 'createdBy'])->find($order->id);
             
             return setApiResponse(1, "Order created successfully!", 200, $order);
         } catch (\Exception $e) {
             // Rollback transaction on error
-            DB::rollBack();
-            return setApiResponse(0, "Failed to create order!", 400, ["error" => $e->getMessage()]);
+            return setApiResponse(0, "Failed to create order!", 406, ["error" => $e->getMessage()]);
         }
     }
     
@@ -189,7 +191,7 @@ class OrderController extends Controller
             'items.*.item_id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
-            'table_id' => 'nullable|exists:tables,id',
+            'table_id' => 'required|exists:tables,id',
             'order_taker_id' => 'required|exists:users,id',
             'customer_id' => 'nullable|exists:customers,id',
             'discount' => 'nullable|numeric|min:0',
@@ -380,13 +382,11 @@ class OrderController extends Controller
     public function getKitchenOrders(Request $request)
     {
         // Get all pending and processing orders for the kitchen
-        $filters = [
-            [
-                "column" => "status",
-                "condition" => "in",
-                "value" => ['pending', 'processing']
-            ]
-        ];
+        // $filters[] = [
+        //     "column" => "status",
+        //     "condition" => "in",
+        //     "value" => ['pending', 'processing']
+        // ];
         
         if ($request->has('branch_id')) {
             $filters[] = [
@@ -408,7 +408,7 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:orders,id',
-            'status' => 'required|in:pending,processing,completed,cancelled',
+            'status' => 'required|in:pending,processing,ready,completed,cancelled',
         ]);
         
         if ($validator->fails()) {
@@ -453,9 +453,6 @@ class OrderController extends Controller
                     $request->date_from . ' 00:00:00',
                     $request->date_to . ' 23:59:59'
                 ]);
-            } else {
-                // Default to today if no date range specified
-                $query->whereDate('order_date', today());
             }
             
             // Apply branch filter if provided

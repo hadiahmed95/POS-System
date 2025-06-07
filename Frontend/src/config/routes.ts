@@ -2,6 +2,7 @@ export const routes = {
     login: '/',
     dahsboard: '/dashboard',
     users: '/users',
+    user_roles: '/user-roles',
     branches: '/branches',
     brands: '/brands',
     units: '/units',
@@ -13,5 +14,6 @@ export const routes = {
     orders: '/orders',
     reports: '/reports',
     salesReport: '/reports/sales',
-    kitchen: '/kitchen'
+    kitchen: '/kitchen',
+    settings: '/settings'
 }

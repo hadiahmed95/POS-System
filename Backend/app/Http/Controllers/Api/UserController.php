@@ -19,9 +19,7 @@ class UserController extends Controller
                 "value" => 1
             ]
         ];
-
-        // $relationship = ["branch", "role", "permissions"];
-        $relationships = ["branch"];
+        $relationships = ["branch", "role"];
         if ($id) {
             $filters = [
                 [
@@ -48,12 +46,29 @@ class UserController extends Controller
         }
 
         $data = $request->all();
-        $data['password'] = Hash::make($data['email'].$data['password']);
-        return addRecord(User::class, $data);
+        $data['password'] = Hash::make($data['password']);
+        $relationships = ["branch", "role"];
+        return addRecord(User::class, $data, $relationships);
     }
 
     public function update(Request $request) {
-        return updateRecord(User::class, $request->id, $request->all());
+        $validator = Validator::make($request->all(), [
+            'branch_id' => 'required|integer',
+            'role_id' => 'required|integer',
+            'name' => 'required|string|max:255',
+            'email' => 'required',
+        ]);
+    
+        if ($validator->fails()) {
+            return setApiResponse(0, "Validation failed!", 422, $validator->errors());
+        }
+
+        $data = $request->all();
+        if(isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+        $relationships = ["branch", "role"];
+        return updateRecord(User::class, $request->id, $data, $relationships);
     }
 
     public function delete(Request $request) {
