@@ -8,6 +8,7 @@ import { NetworkStatusProvider } from '@/context/NetworkStatusProvider'
 import NetworkStatusIndicator from '@/components/NetworkStatusIndicator'
 import { redirect } from 'next/navigation'
 import NotFoundComponent from '../_components/not-found'
+import { routes } from '@/config/routes'
 
 interface IDashboardLayout {
     children: React.ReactNode
@@ -22,6 +23,10 @@ const DashboardLayout = async ({
     const response = await fetch(`${BASE_URL}/api/logged-in-user`, {method: "POST", body: JSON.stringify({token: userToken})})
     .then(response => response.json())
     .catch(e => e)
+
+    if(response.statusCode === 401) {
+        return redirect(routes.login)
+    }
 
     if(response.statusCode === 403) {
         return <NotFoundComponent />

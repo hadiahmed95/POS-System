@@ -3,6 +3,8 @@ export const routes = {
     dahsboard: '/dashboard',
     users: '/users',
     user_roles: '/user-roles',
+    expenseTypes: '/expense-types',
+    expenses: '/expenses',
     branches: '/branches',
     brands: '/brands',
     units: '/units',
@@ -14,6 +16,7 @@ export const routes = {
     orders: '/orders',
     reports: '/reports',
     salesReport: '/reports/sales',
+    expenseReports: '/reports/expenses',
     kitchen: '/kitchen',
     settings: '/settings'
 }

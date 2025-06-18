@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Boxes, ScanLine, UsersRound, Banknote, ClipboardList, Cog, Bandage, ContactRound, Layers2, Layers, Grid2x2Plus, Sheet, Package } from "lucide-react"
+import { LayoutDashboard, Users, DollarSignIcon, UsersRound, Banknote, Cog, Bandage, Grid2x2Plus, Sheet, Package, Receipt, ReceiptText } from "lucide-react"
 import { IrouteList } from "../type"
 import { routes } from "@/config/routes"
 
@@ -54,6 +54,19 @@ const routeList: IrouteList[] = [
     //     url: routes.customers,
     //     slug: 'customer'
     // },
+    { type: 'group', title: 'Expenses', screens: ['expenses', 'expense-types'] },
+    {
+        icon: <ReceiptText size={20} strokeWidth={1.5} />,
+        title: 'Expense Types',
+        url: routes.expenseTypes,
+        slug: 'expense-types'
+    },
+    {
+        icon: <Receipt size={20} strokeWidth={1.5} />,
+        title: 'Expenses',
+        url: routes.expenses,
+        slug: 'expenses'
+    },
     { type: 'group', title: 'Business Management', screens: ['branches', 'kitchen', 'tables'] },
     {
         icon: <LayoutDashboard size={20} strokeWidth={1.5} />,

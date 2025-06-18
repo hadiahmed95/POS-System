@@ -144,6 +144,24 @@ class DatabaseSeeder extends Seeder
                 "created_at" => now(),
                 "updated_at" => now(),
             ],
+            [
+                "module_name" => "Kitchen",
+                "module_slug" => "kitchen",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "module_name" => "Dashboard",
+                "module_slug" => "dashboard",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
+            [
+                "module_name" => "Expenses",
+                "module_slug" => "expenses",
+                "created_at" => now(),
+                "updated_at" => now(),
+            ],
         ];
         Module::insert($modules);
 

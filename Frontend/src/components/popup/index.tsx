@@ -66,7 +66,7 @@ export const PopupHeader = ({ title, onClose }:IPopupHeader) => {
 
 export const PopupContent = ({ children }: Pick<IPopup, 'children'>) => {
     return (
-        <div className={'p-5'}>
+        <div className={'p-5 max-h-[80vh] overflow-hidden'}>
             {children}
         </div>
     )

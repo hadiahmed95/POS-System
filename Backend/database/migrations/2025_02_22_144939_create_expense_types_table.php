@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('expense_name');
             $table->unsignedBigInteger('added_by');
             $table->foreign('added_by')->references('id')->on('users');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

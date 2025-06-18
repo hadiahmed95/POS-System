@@ -5,6 +5,7 @@ interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string
     children: React.ReactNode
     loading?: boolean
+    icon?: React.ReactNode
     variant?: 'primary' | 'danger'
 }
 
@@ -13,6 +14,7 @@ const DarkButton = ({
     children,
     variant = 'primary',
     loading,
+    icon,
     ...props
 }: IButton) => {
 
@@ -30,6 +32,9 @@ const DarkButton = ({
         className={`px-3 py-2 rounded-lg transition-all duration-200 flex items-center disabled:bg-gray-200 disabled:text-black justify-center ${getVariantClasses()} ${className}`}
         {...props}
     >
+      {
+        icon && icon
+      }
         <span> {children} </span>
         {
           loading && 

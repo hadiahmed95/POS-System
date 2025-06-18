@@ -190,6 +190,78 @@ type OptionType = {
     label: string;
 };
 
+interface IExpenseType {
+  id?: number | string;
+  expense_name: string;
+  added_by?: number | string;
+  added_by_name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface IExpense {
+    id?: number | string;
+    branch_id: number | string;
+    expense_type_id: number | string;
+    added_by?: number | string;
+    expense_title: string;
+    description?: string;
+    amount: number;
+    expense_date: string;
+    payment_method: 'cash' | 'bank_transfer' | 'cheque' | 'credit_card';
+    receipt_number?: string;
+    receipt_image?: string;
+    status: 'pending' | 'approved' | 'rejected' | 'paid';
+    approved_by?: number | string;
+    approved_date?: string;
+    approval_notes?: string;
+    deleted_at?: string;
+    created_at?: string;
+    updated_at?: string;
+
+    // Relationships
+    expense_type?: IExpenseType;
+    branch?: IBranch;
+    added_by_user?: IUser;
+    approved_by_user?: IUser;
+    expense_type_name?: string;
+    branch_name?: string;
+    added_by_name?: string;
+    approved_by_name?: string;
+}
+
+interface IExpenseStats {
+  total_expenses: number;
+  pending_expenses: number;
+  approved_expenses: number;
+  paid_expenses: number;
+  total_amount: number;
+  pending_amount: number;
+  approved_amount: number;
+  paid_amount: number;
+  expenses_by_type: {
+    [key: string]: {
+      count: number;
+      amount: number;
+    };
+  };
+  monthly_expenses: {
+    month: string;
+    total_amount: number;
+    count: number;
+  }[];
+}
+
+interface IExpenseReport {
+  date: string;
+  total_expenses: number;
+  total_amount: number;
+  expenses_by_type: {
+    [key: string]: number;
+  };
+}
+
+
 export type {
     IrouteList,
     IUser,
@@ -209,5 +281,9 @@ export type {
     IOrder,
     IOrderStats,
     IOrderReport,
-    OptionType
+    OptionType,
+    IExpenseType,
+    IExpense,
+    IExpenseStats,
+    IExpenseReport
 }
