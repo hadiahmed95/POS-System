@@ -66,6 +66,7 @@ use App\Http\Controllers\Api\SalaryController;
                     Route::get("/expense-types/{id?}", [ExpenseTypeController::class, "view"]);
 
                     // Expense API
+                    Route::get("/expenses/types", [ExpenseController::class, "getTypes"]);
                     Route::get("/expenses/stats", [ExpenseController::class, "getStats"]);
                     Route::get("/expenses/pending-approvals", [ExpenseController::class, "getPendingApprovals"]);
                     Route::get("/expenses/{id?}", [ExpenseController::class, "view"]);

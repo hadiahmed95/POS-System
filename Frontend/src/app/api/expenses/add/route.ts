@@ -3,7 +3,7 @@ import BackendAxios from "@/config/axios"
 
 export async function POST(req: Request) {
     const token = await getSession('auth_token')
-    const body = await req.json()
+    const body = await req.formData();
     
     const res = await BackendAxios.post('add/expenses', body, {
         headers: {

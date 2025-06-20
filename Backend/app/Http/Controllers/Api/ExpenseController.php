@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
+use App\Models\ExpenseType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -100,6 +101,11 @@ class ExpenseController extends Controller
         return ($id != null) ? 
             getSingleRecord(Expense::class, $filters, $relationships) : 
             getRecord(Expense::class, $filters, $relationships);
+    }
+
+    public function getTypes() {
+        $expense_types = ExpenseType::whereHas('expenses')->get();
+        return setApiResponse(1, "Expense types list.", 200, $expense_types);
     }
 
     /**

@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import TableLoader from '../../_components/table-loader'
-import { IExpense } from '@/app/(user-panel)/type'
+import { IExpense, IExpenseType, OptionType } from '@/app/(user-panel)/type'
 import { useRouter } from 'next/navigation'
 import ExpenseDetailsModal from './expense-details-modal'
 import { TextField } from '@/components/Fields'
@@ -34,6 +34,7 @@ const ExpensesPage = () => {
   // Filter States
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('')
+  const [expenseTypeList, setExpenseTypeList] = useState<OptionType[]>([])
   const [expenseTypeFilter, setExpenseTypeFilter] = useState<string>('')
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
@@ -171,14 +172,25 @@ const ExpensesPage = () => {
       if (expenseTypeFilter) {
         filterData.expense_type_id = expenseTypeFilter
       }
-      
-      const res = await fetch(`${BASE_URL}/api/expenses/view`, {
-        method: "POST",
-        body: JSON.stringify(filterData)
-      }).then(async response => response.json())
 
-      if (res?.data?.data) {
-        setExpensesList(res.data.data)
+      const [viewList, types] = await Promise.all([
+          fetch(`${BASE_URL}/api/expenses/view`, {
+          method: "POST",
+          body: JSON.stringify(filterData)
+        }).then(async response => response.json()),
+
+        fetch(`${BASE_URL}/api/expenses/types`, {
+          method: "POST",
+        }).then(async response => response.json())
+      ])
+
+      setExpenseTypeList(types.data.map((type: IExpenseType) => ({
+        label: type.expense_name,
+        value: type.id
+      })))
+
+      if (viewList?.data?.data) {
+        setExpensesList(viewList.data.data)
       } else {
         setExpensesList([])
       }
@@ -309,7 +321,7 @@ const ExpensesPage = () => {
               <ReactSelect
                 options={statusOptions}
                 value={statusOptions.find(option => option.value === statusFilter)}
-                onChange={(option) => setStatusFilter(option?.value || '')}
+                onChange={(option: any) => setStatusFilter(option?.value || '')}
                 classNamePrefix="react-select"
               />
             </div>
@@ -319,7 +331,7 @@ const ExpensesPage = () => {
               <ReactSelect
                 options={paymentMethodOptions}
                 value={paymentMethodOptions.find(option => option.value === paymentMethodFilter)}
-                onChange={(option) => setPaymentMethodFilter(option?.value || '')}
+                onChange={(option: any) => setPaymentMethodFilter(option?.value || '')}
                 classNamePrefix="react-select"
               />
             </div>
@@ -328,9 +340,10 @@ const ExpensesPage = () => {
               <label className="block text-sm font-medium mb-1">Expense Type</label>
               <ReactSelect
                 placeholder="Select Type..."
+                options={expenseTypeList}
                 // This would need to be populated with expense types from API
-                value={null}
-                onChange={(option) => setExpenseTypeFilter(option?.value || '')}
+                value={expenseTypeList.find(option => option.value === expenseTypeFilter)}
+                onChange={(option: any) => setExpenseTypeFilter(option?.value || '')}
                 classNamePrefix="react-select"
               />
             </div>
@@ -385,7 +398,7 @@ const ExpensesPage = () => {
               expensesList.map((expense) => (
                 <tr key={expense.id} className="border-b hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium">{expense.expense_title}</td>
-                  <td className="px-6 py-4">{expense.expense_type_name || 'N/A'}</td>
+                  <td className="px-6 py-4">{expense.expense_type?.expense_name || 'N/A'}</td>
                   <td className="px-6 py-4 font-medium">${expense.amount.toFixed(2)}</td>
                   <td className="px-6 py-4">{formatDate(expense.expense_date)}</td>
                   <td className="px-6 py-4">
